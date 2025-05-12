@@ -1,7 +1,8 @@
 import { UserRole } from 'src/constants/userRole';
 import { User } from './user.entity';
-import * as bcrypt from 'bcrypt';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class UserFactory {
   async createNewUser(
     email: string,

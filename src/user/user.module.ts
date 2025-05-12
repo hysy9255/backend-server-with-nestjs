@@ -5,6 +5,7 @@ import { UserController } from './user.controller';
 import { UserResolver } from './user.resolver';
 import { OrmUserRepository } from './repositories/orm-user.repository';
 import { DataSource } from 'typeorm';
+import { UserFactory } from './domain/user.factory';
 
 @Module({
   providers: [
@@ -17,8 +18,9 @@ import { DataSource } from 'typeorm';
     },
     UserService,
     UserResolver,
+    UserFactory,
   ],
   controllers: [UserController],
-  exports: ['UserRepository', UserService],
+  exports: [UserService],
 })
 export class UserModule {}

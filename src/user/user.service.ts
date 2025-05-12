@@ -20,6 +20,7 @@ export class UserService {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
+    private readonly userFactory: UserFactory,
   ) {}
 
   async createUser(
@@ -28,8 +29,7 @@ export class UserService {
     try {
       await this.validateDuplicateEmail(createUserInput.email);
 
-      const userFactory = new UserFactory();
-      const user = await userFactory.createNewUser(
+      const user = await this.userFactory.createNewUser(
         createUserInput.email,
         createUserInput.password,
         createUserInput.role,
