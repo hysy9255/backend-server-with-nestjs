@@ -10,6 +10,7 @@ import { UserRole } from 'src/constants/userRole';
 describe('OrmUserRepository', () => {
   let module: TestingModule;
   let userRepository: OrmUserRepository;
+  let userFactory: UserFactory;
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
@@ -40,10 +41,12 @@ describe('OrmUserRepository', () => {
           },
           inject: [getDataSourceToken()],
         },
+        UserFactory,
       ],
     }).compile();
 
     userRepository = module.get<OrmUserRepository>('UserRepository');
+    userFactory = module.get<UserFactory>(UserFactory);
   });
 
   afterEach(async () => {
@@ -57,7 +60,6 @@ describe('OrmUserRepository', () => {
 
   it('should return User object when user data is saved', async () => {
     // given
-    const userFactory = new UserFactory();
     const user = await userFactory.createNewUser(email, password, role);
 
     // when

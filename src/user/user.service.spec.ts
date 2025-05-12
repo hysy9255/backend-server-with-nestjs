@@ -5,6 +5,7 @@ import { UserRole } from 'src/constants/userRole';
 import { InternalServerErrorException } from '@nestjs/common';
 import { ERROR_MESSAGES } from 'src/constants/errorMessages';
 import * as bcrypt from 'bcrypt';
+import { UserFactory } from './domain/user.factory';
 
 jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -17,6 +18,7 @@ describe('UserService', () => {
     module = await Test.createTestingModule({
       providers: [
         UserService,
+        UserFactory,
         { provide: 'UserRepository', useClass: MemoryUserRepository },
       ],
     }).compile();

@@ -18,7 +18,7 @@ import { UserFactory } from './domain/user.factory';
     },
     UserService,
     UserResolver,
-    // UserFactory,
+    UserFactory,
   ],
   controllers: [UserController],
   exports: [UserService],

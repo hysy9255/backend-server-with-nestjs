@@ -2,7 +2,7 @@ import { UserRole } from 'src/constants/userRole';
 import { User } from './user.entity';
 import { Injectable } from '@nestjs/common';
 
-// @Injectable()
+@Injectable()
 export class UserFactory {
   async createNewUser(
     email: string,
