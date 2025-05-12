@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Patch, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserInput, CreateUserOutput } from './dtos/CreateUser.dto';
 import {
@@ -6,7 +6,7 @@ import {
   ChangePasswordOutput,
 } from './dtos/ChangePassword.dto';
 
-@Controller('user')
+@Controller('api/user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -17,11 +17,12 @@ export class UserController {
     return this.userService.createUser(createUserInput);
   }
 
-  @Post()
+  @Patch('/password')
   async changePassword(
+    @Req() req: Request,
     @Body() changePasswordInput: ChangePasswordInput,
   ): Promise<ChangePasswordOutput> {
-    const user = await this.userService.findUserByEmail('test@example.com');
+    const user = req['user'];
     return this.userService.changePassword(user, changePasswordInput);
   }
 }
