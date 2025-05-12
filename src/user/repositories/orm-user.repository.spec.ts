@@ -1,3 +1,84 @@
-describe('', () => {
-  it('should', () => {});
+import { Test, TestingModule } from '@nestjs/testing';
+import { OrmUserRepository } from './orm-user.repository';
+import { DataSource } from 'typeorm';
+import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../domain/user.entity';
+import { ConfigModule } from '@nestjs/config';
+import { UserFactory } from '../domain/user.factory';
+import { UserRole } from 'src/constants/userRole';
+
+describe('OrmUserRepository', () => {
+  let module: TestingModule;
+  let userRepository: OrmUserRepository;
+
+  beforeEach(async () => {
+    module = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          envFilePath:
+            process.env.NODE_ENV === 'test.local'
+              ? '.env.test.local'
+              : '.env.development.local',
+        }),
+        TypeOrmModule.forRoot({
+          type: 'postgres',
+          host: process.env.DATABASE_HOST,
+          port: 5432,
+          username: process.env.DATABASE_USERNAME,
+          password: process.env.DATABASE_PASSWORD,
+          database: process.env.DATABASE_NAME,
+          entities: [User],
+          synchronize: true,
+        }),
+      ],
+      providers: [
+        {
+          provide: 'UserRepository',
+          useFactory: (dataSource: DataSource) => {
+            return new OrmUserRepository(dataSource.manager);
+          },
+          inject: [getDataSourceToken()],
+        },
+      ],
+    }).compile();
+
+    userRepository = module.get<OrmUserRepository>('UserRepository');
+  });
+
+  afterEach(async () => {
+    const manager = module.get<DataSource>(getDataSourceToken()).manager;
+    await manager.query('DELETE FROM "user";');
+  });
+
+  const email = 'test@example.com';
+  const password = 'password';
+  const role = UserRole.Client;
+
+  it('should return User object when user data is saved', async () => {
+    // given
+    const userFactory = new UserFactory();
+    const user = await userFactory.createNewUser(email, password, role);
+
+    // when
+    const savedUser = await userRepository.save(user);
+
+    // then
+    expect(savedUser).toBeInstanceOf(User);
+    expect(savedUser).toHaveProperty('id');
+  });
+
+  it('should return User object when user is found by email', async () => {
+    // given
+    const userFactory = new UserFactory();
+    const user = await userFactory.createNewUser(email, password, role);
+    await userRepository.save(user);
+    // when
+    const foundUser = await userRepository.findByEmail(email);
+
+    // then
+    expect(foundUser).toBeInstanceOf(User);
+    expect(foundUser).toHaveProperty('id');
+    expect(foundUser?.email).toBe(email);
+  });
 });

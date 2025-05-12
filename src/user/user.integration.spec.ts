@@ -14,6 +14,7 @@ describe('Integration Test (Real JwtService)', () => {
   let userService: UserService;
   let authService: AuthService;
   let jwtService: JwtService;
+  let userRepository: MemoryUserRepository;
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
@@ -23,7 +24,10 @@ describe('Integration Test (Real JwtService)', () => {
         JwtModule,
         ConfigModule.forRoot({
           isGlobal: true,
-          envFilePath: '.env.development.local',
+          envFilePath:
+            process.env.NODE_ENV === 'test.local'
+              ? '.env.test.local'
+              : '.env.development.local',
         }),
       ],
     })
@@ -34,6 +38,12 @@ describe('Integration Test (Real JwtService)', () => {
     userService = module.get(UserService);
     authService = module.get(AuthService);
     jwtService = module.get(JwtService);
+    userRepository = module.get<MemoryUserRepository>('UserRepository');
+  });
+
+  afterEach(() => {
+    // userRepository.show();
+    userRepository.clear();
   });
 
   it('should allow login with new password after changing it', async () => {

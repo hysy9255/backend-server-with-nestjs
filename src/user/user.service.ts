@@ -20,6 +20,7 @@ export class UserService {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
+    // private readonly userFactory: UserFactory,
   ) {}
 
   async createUser(
@@ -34,6 +35,11 @@ export class UserService {
         createUserInput.password,
         createUserInput.role,
       );
+      // const user = await this.userFactory.createNewUser(
+      //   createUserInput.email,
+      //   createUserInput.password,
+      //   createUserInput.role,
+      // );
 
       await this.userRepository.save(user);
       return { id: user.id, email: user.email, role: user.role };

@@ -12,10 +12,11 @@ RUN npm install
 COPY . .
 
 # 5. 빌드 (NestJS는 ts → js 트랜스파일 필요)
-RUN npm run build
+# RUN npm run build
 
 # 6. 앱 실행
-CMD ["node", "dist/main.js"]
+# CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:dev"]
 
 # 7. (필요 시 포트 열기)
 EXPOSE 3002
