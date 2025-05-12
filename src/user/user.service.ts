@@ -96,4 +96,14 @@ export class UserService {
       throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
     }
   }
+
+  async findUserById(id: string) {
+    try {
+      const result = await this.userRepository.findById(id);
+      if (!result) {
+        throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
+      }
+      return result;
+    } catch (e) {}
+  }
 }

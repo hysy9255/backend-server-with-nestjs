@@ -52,7 +52,6 @@ describe('JwtService', () => {
       const result = service.verify(token);
 
       // then
-      // expect(jwt.verify).toHaveBeenCalledWith(token, 'this.options.privateKey');
       expect(jwt.verify).toHaveBeenCalledWith(token, key);
       expect(result).toEqual(decoded);
     });
