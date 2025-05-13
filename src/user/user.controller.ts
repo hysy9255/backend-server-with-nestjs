@@ -1,10 +1,11 @@
-import { Body, Controller, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserInput, CreateUserOutput } from './dtos/CreateUser.dto';
 import {
   ChangePasswordInput,
   ChangePasswordOutput,
 } from './dtos/ChangePassword.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('api/user')
 export class UserController {
@@ -17,6 +18,7 @@ export class UserController {
     return this.userService.createUser(createUserInput);
   }
 
+  @UseGuards(AuthGuard)
   @Patch('/password')
   async changePassword(
     @Req() req: Request,

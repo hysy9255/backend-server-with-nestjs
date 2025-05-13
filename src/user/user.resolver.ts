@@ -6,6 +6,8 @@ import {
   ChangePasswordOutput,
 } from './dtos/ChangePassword.dto';
 import { User } from './domain/user.entity';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Resolver()
 export class UserResolver {
@@ -24,6 +26,7 @@ export class UserResolver {
   }
 
   @Mutation(() => ChangePasswordOutput)
+  @UseGuards(AuthGuard)
   async changePassword(
     @Context() context,
     @Args('input') changePasswordInput: ChangePasswordInput,

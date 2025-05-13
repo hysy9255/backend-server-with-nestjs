@@ -104,6 +104,10 @@ export class UserService {
         throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
       }
       return result;
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+      if (e instanceof HttpException) throw e;
+      throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
+    }
   }
 }
