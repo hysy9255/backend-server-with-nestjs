@@ -11,7 +11,6 @@ describe('OrmUserRepository', () => {
   let module: TestingModule;
   let userRepository: OrmUserRepository;
   let userFactory: UserFactory;
-
   beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [
@@ -44,7 +43,6 @@ describe('OrmUserRepository', () => {
         UserFactory,
       ],
     }).compile();
-
     userRepository = module.get<OrmUserRepository>('UserRepository');
     userFactory = module.get<UserFactory>(UserFactory);
   });
@@ -54,33 +52,52 @@ describe('OrmUserRepository', () => {
     await manager.query('DELETE FROM "user";');
   });
 
+  afterAll(async () => {
+    const dataSource = module.get<DataSource>(getDataSourceToken());
+    await dataSource.destroy();
+    await module.close();
+  });
+
   const email = 'test@example.com';
   const password = 'password';
   const role = UserRole.Client;
-
-  it('should return User object when user data is saved', async () => {
-    // given
-    const user = await userFactory.createNewUser(email, password, role);
-
-    // when
-    const savedUser = await userRepository.save(user);
-
-    // then
-    expect(savedUser).toBeInstanceOf(User);
-    expect(savedUser).toHaveProperty('id');
+  describe('save', () => {
+    it('should return User object when user data is saved', async () => {
+      // given
+      const user = await userFactory.createNewUser(email, password, role);
+      // when
+      const savedUser = await userRepository.save(user);
+      // then
+      expect(savedUser).toBeInstanceOf(User);
+      expect(savedUser).toHaveProperty('id');
+    });
   });
 
-  it('should return User object when user is found by email', async () => {
-    // given
-    const userFactory = new UserFactory();
-    const user = await userFactory.createNewUser(email, password, role);
-    await userRepository.save(user);
-    // when
-    const foundUser = await userRepository.findByEmail(email);
+  describe('findByEmail', () => {
+    it('should return User object when user is found by email', async () => {
+      // given
+      const user = await userFactory.createNewUser(email, password, role);
+      await userRepository.save(user);
+      // when
+      const foundUser = await userRepository.findByEmail(email);
+      // then
+      expect(foundUser).toBeInstanceOf(User);
+      expect(foundUser).toHaveProperty('id');
+      expect(foundUser?.email).toBe(email);
+    });
+  });
 
-    // then
-    expect(foundUser).toBeInstanceOf(User);
-    expect(foundUser).toHaveProperty('id');
-    expect(foundUser?.email).toBe(email);
+  describe('findById', () => {
+    it('should return User object when user is found by id', async () => {
+      // given
+      const user = await userFactory.createNewUser(email, password, role);
+      const savedUser = await userRepository.save(user);
+      // when
+      const foundUser = await userRepository.findById(savedUser.id);
+      // then
+      expect(foundUser).toBeInstanceOf(User);
+      expect(foundUser).toHaveProperty('id');
+      expect(foundUser?.id).toBe(savedUser.id);
+    });
   });
 });

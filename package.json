@@ -14,11 +14,12 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "test:watch": "NODE_ENV=test.local jest --watch",
+    "test:watchAll": "NODE_ENV=test.local jest --watchAll",
+    "test:cov": "NODE_ENV=test.local jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "test:verbose": "NODE_ENV=test.local jest --verbose --coverage --watch"
+    "test:verbose-cov-watchAll": "NODE_ENV=test.local jest --verbose --coverage --detectOpenHandles --watchAll"
   },
   "dependencies": {
     "@apollo/server": "^4.12.0",

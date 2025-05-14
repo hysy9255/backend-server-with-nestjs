@@ -50,4 +50,26 @@ describe('MemoryUserRepository', () => {
       expect(foundUser).toBeNull();
     });
   });
+
+  describe('findById', () => {
+    it('should return user if id exists', async () => {
+      // given
+      const savedUser = await repository.save(input);
+
+      // when
+      const foundUser = await repository.findById(savedUser.id);
+
+      // then
+      expect(foundUser).not.toBeNull();
+      expect(foundUser?.id).toBe(savedUser.id);
+    });
+
+    it('should return null if id does not exist', async () => {
+      // when
+      const foundUser = await repository.findById('nonexistent-id');
+
+      // then
+      expect(foundUser).toBeNull();
+    });
+  });
 });

@@ -226,4 +226,40 @@ describe('UserService', () => {
       ).rejects.toThrow(ERROR_MESSAGES.PASSWORD_CHANGE_FAILED);
     });
   });
+
+  describe('findUserById', () => {
+    it('should return user when findUserById is called', async () => {
+      // given
+      await service.createUser({
+        email: 'test@example.com',
+        password: 'password',
+        role: UserRole.Client,
+      });
+      const { id: userId } = await service.findUserByEmail('test@example.com');
+
+      // when
+      const result = await service.findUserById(userId);
+
+      // then
+      expect(result.id).toBe(userId);
+    });
+
+    it('should throw if user is not found', async () => {
+      // when + then
+      await expect(service.findUserById('notfoundid')).rejects.toThrow(
+        ERROR_MESSAGES.USER_NOT_FOUND,
+      );
+    });
+
+    it('should throw an error when userRepository fails', async () => {
+      // given
+      jest
+        .spyOn(userRepository, 'findById')
+        .mockRejectedValue(new Error('DB error'));
+      // when + then
+      await expect(service.findUserById('someId')).rejects.toThrow(
+        ERROR_MESSAGES.FIND_USER_FAILED,
+      );
+    });
+  });
 });
