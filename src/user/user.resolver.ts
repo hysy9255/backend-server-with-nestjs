@@ -1,10 +1,13 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CreateUserInput, CreateUserOutput } from './dtos/CreateUser.dto';
 import { UserService } from './user.service';
 import {
   ChangePasswordInput,
   ChangePasswordOutput,
 } from './dtos/ChangePassword.dto';
+import { User } from './domain/user.entity';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Resolver()
 export class UserResolver {
@@ -23,10 +26,12 @@ export class UserResolver {
   }
 
   @Mutation(() => ChangePasswordOutput)
+  @UseGuards(AuthGuard)
   async changePassword(
+    @Context() context,
     @Args('input') changePasswordInput: ChangePasswordInput,
   ): Promise<ChangePasswordOutput> {
-    const user = await this.userService.findUserByEmail('test@example.com');
+    const user = context.req.user;
     return this.userService.changePassword(user, changePasswordInput);
   }
 }

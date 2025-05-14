@@ -22,6 +22,11 @@ export class MemoryUserRepository implements UserRepository {
     return user || null;
   }
 
+  async findById(id: string): Promise<User | null> {
+    const user = this.users.find((user) => user.id === id);
+    return user || null;
+  }
+
   show() {
     console.log(this.users);
   }

@@ -14,4 +14,8 @@ export class OrmUserRepository implements UserRepository {
   async findByEmail(email: string) {
     return await this.em.findOne(User, { where: { email } });
   }
+
+  async findById(id: string): Promise<User | null> {
+    return await this.em.findOne(User, { where: { id } });
+  }
 }
