@@ -58,6 +58,14 @@ describe('RestaurantService', () => {
     );
   });
 
+  beforeEach(async () => {
+    await userService.createUser({
+      email: 'test@example.com',
+      password: '1234',
+      role: UserRole.Client,
+    });
+  });
+
   afterEach(async () => {
     const manager = module.get<DataSource>(getDataSourceToken()).manager;
     await manager.query('DELETE FROM "restaurant";');
@@ -77,11 +85,6 @@ describe('RestaurantService', () => {
   describe('createRestaurant', () => {
     it('should return restaurant when createRestaurant is called', async () => {
       // when
-      await userService.createUser({
-        email: 'test@example.com',
-        password: '1234',
-        role: UserRole.Client,
-      });
       const user = await userService.findUserByEmail('test@example.com');
 
       const restaurant = await restaurantService.createRestaurant(user, {
@@ -99,11 +102,6 @@ describe('RestaurantService', () => {
   describe('getRestaurant', () => {
     it('should return restaurant when getRestaurant is called', async () => {
       // given
-      await userService.createUser({
-        email: 'test@example.com',
-        password: '1234',
-        role: UserRole.Client,
-      });
       const user = await userService.findUserByEmail('test@example.com');
       const restaurant = await restaurantService.createRestaurant(user, {
         name,
