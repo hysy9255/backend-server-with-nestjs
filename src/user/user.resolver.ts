@@ -5,18 +5,12 @@ import {
   ChangePasswordInput,
   ChangePasswordOutput,
 } from './dtos/ChangePassword.dto';
-import { User } from './domain/user.entity';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 
 @Resolver()
 export class UserResolver {
-  constructor(private userService: UserService) {}
-
-  @Query(() => String)
-  hello() {
-    return 'hi';
-  }
+  constructor(private readonly userService: UserService) {}
 
   @Mutation(() => CreateUserOutput)
   createUser(

@@ -14,6 +14,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'node:path';
 import { AuthModule } from './auth/auth.module';
 import { JwtMiddleWare } from './jwt/jwt.middleware';
+import { RestaurantModule } from './restaurant/restaurant.module';
+import { Restaurant } from './restaurant/domain/restaurant.entity';
 
 @Module({
   imports: [
@@ -35,12 +37,13 @@ import { JwtMiddleWare } from './jwt/jwt.middleware';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User],
+      entities: [User, Restaurant],
       synchronize: true,
     }),
     UserModule,
     JwtModule,
     AuthModule,
+    RestaurantModule,
   ],
   controllers: [],
   providers: [],
@@ -51,7 +54,7 @@ export class AppModule implements NestModule {
       .apply(JwtMiddleWare)
       .forRoutes(
         { path: '/graphql', method: RequestMethod.POST },
-        { path: '/api/*', method: RequestMethod.ALL },
+        { path: '/api/*path', method: RequestMethod.ALL },
       );
   }
 }

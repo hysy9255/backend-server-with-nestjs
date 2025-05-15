@@ -3,11 +3,12 @@ import {
   HttpException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryColumn } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from 'src/constants/userRole';
 import { v4 as uuidv4 } from 'uuid';
 import { ERROR_MESSAGES } from 'src/constants/errorMessages';
+import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
 
 @Entity()
 export class User {
@@ -22,6 +23,9 @@ export class User {
 
   @Column({ type: 'enum', enum: UserRole })
   role: UserRole;
+
+  @OneToOne(() => Restaurant, (restaurant) => restaurant.owner)
+  restaurant?: Restaurant;
 
   constructor(email: string, password: string, role: UserRole) {
     this.id = uuidv4();

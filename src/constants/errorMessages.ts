@@ -10,3 +10,11 @@ export const ERROR_MESSAGES = {
   FIND_USER_FAILED: 'Failed to find user by email',
   LOG_IN_FAILED: 'Failed to log in',
 };
+
+export const RESTAURANT_ERROR_MESSAGES = {
+  RESTAURANT_NOT_FOUND: 'Restaurant Not Found',
+  RESTAURANT_CREATION_FAILED: 'Failed to create restaurant',
+  RESTAURANT_FETCHING_FAILED: 'Failed to fetch restaurant',
+  RESTAURANTS_FETCHING_FAILED: 'Failed to fetch restaurants',
+  USER_ALREADY_OWNS_RESTAURANT: 'User already owns a restaurant',
+};
