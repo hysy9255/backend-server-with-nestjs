@@ -6,6 +6,7 @@ import { User } from '../domain/user.entity';
 import { ConfigModule } from '@nestjs/config';
 import { UserFactory } from '../domain/user.factory';
 import { UserRole } from 'src/constants/userRole';
+import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
 
 describe('OrmUserRepository', () => {
   let module: TestingModule;
@@ -28,7 +29,7 @@ describe('OrmUserRepository', () => {
           username: process.env.DATABASE_USERNAME,
           password: process.env.DATABASE_PASSWORD,
           database: process.env.DATABASE_NAME,
-          entities: [User],
+          entities: [User, Restaurant],
           synchronize: true,
         }),
       ],

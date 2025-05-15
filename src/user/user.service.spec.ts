@@ -22,6 +22,7 @@ describe('UserService', () => {
         { provide: 'UserRepository', useClass: MemoryUserRepository },
       ],
     }).compile();
+
     service = module.get<UserService>(UserService);
     userRepository = module.get<MemoryUserRepository>('UserRepository');
   });
