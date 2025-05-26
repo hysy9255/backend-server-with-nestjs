@@ -1,8 +1,8 @@
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { RestaurantService } from './restaurant.service';
-import { CreateRestaurantInput } from './dtos/CreateRestaurant.dto';
+import { CreateRestaurantInput } from './dtos/createRestaurantInput.dto';
 import { Restaurant } from './domain/restaurant.entity';
-import { GetRestaurantInput } from './dtos/GetRestaurant.dto';
+import { GetRestaurantInput } from './dtos/getRestaurantInput.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 

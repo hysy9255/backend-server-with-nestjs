@@ -16,6 +16,10 @@ import { AuthModule } from './auth/auth.module';
 import { JwtMiddleWare } from './jwt/jwt.middleware';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { Restaurant } from './restaurant/domain/restaurant.entity';
+import { DishModule } from './dish/dish.module';
+import { Dish } from './dish/domain/dish.entity';
+import { OrderModule } from './order/order.module';
+import { Order } from './order/domain/order.entity';
 
 @Module({
   imports: [
@@ -37,13 +41,15 @@ import { Restaurant } from './restaurant/domain/restaurant.entity';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User, Restaurant],
+      entities: [User, Restaurant, Dish, Order],
       synchronize: true,
     }),
     UserModule,
     JwtModule,
     AuthModule,
     RestaurantModule,
+    DishModule,
+    OrderModule,
   ],
   controllers: [],
   providers: [],

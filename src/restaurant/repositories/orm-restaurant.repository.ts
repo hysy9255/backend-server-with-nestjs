@@ -21,7 +21,7 @@ export class OrmRestaurantRepository implements RestaurantRepository {
     return this.em.find(Restaurant);
   }
 
-  async findByOwner(user: User): Promise<Restaurant | null> {
+  async findOneByOwner(user: User): Promise<Restaurant | null> {
     return this.em.findOne(Restaurant, { where: { owner: user } });
   }
 }

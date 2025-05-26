@@ -16,6 +16,8 @@ import { OrmRestaurantRepository } from './repositories/orm-restaurant.repositor
 import { OrmUserRepository } from 'src/user/repositories/orm-user.repository';
 import { DataSource } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { Order } from 'src/order/domain/order.entity';
+import { Dish } from 'src/dish/domain/dish.entity';
 
 jest.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -44,7 +46,7 @@ describe('RestaurantService', () => {
           username: process.env.DATABASE_USERNAME,
           password: process.env.DATABASE_PASSWORD,
           database: process.env.DATABASE_NAME,
-          entities: [Restaurant, User],
+          entities: [Restaurant, User, Order],
           synchronize: true,
         }),
       ],

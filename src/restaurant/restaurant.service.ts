@@ -6,11 +6,13 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Restaurant } from './domain/restaurant.entity';
-import { CreateRestaurantInput } from './dtos/CreateRestaurant.dto';
-import { GetRestaurantInput } from './dtos/GetRestaurant.dto';
+// import { CreateRestaurantInput } from './dtos/createRestaurant.dto';
+// import { GetRestaurantInput } from './dtos/getRestaurant.dto';
 import { RestaurantRepository } from './repositories/restaurant-repository.interface';
 import { RESTAURANT_ERROR_MESSAGES } from 'src/constants/errorMessages';
 import { User } from 'src/user/domain/user.entity';
+import { CreateRestaurantInput } from './dtos/createRestaurantInput.dto';
+import { GetRestaurantInput } from './dtos/getRestaurantInput.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -25,7 +27,7 @@ export class RestaurantService {
   ): Promise<Restaurant> {
     try {
       const existingRestaurant =
-        await this.restaurantRepository.findByOwner(user);
+        await this.restaurantRepository.findOneByOwner(user);
       if (existingRestaurant) {
         throw new BadRequestException(
           RESTAURANT_ERROR_MESSAGES.USER_ALREADY_OWNS_RESTAURANT,

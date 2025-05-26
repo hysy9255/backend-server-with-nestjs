@@ -3,12 +3,21 @@ import {
   HttpException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Column, Entity, OneToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from 'src/constants/userRole';
 import { v4 as uuidv4 } from 'uuid';
 import { ERROR_MESSAGES } from 'src/constants/errorMessages';
 import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
+import { Order } from 'src/order/domain/order.entity';
 
 @Entity()
 export class User {
@@ -27,11 +36,24 @@ export class User {
   @OneToOne(() => Restaurant, (restaurant) => restaurant.owner)
   restaurant?: Restaurant;
 
+  @OneToMany(() => Order, (order) => order.customer)
+  orders?: Order[];
+
+  @ManyToMany(() => Order, (order) => order.rejectedByDrivers)
+  rejectedOrders: Order[];
+
   constructor(email: string, password: string, role: UserRole) {
     this.id = uuidv4();
     this.email = email;
     this.password = password;
     this.role = role;
+  }
+
+  checkUserRole(role: UserRole): void {
+    const matches = this.role === role;
+    if (!matches) {
+      throw new BadRequestException(ERROR_MESSAGES.USER_ROLE_MISMATCH);
+    }
   }
 
   async hashPassword(): Promise<void> {
