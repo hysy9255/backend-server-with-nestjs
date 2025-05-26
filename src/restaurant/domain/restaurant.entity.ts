@@ -1,9 +1,11 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { Order } from 'src/order/domain/order.entity';
 import { User } from 'src/user/domain/user.entity';
 import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   Unique,
@@ -33,6 +35,9 @@ export class Restaurant {
   @OneToOne(() => User)
   @JoinColumn({ name: 'ownerId' }) // creates `ownerId` column in Restaurant
   owner: User;
+
+  @OneToMany(() => Order, (order) => order.restaurant)
+  orders: Order[];
 
   constructor(name: string, address: string, category: string) {
     this.id = uuidv4();

@@ -22,7 +22,7 @@ export class MemoryRestaurantRepository implements RestaurantRepository {
     return this.restaurants;
   }
 
-  async findByOwner(user: User): Promise<Restaurant | null> {
+  async findOneByOwner(user: User): Promise<Restaurant | null> {
     const restaurant = this.restaurants.find(
       (restaurant) => restaurant.owner.id === user.id,
     );
