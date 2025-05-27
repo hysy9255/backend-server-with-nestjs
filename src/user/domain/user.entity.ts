@@ -11,6 +11,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryColumn,
+  RelationId,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from 'src/constants/userRole';
@@ -35,6 +36,9 @@ export class User {
 
   @OneToOne(() => Restaurant, (restaurant) => restaurant.owner)
   restaurant?: Restaurant;
+
+  @RelationId((user: User) => user.restaurant)
+  restaurantId?: string;
 
   @OneToMany(() => Order, (order) => order.customer)
   orders?: Order[];

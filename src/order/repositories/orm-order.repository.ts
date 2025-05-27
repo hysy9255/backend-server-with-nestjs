@@ -16,7 +16,10 @@ export class OrmOrderRepository implements OrderRepository {
   }
 
   async findOneById(id: string): Promise<Order | null> {
-    return this.em.findOne(Order, { where: { id } });
+    return this.em.findOne(Order, {
+      where: { id },
+      relations: ['driver', 'restaurant', 'customer'],
+    });
   }
 
   async findHistoryByUserId(userId: string): Promise<Order[]> {

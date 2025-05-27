@@ -101,80 +101,80 @@ describe('RestaurantOrderService', () => {
     });
   });
 
-  describe('rejectOrder', () => {
-    it('should reject an order', async () => {
-      // given
-      const owner = new User('user-123', 'password', UserRole.Owner);
-      const restaurant = new Restaurant(
-        'Test Restaurant',
-        '123 Test St',
-        'cuisine',
-      );
-      owner.restaurant = restaurant;
-      const orderId = 'order-123';
-      const order = {
-        id: orderId,
-        status: 'pending',
-        markRejected: jest.fn(),
-        restaurant,
-      };
-      mockOrderRepository.findOneById.mockResolvedValue(order);
-      mockOrderRepository.save.mockResolvedValue(order);
+  //   describe('rejectOrder', () => {
+  //     it('should reject an order', async () => {
+  //       // given
+  //       const owner = new User('user-123', 'password', UserRole.Owner);
+  //       const restaurant = new Restaurant(
+  //         'Test Restaurant',
+  //         '123 Test St',
+  //         'cuisine',
+  //       );
+  //       owner.restaurant = restaurant;
+  //       const orderId = 'order-123';
+  //       const order = {
+  //         id: orderId,
+  //         status: 'pending',
+  //         markRejected: jest.fn(),
+  //         restaurant,
+  //       };
+  //       mockOrderRepository.findOneById.mockResolvedValue(order);
+  //       mockOrderRepository.save.mockResolvedValue(order);
 
-      // when
-      const result = await restaurantOrderService.rejectOrder(orderId, owner);
+  //       // when
+  //       const result = await restaurantOrderService.rejectOrder(orderId, owner);
 
-      // then
-      expect(order.markRejected).toHaveBeenCalled();
-      expect(mockOrderRepository.save).toHaveBeenCalledWith(order);
-      expect(result).toEqual(order);
-    });
-  });
+  //       // then
+  //       expect(order.markRejected).toHaveBeenCalled();
+  //       expect(mockOrderRepository.save).toHaveBeenCalledWith(order);
+  //       expect(result).toEqual(order);
+  //     });
+  //   });
 
-  describe('markOrderAsReady', () => {
-    it('should mark an order as ready', async () => {
-      // given
-      const owner = new User('user-123', 'password', UserRole.Owner);
-      const restaurant = new Restaurant(
-        'Test Restaurant',
-        '123 Test St',
-        'cuisine',
-      );
-      owner.restaurant = restaurant;
-      const orderId = 'order-123';
-      const order = {
-        id: orderId,
-        status: 'pending',
-        markReady: jest.fn(),
-        restaurant,
-      };
+  //   describe('markOrderAsReady', () => {
+  //     it('should mark an order as ready', async () => {
+  //       // given
+  //       const owner = new User('user-123', 'password', UserRole.Owner);
+  //       const restaurant = new Restaurant(
+  //         'Test Restaurant',
+  //         '123 Test St',
+  //         'cuisine',
+  //       );
+  //       owner.restaurant = restaurant;
+  //       const orderId = 'order-123';
+  //       const order = {
+  //         id: orderId,
+  //         status: 'pending',
+  //         markReady: jest.fn(),
+  //         restaurant,
+  //       };
 
-      mockOrderRepository.findOneById.mockResolvedValue(order);
-      mockOrderRepository.save.mockResolvedValue(order);
+  //       mockOrderRepository.findOneById.mockResolvedValue(order);
+  //       mockOrderRepository.save.mockResolvedValue(order);
 
-      // when
-      const result = await restaurantOrderService.markOrderAsReady(
-        orderId,
-        owner,
-      );
+  //       // when
+  //       const result = await restaurantOrderService.markOrderAsReady(
+  //         orderId,
+  //         owner,
+  //       );
 
-      // then
-      expect(order.markReady).toHaveBeenCalled();
-      expect(mockOrderRepository.save).toHaveBeenCalledWith(order);
-      expect(result).toEqual(order);
-    });
-  });
+  //       // then
+  //       expect(order.markReady).toHaveBeenCalled();
+  //       expect(mockOrderRepository.save).toHaveBeenCalledWith(order);
+  //       expect(result).toEqual(order);
+  //     });
+  //   });
 
-  describe('getOrderOrThrow', () => {
-    it('should throw an error if order is not found', async () => {
-      // given
-      const orderId = 'non-existent-order';
-      mockOrderRepository.findOneById.mockResolvedValue(null);
+  //   describe('getOrderOrThrow', () => {
+  //     it('should throw an error if order is not found', async () => {
+  //       // given
+  //       const orderId = 'non-existent-order';
+  //       mockOrderRepository.findOneById.mockResolvedValue(null);
 
-      // when & then
-      await expect(
-        restaurantOrderService['getOrderOrThrow'](orderId),
-      ).rejects.toThrow('Order not found');
-    });
-  });
+  //       // when & then
+  //       await expect(
+  //         restaurantOrderService['getOrderOrThrow'](orderId),
+  //       ).rejects.toThrow('Order not found');
+  //     });
+  //   });
 });

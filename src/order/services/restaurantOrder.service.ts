@@ -48,9 +48,8 @@ export class RestaurantOrderService {
     return order;
   }
 
-  private ensureOrderOwnedByUser(order: Order, user: User): void {
-    const ownerRestaurant = user.restaurant;
-    if (!ownerRestaurant || order.restaurant.id !== ownerRestaurant.id) {
+  private ensureOrderOwnedByUser(order: Order, owner: User): void {
+    if (!owner.restaurant || order.restaurant.id !== owner.restaurant.id) {
       throw new ForbiddenException(
         'You do not own the restaurant for this order',
       );

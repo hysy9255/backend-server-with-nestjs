@@ -18,4 +18,11 @@ export class OrmUserRepository implements UserRepository {
   async findById(id: string): Promise<User | null> {
     return await this.em.findOne(User, { where: { id } });
   }
+
+  async findWithAssociatedRestaurantById(id: string): Promise<User | null> {
+    return await this.em.findOne(User, {
+      where: { id },
+      relations: ['restaurant'],
+    });
+  }
 }

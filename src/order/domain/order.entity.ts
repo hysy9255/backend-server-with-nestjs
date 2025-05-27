@@ -10,6 +10,7 @@ import {
   ManyToMany,
   ManyToOne,
   PrimaryColumn,
+  RelationId,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -34,15 +35,24 @@ export class Order {
   })
   driver: User;
 
+  @RelationId((order: Order) => order.driver)
+  driverId: string;
+
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.orders, {
     onDelete: 'CASCADE',
   })
   restaurant: Restaurant;
 
+  @RelationId((order: Order) => order.restaurant)
+  restaurantId: string;
+
   @ManyToOne(() => User, (user) => user.orders, {
     onDelete: 'CASCADE',
   })
   customer: User;
+
+  @RelationId((order: Order) => order.customer)
+  customerId: string;
 
   @ManyToMany(() => User, (user) => user.rejectedOrders)
   @JoinTable()
@@ -62,18 +72,18 @@ export class Order {
     this.status = OrderStatus.Accepted;
   }
 
-  markReady() {
-    if (this.status !== OrderStatus.Accepted) {
-      throw new Error('Order is not in a state to be marked as ready');
-    }
-    this.status = OrderStatus.Ready;
-  }
-
   markRejected() {
     if (this.status !== OrderStatus.Pending) {
       throw new Error('Order is not in a state to be rejected');
     }
     this.status = OrderStatus.Rejected;
+  }
+
+  markReady() {
+    if (this.status !== OrderStatus.Accepted) {
+      throw new Error('Order is not in a state to be marked as ready');
+    }
+    this.status = OrderStatus.Ready;
   }
 
   assignDriver(driver: User) {
