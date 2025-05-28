@@ -9,10 +9,12 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryColumn,
   RelationId,
 } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { OrderItem } from './orderItem.entity';
 
 @ObjectType()
 @Entity()
@@ -48,6 +50,9 @@ export class Order {
   @ManyToMany(() => User, (user) => user.rejectedOrders)
   @JoinTable()
   rejectedByDrivers: User[];
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
+  orderItems: OrderItem[];
 
   constructor(customer: User, restaurant: Restaurant) {
     this.id = uuidv4();
