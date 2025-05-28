@@ -13,7 +13,6 @@ export class DriverOrderService {
 
   async availableOrders(driver: User): Promise<Order[]> {
     return await this.orderRepository.findAvailableOrdersForDriver(driver);
-    // i have to add a filter to get orders without the ones that driver has rejected
   }
 
   async acceptOrder(orderId: string, driver: User): Promise<any> {

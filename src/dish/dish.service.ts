@@ -27,7 +27,7 @@ export class DishService {
     { name, price }: CreateDishInput,
   ): Promise<Dish> {
     try {
-      user.checkUserRole(UserRole.Owner);
+      // user.checkUserRole(UserRole.Owner);
       const restaurant = await this.restaurantRepository.findOneByOwner(user);
       if (!restaurant) {
         throw new BadRequestException(

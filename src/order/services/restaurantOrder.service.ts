@@ -10,12 +10,19 @@ export class RestaurantOrderService {
     private readonly orderRepository: OrderRepository,
   ) {}
 
-  async getOrdersByRestaurant(restaurantId: string): Promise<Order[]> {
+  async getOrdersByRestaurant(
+    restaurantId: string,
+    owner: User,
+  ): Promise<Order[]> {
+    if (restaurantId !== owner.restaurant?.id) {
+      throw new Error('You can only view orders for restaurants you own');
+    }
     return await this.orderRepository.findByRestaurant(restaurantId);
   }
 
-  async getOrder(orderId: string): Promise<Order> {
+  async getOrder(orderId: string, owner: User): Promise<Order> {
     const order = await this.getOrderOrThrow(orderId);
+    this.ensureOrderOwnedByUser(order, owner);
     return order;
   }
 

@@ -22,6 +22,13 @@ export class OrmOrderRepository implements OrderRepository {
     });
   }
 
+  async findOneWithFullRelationById(id: string): Promise<Order | null> {
+    return this.em.findOne(Order, {
+      where: { id },
+      relations: ['driver', 'restaurant', 'customer', 'rejectedByDrivers'],
+    });
+  }
+
   async findHistoryByUserId(userId: string): Promise<Order[]> {
     return this.em.find(Order, {
       where: { customer: { id: userId }, status: OrderStatus.Delivered },

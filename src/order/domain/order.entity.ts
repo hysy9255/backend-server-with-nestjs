@@ -35,24 +35,15 @@ export class Order {
   })
   driver: User;
 
-  @RelationId((order: Order) => order.driver)
-  driverId: string;
-
   @ManyToOne(() => Restaurant, (restaurant) => restaurant.orders, {
     onDelete: 'CASCADE',
   })
   restaurant: Restaurant;
 
-  @RelationId((order: Order) => order.restaurant)
-  restaurantId: string;
-
   @ManyToOne(() => User, (user) => user.orders, {
     onDelete: 'CASCADE',
   })
   customer: User;
-
-  @RelationId((order: Order) => order.customer)
-  customerId: string;
 
   @ManyToMany(() => User, (user) => user.rejectedOrders)
   @JoinTable()
@@ -108,6 +99,11 @@ export class Order {
     ) {
       throw new Error('Order is not in a state to be rejected by driver');
     }
+
+    if (!this.rejectedByDrivers) {
+      this.rejectedByDrivers = [];
+    }
+
     this.rejectedByDrivers.push(driver);
   }
 
