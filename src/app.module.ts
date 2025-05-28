@@ -20,6 +20,7 @@ import { DishModule } from './dish/dish.module';
 import { Dish } from './dish/domain/dish.entity';
 import { OrderModule } from './order/order.module';
 import { Order } from './order/domain/order.entity';
+import { OrderItem } from './order/domain/orderItem.entity';
 
 @Module({
   imports: [
@@ -41,7 +42,7 @@ import { Order } from './order/domain/order.entity';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User, Restaurant, Dish, Order],
+      entities: [User, Restaurant, Dish, Order, OrderItem],
       synchronize: true,
     }),
     UserModule,

@@ -10,6 +10,7 @@ import {
   ManyToMany,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryColumn,
   RelationId,
 } from 'typeorm';
@@ -51,8 +52,11 @@ export class Order {
   @JoinTable()
   rejectedByDrivers: User[];
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
-  orderItems: OrderItem[];
+  // @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
+  // orderItems: OrderItem[];
+
+  // @OneToOne(() => OrderItem, (orderItem) => orderItem.order)
+  // orderItem: OrderItem;
 
   constructor(customer: User, restaurant: Restaurant) {
     this.id = uuidv4();

@@ -22,6 +22,7 @@ import { UserRepository } from 'src/user/repositories/user-repository.interface'
 import { RestaurantRepository } from 'src/restaurant/repositories/restaurant-repository.interface';
 import { OrmUserRepository } from 'src/user/repositories/orm-user.repository';
 import { OrmRestaurantRepository } from 'src/restaurant/repositories/orm-restaurant.repository';
+import { OrderItem } from './domain/orderItem.entity';
 
 describe('OrderIntegration', () => {
   let module: TestingModule;
@@ -51,7 +52,7 @@ describe('OrderIntegration', () => {
           username: process.env.DATABASE_USERNAME,
           password: process.env.DATABASE_PASSWORD,
           database: process.env.DATABASE_NAME,
-          entities: [Restaurant, User, Order],
+          entities: [Restaurant, User, Order, OrderItem],
           synchronize: true,
         }),
         OrderModule,
@@ -96,6 +97,7 @@ describe('OrderIntegration', () => {
 
   afterAll(async () => {
     const dataSource = module.get<DataSource>(getDataSourceToken());
+    // await dataSource.dropDatabase();
     await dataSource.destroy();
     await module.close();
   });
