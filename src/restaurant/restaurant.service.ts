@@ -5,12 +5,12 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { Restaurant } from './domain/restaurant.entity';
+import { Restaurant } from './orm-records/restaurant.record';
 // import { CreateRestaurantInput } from './dtos/createRestaurant.dto';
 // import { GetRestaurantInput } from './dtos/getRestaurant.dto';
 import { RestaurantRepository } from './repositories/restaurant-repository.interface';
 import { RESTAURANT_ERROR_MESSAGES } from 'src/constants/errorMessages';
-import { User } from 'src/user/domain/user.entity';
+import { User } from 'src/user/orm-records/user.record';
 import { CreateRestaurantInput } from './dtos/createRestaurantInput.dto';
 import { GetRestaurantInput } from './dtos/getRestaurantInput.dto';
 

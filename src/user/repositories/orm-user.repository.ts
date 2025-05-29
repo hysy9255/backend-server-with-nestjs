@@ -1,5 +1,5 @@
 import { UserRepository } from './user-repository.interface';
-import { User } from '../domain/user.entity';
+import { User } from '../orm-records/user.record';
 import { EntityManager } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 

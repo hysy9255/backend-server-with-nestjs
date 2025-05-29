@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { OrderRepository } from './order-repository.interface';
-import { Order } from '../domain/order.entity';
+import { Order } from '../orm-records/order.record';
 import { OrderStatus } from 'src/constants/orderStatus';
 import { In } from 'typeorm';
-import { User } from 'src/user/domain/user.entity';
+import { User } from 'src/user/orm-records/user.record';
 import { Brackets } from 'typeorm';
 
 @Injectable()

@@ -1,5 +1,5 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
-import { Restaurant } from '../domain/restaurant.entity';
+import { Restaurant } from '../orm-records/restaurant.record';
 
 @InputType()
 export class GetRestaurantInput {

@@ -1,5 +1,5 @@
-import { User } from 'src/user/domain/user.entity';
-import { Restaurant } from '../domain/restaurant.entity';
+import { User } from 'src/user/orm-records/user.record';
+import { Restaurant } from '../orm-records/restaurant.record';
 
 export interface RestaurantRepository {
   save(user: User, restaurant: Restaurant): Promise<Restaurant>;

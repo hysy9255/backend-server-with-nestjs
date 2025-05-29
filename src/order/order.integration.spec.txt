@@ -11,7 +11,7 @@ import { DriverOrderService } from './services/driverOrder.service';
 import { RestaurantOrderService } from './services/restaurantOrder.service';
 import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
 import { User } from 'src/user/domain/user.entity';
-import { Order } from './domain/order.entity';
+import { Order } from './orm-entities/order.entity';
 import { ConfigModule } from '@nestjs/config';
 import { UserRole } from 'src/constants/userRole';
 import { OrderStatus } from 'src/constants/orderStatus';
@@ -22,7 +22,7 @@ import { UserRepository } from 'src/user/repositories/user-repository.interface'
 import { RestaurantRepository } from 'src/restaurant/repositories/restaurant-repository.interface';
 import { OrmUserRepository } from 'src/user/repositories/orm-user.repository';
 import { OrmRestaurantRepository } from 'src/restaurant/repositories/orm-restaurant.repository';
-import { OrderItem } from './domain/orderItem.entity';
+import { OrderItem } from './orm-entities/orderItem.entity';
 
 describe('OrderIntegration', () => {
   let module: TestingModule;

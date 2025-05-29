@@ -1,6 +1,6 @@
 // src/modules/user/repositories/user-repository.interface.ts
 
-import { User } from '../domain/user.entity';
+import { User } from '../orm-records/user.record';
 
 export interface UserRepository {
   save(user: User): Promise<User>;

@@ -1,4 +1,4 @@
-import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
+import { Restaurant } from 'src/restaurant/orm-records/restaurant.record';
 import { Dish } from '../domain/dish.entity';
 import { DishRepository } from './dish-repository.interface';
 

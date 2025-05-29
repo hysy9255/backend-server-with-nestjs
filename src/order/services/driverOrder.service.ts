@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { OrderRepository } from '../repositories/order-repository.interface';
-import { Order } from '../domain/order.entity';
+import { Order } from '../orm-records/order.record';
 import { OrderStatus } from 'src/constants/orderStatus';
-import { User } from 'src/user/domain/user.entity';
+import { User } from 'src/user/orm-records/user.record';
 
 @Injectable()
 export class DriverOrderService {

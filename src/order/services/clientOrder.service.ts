@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { User } from 'src/user/domain/user.entity';
+import { User } from 'src/user/orm-records/user.record';
 // import {
 //   CreateOrderInput,
 //   CreateOrderOutput,
 // } from '../dtos/createOrder.dto';
-import { Order } from '../domain/order.entity';
+
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 import { OrderRepository } from '../repositories/order-repository.interface';
 import { CreateOrderInput, CreateOrderOutput } from '../dtos/createOrder.dto';
@@ -29,6 +29,17 @@ export class ClientOrderService {
     );
 
     return { id };
+  }
+
+  async createOrderWithDomain(
+    customer: User,
+    { restaurantId }: CreateOrderInput,
+  ) {
+    const restaurant = await this.restaurantService.getRestaurant({
+      id: restaurantId,
+    });
+
+    const order = OrderModel.createNew(restaurant.id, customer.id);
   }
 
   async getOrder(customer: User, orderId: string): Promise<Order> {

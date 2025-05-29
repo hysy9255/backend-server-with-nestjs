@@ -1,7 +1,7 @@
 // src/modules/user/repositories/memory-user.repository.ts
 import { UserRepository } from './user-repository.interface';
 import { CreateUserInput } from '../dtos/CreateUser.dto';
-import { User } from '../domain/user.entity';
+import { User } from '../orm-records/user.record';
 
 export class MemoryUserRepository implements UserRepository {
   private users: User[] = [];

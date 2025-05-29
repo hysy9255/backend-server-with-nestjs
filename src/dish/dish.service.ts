@@ -11,7 +11,7 @@ import { DeleteDishInput } from './dtos/deleteDishInput.dto';
 import { DISH_ERROR_MESSAGES } from 'src/constants/errorMessages';
 import { DishRepository } from './repositories/dish-repository.interface';
 import { Dish } from './domain/dish.entity';
-import { User } from 'src/user/domain/user.entity';
+import { User } from 'src/user/orm-records/user.record';
 import { RestaurantRepository } from 'src/restaurant/repositories/restaurant-repository.interface';
 import { UserRole } from 'src/constants/userRole';
 

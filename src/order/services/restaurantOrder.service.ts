@@ -1,7 +1,7 @@
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { OrderRepository } from '../repositories/order-repository.interface';
-import { Order } from '../domain/order.entity';
-import { User } from 'src/user/domain/user.entity';
+import { Order } from '../orm-records/order.record';
+import { User } from 'src/user/orm-records/user.record';
 
 @Injectable()
 export class RestaurantOrderService {

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserInput, CreateUserOutput } from './dtos/CreateUser.dto';
 import { UserRepository } from './repositories/user-repository.interface';
-import { User } from './domain/user.entity';
+import { User } from './orm-records/user.record';
 import {
   ChangePasswordInput,
   ChangePasswordOutput,

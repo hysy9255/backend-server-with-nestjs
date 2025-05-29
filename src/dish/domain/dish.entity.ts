@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
+import { Restaurant } from 'src/restaurant/orm-records/restaurant.record';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantInput } from './dtos/createRestaurantInput.dto';
-import { Restaurant } from './domain/restaurant.entity';
+import { Restaurant } from './orm-records/restaurant.record';
 import { RestaurantOutput } from './dtos/restaurantOutput.dto';
 
 @Controller('api/restaurant')

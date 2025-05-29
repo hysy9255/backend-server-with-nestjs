@@ -4,7 +4,7 @@ import { RestaurantOrderService } from './restaurantOrder.service';
 import { User } from 'src/user/domain/user.entity';
 import { UserRole } from 'src/constants/userRole';
 import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
-import { Order } from '../domain/order.entity';
+import { Order } from '../orm-entities/order.entity';
 import { OrderStatus } from 'src/constants/orderStatus';
 
 const mockOrderRepository = {

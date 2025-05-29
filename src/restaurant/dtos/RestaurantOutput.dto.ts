@@ -1,4 +1,4 @@
-import { Restaurant } from '../domain/restaurant.entity';
+import { Restaurant } from '../orm-records/restaurant.record';
 
 export class RestaurantOutput {
   id: string;

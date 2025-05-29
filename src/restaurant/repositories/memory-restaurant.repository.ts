@@ -1,5 +1,5 @@
-import { User } from 'src/user/domain/user.entity';
-import { Restaurant } from '../domain/restaurant.entity';
+import { User } from 'src/user/orm-records/user.record';
+import { Restaurant } from '../orm-records/restaurant.record';
 import { RestaurantRepository } from './restaurant-repository.interface';
 
 export class MemoryRestaurantRepository implements RestaurantRepository {

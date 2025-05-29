@@ -1,6 +1,6 @@
 import { Field, InputType, ObjectType, PickType } from '@nestjs/graphql';
 import { OrderStatus } from 'src/constants/orderStatus';
-import { Order } from '../domain/order.entity';
+import { Order } from '../orm-records/order.record';
 
 @InputType()
 export class CreateOrderInput {

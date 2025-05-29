@@ -1,5 +1,5 @@
 import { UserRole } from 'src/constants/userRole';
-import { User } from './user.entity';
+import { User } from '../orm-records/user.record';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
