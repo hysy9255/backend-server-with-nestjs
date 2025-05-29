@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OrderRecord } from 'src/order/orm-records/order.record';
+import { UserRecord } from 'src/user/orm-records/user.record';
 
-import { User } from 'src/user/orm-records/user.record';
 import {
   Column,
   Entity,
@@ -33,9 +33,9 @@ export class RestaurantRecord {
   @Column()
   category: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => UserRecord)
   @JoinColumn({ name: 'ownerId' }) // creates `ownerId` column in Restaurant
-  owner: User;
+  owner: UserRecord;
 
   @OneToMany(() => OrderRecord, (order) => order.restaurant)
   orders: OrderRecord[];

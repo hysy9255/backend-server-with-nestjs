@@ -41,6 +41,10 @@ export class UserEntity {
     return this._email;
   }
 
+  get password() {
+    return this._password;
+  }
+
   get role() {
     return this._role;
   }
@@ -76,5 +80,9 @@ export class UserEntity {
         ERROR_MESSAGES.PASSWORD_CHECK_FAILED,
       );
     }
+  }
+
+  changePassword(newPassword: string) {
+    this._password = newPassword;
   }
 }

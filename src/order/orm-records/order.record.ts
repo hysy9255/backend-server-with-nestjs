@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OrderStatus } from 'src/constants/orderStatus';
 import { UserRole } from 'src/constants/userRole';
-import { User } from 'src/user/orm-records/user.record';
+import { UserRecord } from 'src/user/orm-records/user.record';
 import {
   Column,
   Entity,
@@ -16,6 +16,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { OrderItem } from './orderItem.entity';
 import { RestaurantRecord } from 'src/restaurant/orm-records/restaurant.record';
+import { UserEntity } from 'src/user/domain/user.entity';
 
 @ObjectType()
 @Entity()
@@ -33,24 +34,24 @@ export class OrderRecord {
     return !!this.driver;
   }
 
-  @ManyToOne(() => User, (user) => user.orders, {
+  @ManyToOne(() => UserRecord, (user) => user.orders, {
     onDelete: 'CASCADE',
   })
-  driver: User;
+  driver?: UserRecord | null;
 
   @ManyToOne(() => RestaurantRecord, (restaurant) => restaurant.orders, {
     onDelete: 'CASCADE',
   })
   restaurant: RestaurantRecord;
 
-  @ManyToOne(() => User, (user) => user.orders, {
+  @ManyToOne(() => UserRecord, (user) => user.orders, {
     onDelete: 'CASCADE',
   })
-  customer: User;
+  customer: UserRecord;
 
-  @ManyToMany(() => User, (user) => user.rejectedOrders)
+  @ManyToMany(() => UserRecord, (user) => user.rejectedOrders)
   @JoinTable()
-  rejectedByDrivers: User[];
+  rejectedDrivers: UserRecord[];
 
   // @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   // orderItems: OrderItem[];

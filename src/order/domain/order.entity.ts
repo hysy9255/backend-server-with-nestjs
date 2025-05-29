@@ -1,3 +1,4 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { OrderStatus } from 'src/constants/orderStatus';
 import { RestaurantEntity } from 'src/restaurant/domain/restaurant.entity';
 import { UserEntity } from 'src/user/domain/user.entity';
@@ -29,11 +30,16 @@ export class OrderEntity {
     restaurant: RestaurantEntity,
     customer: UserEntity,
     driver?: UserEntity,
+    rejectedDrivers?: UserEntity[],
   ): OrderEntity {
     const orderEntity = new OrderEntity(id, status, restaurant, customer);
 
     if (driver) {
       orderEntity._driver = driver;
+    }
+
+    if (rejectedDrivers) {
+      orderEntity._rejectedDrivers = rejectedDrivers;
     }
 
     return orderEntity;
@@ -61,6 +67,16 @@ export class OrderEntity {
 
   get rejectedDrivers(): UserEntity[] {
     return this._rejectedDrivers;
+  }
+
+  isOwnedBy(customer: UserEntity): boolean {
+    return this._customer.id === customer.id;
+  }
+
+  ensureOwnedBy(customer: UserEntity) {
+    if (!this.isOwnedBy(customer)) {
+      throw new UnauthorizedException('You do not own this order');
+    }
   }
 
   markAccepted() {

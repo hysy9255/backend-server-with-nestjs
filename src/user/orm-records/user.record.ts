@@ -21,7 +21,7 @@ import { RestaurantRecord } from 'src/restaurant/orm-records/restaurant.record';
 import { OrderRecord } from 'src/order/orm-records/order.record';
 
 @Entity()
-export class User {
+export class UserRecord {
   @PrimaryColumn('uuid')
   id: string;
 
@@ -37,13 +37,10 @@ export class User {
   @OneToOne(() => RestaurantRecord, (restaurant) => restaurant.owner)
   restaurant?: RestaurantRecord;
 
-  @RelationId((user: User) => user.restaurant)
-  restaurantId?: string;
-
   @OneToMany(() => OrderRecord, (order) => order.customer)
   orders?: OrderRecord[];
 
-  @ManyToMany(() => OrderRecord, (order) => order.rejectedByDrivers)
+  @ManyToMany(() => OrderRecord, (order) => order.rejectedDrivers)
   rejectedOrders: OrderRecord[];
 
   // constructor(email: string, password: string, role: UserRole) {

@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { User } from 'src/user/orm-records/user.record';
-// import {
-//   CreateOrderInput,
-//   CreateOrderOutput,
-// } from '../dtos/createOrder.dto';
-
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 import { OrderRepository } from '../repositories/order-repository.interface';
 import { CreateOrderInput, CreateOrderOutput } from '../dtos/createOrder.dto';
+import { RestaurantMapper } from 'src/restaurant/mapper/restaurant.mapper';
+import { UserMapper } from 'src/user/mapper/user.mapper';
+import { OrderEntity } from '../domain/order.entity';
+import { OrderMapper } from '../mapper/order.mapper';
+import { UserRecord } from 'src/user/orm-records/user.record';
 
 @Injectable()
 export class ClientOrderService {
@@ -17,46 +16,51 @@ export class ClientOrderService {
     private readonly orderRepository: OrderRepository,
   ) {}
   async createOrder(
-    customer: User,
+    customerRecord: UserRecord,
     createOrderInput: CreateOrderInput,
-  ): Promise<CreateOrderOutput> {
-    const restaurant = await this.restaurantService.getRestaurant({
-      id: createOrderInput.restaurantId,
-    });
-
-    const { id } = await this.orderRepository.save(
-      new Order(customer, restaurant),
+  ): Promise<void> {
+    const restaurant = RestaurantMapper.toDomain(
+      await this.restaurantService.getRestaurant({
+        id: createOrderInput.restaurantId,
+      }),
     );
+    const customer = UserMapper.toDomain(customerRecord);
 
-    return { id };
+    const order = OrderEntity.createNew(restaurant, customer);
+
+    // const orderRecord = OrderMapper.toRecord(order);
+
+    // await this.orderRepository.save(orderRecord);
+
+    await this.orderRepository.save(
+      OrderMapper.toRecord(OrderEntity.createNew(restaurant, customer)),
+    );
   }
 
-  async createOrderWithDomain(
-    customer: User,
-    { restaurantId }: CreateOrderInput,
-  ) {
-    const restaurant = await this.restaurantService.getRestaurant({
-      id: restaurantId,
-    });
-
-    const order = OrderModel.createNew(restaurant.id, customer.id);
-  }
-
-  async getOrder(customer: User, orderId: string): Promise<Order> {
-    const order = await this.orderRepository.findOneById(orderId);
-    if (!order) {
+  async getOrder(customerRecord: UserRecord, orderId: string): Promise<void> {
+    const orderRecord = await this.orderRepository.findOneById(orderId);
+    if (!orderRecord) {
       throw new Error('Order not found');
     }
 
-    if (order.customer.id !== customer.id) {
-      throw new Error('You do not own this order');
-    }
-    return order;
+    const customer = UserMapper.toDomain(customerRecord);
+    const order = OrderMapper.toDomain(orderRecord);
+
+    order.ensureOwnedBy(customer);
+    // return order;
+    // change domain entity into dto and pass it to controller
   }
 
-  async getOrderHistory(customer: User): Promise<Order[]> {
-    const customerId = customer.id;
-    const orders = await this.orderRepository.findHistoryByUserId(customerId);
-    return orders;
+  async getOrderHistory(customer: UserRecord): Promise<void> {
+    const orderRecords = await this.orderRepository.findHistoryByUserId(
+      customer.id,
+    );
+    const orders = orderRecords.map((record) => OrderMapper.toDomain(record));
+    const orderDTOs = orders.map(
+      (order) =>
+        // new OrderOutput(order), // 혹은 OrderOutput.from(order)
+        order, // 이건 그냥 지금 임시로 해논거임
+    );
+    // return ordersDTOs;
   }
 }

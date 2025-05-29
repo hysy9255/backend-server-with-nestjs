@@ -1,5 +1,4 @@
 import { Column, Entity, ManyToOne, OneToOne, PrimaryColumn } from 'typeorm';
-import { Order } from './order.record';
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity()

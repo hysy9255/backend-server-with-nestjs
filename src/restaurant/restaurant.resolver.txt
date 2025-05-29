@@ -5,6 +5,8 @@ import { Restaurant } from './orm-records/restaurant.record';
 import { GetRestaurantInput } from './dtos/getRestaurantInput.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { UserEntity } from 'src/user/domain/user.entity';
+import { AuthUser } from 'src/auth/auth-user.decorator';
 
 @Resolver()
 export class RestaurantResolver {
@@ -13,10 +15,11 @@ export class RestaurantResolver {
   @Mutation(() => Restaurant)
   @UseGuards(AuthGuard)
   async createRestaurant(
-    @Context() context,
+    // @Context() context,
+    @AuthUser() user: UserEntity
     @Args('input') createRestaurantInput: CreateRestaurantInput,
   ): Promise<Restaurant> {
-    const user = context.req.user;
+    // const user = context.req.user;
     return this.restaurantService.createRestaurant(user, createRestaurantInput);
   }
 

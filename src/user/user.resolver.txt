@@ -7,6 +7,8 @@ import {
 } from './dtos/ChangePassword.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { UserEntity } from './domain/user.entity';
+import { AuthUser } from 'src/auth/auth-user.decorator';
 
 @Resolver()
 export class UserResolver {
@@ -22,10 +24,11 @@ export class UserResolver {
   @Mutation(() => ChangePasswordOutput)
   @UseGuards(AuthGuard)
   async changePassword(
-    @Context() context,
+    // @Context() context,
+    @AuthUser() user: UserEntity
     @Args('input') changePasswordInput: ChangePasswordInput,
   ): Promise<ChangePasswordOutput> {
-    const user = context.req.user;
+    // const user = context.req.user;
     return this.userService.changePassword(user, changePasswordInput);
   }
 }

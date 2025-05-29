@@ -7,7 +7,7 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
-import { User } from './user/orm-records/user.record';
+
 import { JwtModule } from './jwt/jwt.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -15,12 +15,15 @@ import { join } from 'node:path';
 import { AuthModule } from './auth/auth.module';
 import { JwtMiddleWare } from './jwt/jwt.middleware';
 import { RestaurantModule } from './restaurant/restaurant.module';
-import { Restaurant } from './restaurant/orm-records/restaurant.record';
+
 import { DishModule } from './dish/dish.module';
 import { Dish } from './dish/domain/dish.entity';
 import { OrderModule } from './order/order.module';
-import { Order } from './order/orm-records/order.record';
+
 import { OrderItem } from './order/orm-records/orderItem.entity';
+import { UserRecord } from './user/orm-records/user.record';
+import { RestaurantRecord } from './restaurant/orm-records/restaurant.record';
+import { OrderRecord } from './order/orm-records/order.record';
 
 @Module({
   imports: [
@@ -42,7 +45,7 @@ import { OrderItem } from './order/orm-records/orderItem.entity';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [User, Restaurant, Dish, Order, OrderItem],
+      entities: [UserRecord, RestaurantRecord, Dish, OrderRecord, OrderItem],
       synchronize: true,
     }),
     UserModule,
