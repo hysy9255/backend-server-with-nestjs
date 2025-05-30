@@ -6,6 +6,7 @@ import {
 import {
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
   OneToMany,
@@ -34,52 +35,66 @@ export class UserRecord {
   @Column({ type: 'enum', enum: UserRole })
   role: UserRole;
 
+  // @OneToOne(() => RestaurantRecord, (restaurant) => restaurant.owner)
+  // restaurant?: RestaurantRecord;
+
+  // @OneToMany(() => OrderRecord, (order) => order.customer)
+  // orders?: OrderRecord[];
+
+  // @ManyToMany(() => OrderRecord, (order) => order.rejectedDrivers)
+  // rejectedOrders: OrderRecord[];
+
+  @OneToOne(() => OwnerRecord, (owner) => owner.user)
+  owner: OwnerRecord;
+
+  @OneToOne(() => CustomerRecord, (owner) => owner.user)
+  customer: CustomerRecord;
+
+  @OneToOne(() => DriverRecord, (owner) => owner.user)
+  driver: DriverRecord;
+}
+
+@Entity()
+export class OwnerRecord {
+  @PrimaryColumn('uuid')
+  id: string;
+
+  @OneToOne(() => UserRecord, (user) => user.owner)
+  @JoinColumn({ name: 'userId' })
+  user: UserRecord;
+
   @OneToOne(() => RestaurantRecord, (restaurant) => restaurant.owner)
   restaurant?: RestaurantRecord;
+}
+
+@Entity()
+export class CustomerRecord {
+  @PrimaryColumn('uuid')
+  id: string;
+
+  @Column()
+  deliveryAddress: string;
+
+  @OneToOne(() => UserRecord, (user) => user.customer)
+  @JoinColumn({ name: 'userId' })
+  user: UserRecord;
 
   @OneToMany(() => OrderRecord, (order) => order.customer)
-  orders?: OrderRecord[];
+  orders: OrderRecord[];
+}
+
+@Entity()
+export class DriverRecord {
+  @PrimaryColumn('uuid')
+  id: string;
+
+  @OneToOne(() => UserRecord, (user) => user.driver)
+  @JoinColumn({ name: 'userId' })
+  user: UserRecord;
 
   @ManyToMany(() => OrderRecord, (order) => order.rejectedDrivers)
   rejectedOrders: OrderRecord[];
 
-  // constructor(email: string, password: string, role: UserRole) {
-  //   this.id = uuidv4();
-  //   this.email = email;
-  //   this.password = password;
-  //   this.role = role;
-  // }
-
-  // checkUserRole(role: UserRole): void {
-  //   const matches = this.role === role;
-  //   if (!matches) {
-  //     throw new BadRequestException(ERROR_MESSAGES.USER_ROLE_MISMATCH);
-  //   }
-  // }
-
-  // async hashPassword(): Promise<void> {
-  //   if (this.password) {
-  //     try {
-  //       this.password = await bcrypt.hash(this.password, 10);
-  //     } catch (e) {
-  //       console.error(e);
-  //       throw new InternalServerErrorException(ERROR_MESSAGES.HASH_FAILED);
-  //     }
-  //   }
-  // }
-
-  // async checkPassword(aPassword: string): Promise<void> {
-  //   try {
-  //     const ok = await bcrypt.compare(aPassword, this.password);
-  //     if (!ok) {
-  //       throw new BadRequestException(ERROR_MESSAGES.WRONG_PASSWORD);
-  //     }
-  //   } catch (e) {
-  //     console.error(e);
-  //     if (e instanceof HttpException) throw e; // preserve known HTTP errors
-  //     throw new InternalServerErrorException(
-  //       ERROR_MESSAGES.PASSWORD_CHECK_FAILED,
-  //     );
-  //   }
-  // }
+  @OneToMany(() => OrderRecord, (order) => order.assignedDriver)
+  assignedOrders: OrderRecord[];
 }

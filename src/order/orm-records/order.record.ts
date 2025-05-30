@@ -1,7 +1,11 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OrderStatus } from 'src/constants/orderStatus';
 import { UserRole } from 'src/constants/userRole';
-import { UserRecord } from 'src/user/orm-records/user.record';
+import {
+  CustomerRecord,
+  DriverRecord,
+  UserRecord,
+} from 'src/user/orm-records/user.record';
 import {
   Column,
   Entity,
@@ -29,29 +33,39 @@ export class OrderRecord {
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.Pending })
   status: OrderStatus;
 
-  @Field(() => Boolean)
-  get driverAssigned(): boolean {
-    return !!this.driver;
-  }
+  // @Field(() => Boolean)
+  // get driverAssigned(): boolean {
+  //   return !!this.driver;
+  // }
 
-  @ManyToOne(() => UserRecord, (user) => user.orders, {
+  @ManyToOne(() => CustomerRecord, (customer) => customer.orders, {
     onDelete: 'CASCADE',
   })
-  driver?: UserRecord | null;
+  customer: CustomerRecord;
+
+  // @ManyToOne(() => UserRecord, (user) => user.orders, {
+  //   onDelete: 'CASCADE',
+  // })
+  // driver?: UserRecord | null;
+
+  @ManyToOne(() => DriverRecord, (driver) => driver.assignedOrders, {
+    onDelete: 'CASCADE',
+  })
+  assignedDriver?: DriverRecord | null;
 
   @ManyToOne(() => RestaurantRecord, (restaurant) => restaurant.orders, {
     onDelete: 'CASCADE',
   })
   restaurant: RestaurantRecord;
 
-  @ManyToOne(() => UserRecord, (user) => user.orders, {
-    onDelete: 'CASCADE',
-  })
-  customer: UserRecord;
+  // @ManyToOne(() => UserRecord, (user) => user.orders, {
+  //   onDelete: 'CASCADE',
+  // })
+  // customer: UserRecord;
 
-  @ManyToMany(() => UserRecord, (user) => user.rejectedOrders)
+  @ManyToMany(() => DriverRecord, (user) => user.rejectedOrders)
   @JoinTable()
-  rejectedDrivers: UserRecord[];
+  rejectedDrivers: DriverRecord[];
 
   // @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   // orderItems: OrderItem[];

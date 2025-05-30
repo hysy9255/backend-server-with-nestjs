@@ -7,6 +7,7 @@ import { UserMapper } from 'src/user/mapper/user.mapper';
 import { OrderEntity } from '../domain/order.entity';
 import { OrderMapper } from '../mapper/order.mapper';
 import { UserRecord } from 'src/user/orm-records/user.record';
+import { UserEntity } from 'src/user/domain/user.entity';
 
 @Injectable()
 export class ClientOrderService {
@@ -16,7 +17,7 @@ export class ClientOrderService {
     private readonly orderRepository: OrderRepository,
   ) {}
   async createOrder(
-    customerRecord: UserRecord,
+    customer: UserEntity,
     createOrderInput: CreateOrderInput,
   ): Promise<void> {
     const restaurant = RestaurantMapper.toDomain(
@@ -24,9 +25,8 @@ export class ClientOrderService {
         id: createOrderInput.restaurantId,
       }),
     );
-    const customer = UserMapper.toDomain(customerRecord);
 
-    const order = OrderEntity.createNew(restaurant, customer);
+    // const order = OrderEntity.createNew(restaurant, customer);
 
     // const orderRecord = OrderMapper.toRecord(order);
 
@@ -37,13 +37,12 @@ export class ClientOrderService {
     );
   }
 
-  async getOrder(customerRecord: UserRecord, orderId: string): Promise<void> {
+  async getOrder(customer: UserEntity, orderId: string): Promise<void> {
     const orderRecord = await this.orderRepository.findOneById(orderId);
     if (!orderRecord) {
       throw new Error('Order not found');
     }
 
-    const customer = UserMapper.toDomain(customerRecord);
     const order = OrderMapper.toDomain(orderRecord);
 
     order.ensureOwnedBy(customer);

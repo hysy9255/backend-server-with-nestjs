@@ -2,6 +2,7 @@ import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { OrderRepository } from '../repositories/order-repository.interface';
 import { UserRecord } from 'src/user/orm-records/user.record';
 import { OrderRecord } from '../orm-records/order.record';
+import { UserEntity } from 'src/user/domain/user.entity';
 
 @Injectable()
 export class RestaurantOrderService {
@@ -10,11 +11,11 @@ export class RestaurantOrderService {
     private readonly orderRepository: OrderRepository,
   ) {}
 
-  async getOrdersByRestaurant(restaurantId: string, owner: UserRecord) {
-    if (restaurantId !== owner.restaurant?.id) {
-      throw new Error('You can only view orders for restaurants you own');
-    }
-    // return await this.orderRepository.findByRestaurant(restaurantId);
+  async getOrdersByRestaurant(restaurantId: string, owner: UserEntity) {
+    // if (restaurantId !== owner.restaurant?.id) {
+    //   throw new Error('You can only view orders for restaurants you own');
+    // }
+    return await this.orderRepository.findByRestaurant(restaurantId);
   }
 
   async getOrder(orderId: string, owner: UserRecord) {
