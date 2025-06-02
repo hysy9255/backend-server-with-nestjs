@@ -1,8 +1,10 @@
 import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantInput } from './dtos/createRestaurantInput.dto';
-import { Restaurant } from './domain/restaurant.entity';
+import { Restaurant } from './orm-records/restaurant.record';
 import { RestaurantOutput } from './dtos/restaurantOutput.dto';
+import { UserEntity } from 'src/user/domain/user.entity';
+import { AuthUser } from 'src/auth/auth-user.decorator';
 
 @Controller('api/restaurant')
 export class RestaurantController {
@@ -10,10 +12,11 @@ export class RestaurantController {
 
   @Post()
   async createRestaurant(
-    @Req() req: Request,
+    // @Req() req: Request,
+    @AuthUser() user: UserEntity
     @Body() createRestaurantInput: CreateRestaurantInput,
   ): Promise<RestaurantOutput> {
-    const user = req['user'];
+    // const user = req['user'];
     const restaurant = await this.restaurantService.createRestaurant(
       user,
       createRestaurantInput,

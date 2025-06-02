@@ -3,63 +3,63 @@ import {
   HttpException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  OneToMany,
-  OneToOne,
-  PrimaryColumn,
-} from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import { UserRole } from 'src/constants/userRole';
-import { v4 as uuidv4 } from 'uuid';
 import { ERROR_MESSAGES } from 'src/constants/errorMessages';
-import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
-import { Order } from 'src/order/domain/order.entity';
+import { UserRole } from 'src/constants/userRole';
+import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 
-@Entity()
-export class User {
-  @PrimaryColumn('uuid')
-  id: string;
+export class UserEntity {
+  constructor(
+    private readonly _id: string,
+    private readonly _email: string,
+    private _password: string,
+    private readonly _role: UserRole,
+  ) {}
 
-  @Column()
-  email: string;
+  static createNew(
+    email: string,
+    password: string,
+    role: UserRole,
+  ): UserEntity {
+    return new UserEntity(uuidv4(), email, password, role);
+  }
 
-  @Column()
-  password: string;
+  static fromPersistance(
+    id: string,
+    email: string,
+    password: string,
+    role: UserRole,
+  ): UserEntity {
+    return new UserEntity(id, email, password, role);
+  }
 
-  @Column({ type: 'enum', enum: UserRole })
-  role: UserRole;
+  get id() {
+    return this._id;
+  }
 
-  @OneToOne(() => Restaurant, (restaurant) => restaurant.owner)
-  restaurant?: Restaurant;
+  get email() {
+    return this._email;
+  }
 
-  @OneToMany(() => Order, (order) => order.customer)
-  orders?: Order[];
+  get password() {
+    return this._password;
+  }
 
-  @ManyToMany(() => Order, (order) => order.rejectedByDrivers)
-  rejectedOrders: Order[];
-
-  constructor(email: string, password: string, role: UserRole) {
-    this.id = uuidv4();
-    this.email = email;
-    this.password = password;
-    this.role = role;
+  get role() {
+    return this._role;
   }
 
   checkUserRole(role: UserRole): void {
-    const matches = this.role === role;
+    const matches = this._role === role;
     if (!matches) {
       throw new BadRequestException(ERROR_MESSAGES.USER_ROLE_MISMATCH);
     }
   }
 
   async hashPassword(): Promise<void> {
-    if (this.password) {
+    if (this._password) {
       try {
-        this.password = await bcrypt.hash(this.password, 10);
+        this._password = await bcrypt.hash(this._password, 10);
       } catch (e) {
         console.error(e);
         throw new InternalServerErrorException(ERROR_MESSAGES.HASH_FAILED);
@@ -69,16 +69,20 @@ export class User {
 
   async checkPassword(aPassword: string): Promise<void> {
     try {
-      const ok = await bcrypt.compare(aPassword, this.password);
+      const ok = await bcrypt.compare(aPassword, this._password);
       if (!ok) {
         throw new BadRequestException(ERROR_MESSAGES.WRONG_PASSWORD);
       }
     } catch (e) {
       console.error(e);
-      if (e instanceof HttpException) throw e; // preserve known HTTP errors
+      if (e instanceof HttpException) throw e;
       throw new InternalServerErrorException(
         ERROR_MESSAGES.PASSWORD_CHECK_FAILED,
       );
     }
+  }
+
+  changePassword(newPassword: string) {
+    this._password = newPassword;
   }
 }

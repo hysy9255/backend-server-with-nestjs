@@ -2,8 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ClientOrderService } from './clientOrder.service';
 import { User } from 'src/user/domain/user.entity';
 import { UserRole } from 'src/constants/userRole';
-import { CreateOrderInput } from '../dtos/createOrderInput.dto';
+
 import { RestaurantService } from 'src/restaurant/restaurant.service';
+import { CreateOrderInput } from '../dtos/createOrder.dto';
 
 const mockOrderRepository = {
   save: jest.fn(),
@@ -51,7 +52,6 @@ describe('ClientOrderService', () => {
 
       const fakeOrder = {
         id: 'order-abc',
-        customer: user,
       };
 
       mockOrderRepository.save.mockResolvedValue(fakeOrder);
@@ -75,24 +75,40 @@ describe('ClientOrderService', () => {
   describe('getOrder', () => {
     it('should return an order by ID', async () => {
       // given
+      const mockCustomer = new User(
+        'customer@test.com',
+        'password',
+        UserRole.Client,
+      );
+      const mockOrderId = 'order-123';
+
       mockOrderRepository.findOneById.mockResolvedValue({
-        id: 'order-123',
+        id: mockOrderId,
+        customer: mockCustomer,
       });
       // when
-      const order = await clientOrderSerivce.getOrder('order-123');
+      const result = await clientOrderSerivce.getOrder(
+        mockCustomer,
+        mockOrderId,
+      );
 
       // then
-      expect(order).toBeDefined();
-      expect(order.id).toBe('order-123');
+      expect(result).toBeDefined();
+      expect(result.id).toBe(mockOrderId);
     });
 
     it('should throw an error if order not found', async () => {
       // given
+      const mockCustomer = new User(
+        'customer@test.com',
+        'password',
+        UserRole.Client,
+      );
       mockOrderRepository.findOneById.mockResolvedValue(null);
 
       // when & then
       await expect(
-        clientOrderSerivce.getOrder('non-existent-id'),
+        clientOrderSerivce.getOrder(mockCustomer, 'non-existent-id'),
       ).rejects.toThrow('Order not found');
     });
   });
@@ -100,16 +116,18 @@ describe('ClientOrderService', () => {
   describe('getOrderHistory', () => {
     it('should return order history for a user', async () => {
       // given
-      const userId = 'user-123';
-      const fakeOrders = [
-        { id: 'order-1', customerId: userId },
-        { id: 'order-2', customerId: userId },
-      ];
+      const mockCustomer = new User(
+        'customer@test.com',
+        'password',
+        UserRole.Client,
+      );
+
+      const fakeOrders = [{ id: 'order-1' }, { id: 'order-2' }];
 
       mockOrderRepository.findHistoryByUserId.mockResolvedValue(fakeOrders);
 
       // when
-      const orders = await clientOrderSerivce.getOrderHistory(userId);
+      const orders = await clientOrderSerivce.getOrderHistory(mockCustomer);
 
       // then
       expect(orders).toBeDefined();

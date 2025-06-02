@@ -8,6 +8,7 @@ import { DataSource } from 'typeorm';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
 import { OrmOrderRepository } from './repositories/orm-order.repository';
+import { OrderResolver } from './order.resolver';
 
 @Module({
   imports: [RestaurantModule],
@@ -22,6 +23,7 @@ import { OrmOrderRepository } from './repositories/orm-order.repository';
     ClientOrderService,
     RestaurantOrderService,
     DriverOrderService,
+    OrderResolver,
   ],
 })
 export class OrderModule {}

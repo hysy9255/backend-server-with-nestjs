@@ -1,14 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DishRepository } from './dish-repository.interface';
 import { EntityManager } from 'typeorm';
-import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
+
 import { Dish } from '../domain/dish.entity';
+import { RestaurantRecord } from 'src/restaurant/orm-records/restaurant.record';
 
 @Injectable()
 export class OrmDishRepository implements DishRepository {
   constructor(private readonly em: EntityManager) {}
 
-  async save(restaurant: Restaurant, dish: Dish): Promise<Dish> {
+  async save(restaurant: RestaurantRecord, dish: Dish): Promise<Dish> {
     dish.restaurant = restaurant;
     return this.em.save(dish);
   }

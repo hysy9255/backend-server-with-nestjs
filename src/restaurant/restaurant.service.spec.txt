@@ -16,7 +16,7 @@ import { OrmRestaurantRepository } from './repositories/orm-restaurant.repositor
 import { OrmUserRepository } from 'src/user/repositories/orm-user.repository';
 import { DataSource } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
-import { Order } from 'src/order/domain/order.entity';
+import { Order } from 'src/order/orm-entities/order.entity';
 import { Dish } from 'src/dish/domain/dish.entity';
 
 jest.spyOn(console, 'error').mockImplementation(() => {});

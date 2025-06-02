@@ -1,39 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { OrderRepository } from './order-repository.interface';
-import { Order } from '../domain/order.entity';
+
 import { OrderStatus } from 'src/constants/orderStatus';
-import { In } from 'typeorm';
-import { User } from 'src/user/domain/user.entity';
+
 import { Brackets } from 'typeorm';
+import { OrderRecord } from '../orm-records/order.record';
+import { UserRecord } from 'src/user/orm-records/user.record';
+import { DriverRecord } from 'src/user/orm-records/driver.record';
 
 @Injectable()
 export class OrmOrderRepository implements OrderRepository {
   constructor(private readonly em: EntityManager) {}
 
-  async save(order: Order): Promise<Order> {
+  async save(order: OrderRecord): Promise<OrderRecord> {
     return this.em.save(order);
   }
 
-  async findOneById(id: string): Promise<Order | null> {
-    return this.em.findOne(Order, { where: { id } });
+  async findOneById(id: string): Promise<OrderRecord | null> {
+    return this.em.findOne(OrderRecord, {
+      where: { id },
+      relations: ['driver', 'restaurant', 'customer'],
+    });
   }
 
-  async findHistoryByUserId(userId: string): Promise<Order[]> {
-    return this.em.find(Order, {
+  async findOneWithFullRelationById(id: string): Promise<OrderRecord | null> {
+    return this.em.findOne(OrderRecord, {
+      where: { id },
+      relations: ['driver', 'restaurant', 'customer', 'rejectedByDrivers'],
+    });
+  }
+
+  async findHistoryByUserId(userId: string): Promise<OrderRecord[]> {
+    return this.em.find(OrderRecord, {
       where: { customer: { id: userId }, status: OrderStatus.Delivered },
     });
   }
 
-  async findByRestaurant(restaurantId: string): Promise<Order[]> {
-    return this.em.find(Order, {
+  async findByRestaurant(restaurantId: string): Promise<OrderRecord[]> {
+    return this.em.find(OrderRecord, {
       where: { restaurant: { id: restaurantId } },
     });
   }
 
-  async findAvailableOrdersForDriver(driver: User): Promise<Order[]> {
+  async findAvailableOrdersForDriver(
+    driver: DriverRecord,
+  ): Promise<OrderRecord[]> {
     return this.em
-      .getRepository(Order)
+      .getRepository(OrderRecord)
       .createQueryBuilder('order')
       .leftJoin('order.rejectedByDrivers', 'rejected')
       .where('order.status IN (:...statuses)', {
@@ -48,18 +62,4 @@ export class OrmOrderRepository implements OrderRepository {
       )
       .getMany();
   }
-
-  //   async findByStatus(input: OrderStatus[], driver: User): Promise<Order[]> {
-  //     return this.em.find(Order, {
-  //       where: { status: In(input) },
-  //     });
-  //   }
-
-  //   async find(): Promise<Restaurant[]> {
-  //     return this.em.find(Restaurant);
-  //   }
-
-  //   async findOneByOwner(user: User): Promise<Restaurant | null> {
-  //     return this.em.findOne(Restaurant, { where: { owner: user } });
-  //   }
 }

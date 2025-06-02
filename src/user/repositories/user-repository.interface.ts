@@ -1,9 +1,8 @@
-// src/modules/user/repositories/user-repository.interface.ts
-
-import { User } from '../domain/user.entity';
+import { UserRecord } from '../orm-records/user.record';
 
 export interface UserRepository {
-  save(user: User): Promise<User>;
-  findByEmail(email: string): Promise<User | null>;
-  findById(id: string): Promise<User | null>;
+  save(user: UserRecord): Promise<UserRecord>;
+  findByEmail(email: string): Promise<UserRecord | null>;
+  findById(id: string): Promise<UserRecord | null>;
+  findWithAssociatedRestaurantById(id: string): Promise<UserRecord | null>;
 }

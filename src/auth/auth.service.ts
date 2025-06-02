@@ -8,6 +8,7 @@ import { JwtService } from 'src/jwt/jwt.service';
 import { LoginInput, LoginOutput } from './dtos/Login.dto';
 import { UserService } from 'src/user/user.service';
 import { ERROR_MESSAGES } from 'src/constants/errorMessages';
+import { UserMapper } from 'src/user/mapper/user.mapper';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,9 @@ export class AuthService {
 
   async login(loginInput: LoginInput): Promise<LoginOutput> {
     try {
-      const user = await this.userService.findUserByEmail(loginInput.email);
+      const user = UserMapper.toDomain(
+        await this.userService.findUserByEmail(loginInput.email),
+      );
 
       await user.checkPassword(loginInput.password);
 

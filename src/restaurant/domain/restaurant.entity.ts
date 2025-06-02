@@ -1,48 +1,51 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { Order } from 'src/order/domain/order.entity';
-import { User } from 'src/user/domain/user.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  PrimaryColumn,
-  Unique,
-} from 'typeorm';
+import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { v4 as uuidv4 } from 'uuid';
 
-@ObjectType()
-@Entity()
-@Unique(['owner'])
-export class Restaurant {
-  @Field(() => String)
-  @PrimaryColumn('uuid')
-  id: string;
+export class RestaurantEntity {
+  private constructor(
+    private readonly _id: string,
+    private readonly _name: string,
+    private readonly _address: string,
+    private readonly _category: string,
+    private readonly _owner: OwnerEntity,
+  ) {}
 
-  @Field(() => String)
-  @Column()
-  name: string;
+  static createNew(
+    name: string,
+    address: string,
+    category: string,
+    owner: OwnerEntity,
+  ): RestaurantEntity {
+    return new RestaurantEntity(uuidv4(), name, address, category, owner);
+  }
 
-  @Field(() => String)
-  @Column()
-  address: string;
+  static fromPersistance(
+    id: string,
+    name: string,
+    address: string,
+    category: string,
+    owner: OwnerEntity,
+  ): RestaurantEntity {
+    return new RestaurantEntity(id, name, address, category, owner);
+  }
 
-  @Field(() => String)
-  @Column()
-  category: string;
+  get id() {
+    return this._id;
+  }
 
-  @OneToOne(() => User)
-  @JoinColumn({ name: 'ownerId' }) // creates `ownerId` column in Restaurant
-  owner: User;
+  get name() {
+    return this._name;
+  }
 
-  @OneToMany(() => Order, (order) => order.restaurant)
-  orders: Order[];
+  get address() {
+    return this._address;
+  }
 
-  constructor(name: string, address: string, category: string) {
-    this.id = uuidv4();
-    this.name = name;
-    this.address = address;
-    this.category = category;
+  get category() {
+    return this._category;
+  }
+
+  get owner() {
+    return this._owner;
   }
 }

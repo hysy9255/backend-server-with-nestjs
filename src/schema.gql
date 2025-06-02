@@ -2,69 +2,45 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Restaurant {
+type LoginOutput {
+  token: String!
+}
+
+type RestaurantDTO {
   id: String!
   name: String!
   address: String!
   category: String!
 }
 
-type CreateUserOutput {
+type OrderDTO {
   id: String!
-  email: String!
-  role: UserRole!
+  status: OrderStatus!
+  restaurant: RestaurantDTO!
 }
 
-enum UserRole {
-  Client
-  Owner
-  Delivery
-}
-
-type ChangePasswordOutput {
-  id: String!
-  email: String!
-  role: UserRole!
-}
-
-type LoginOutput {
-  token: String!
+enum OrderStatus {
+  Pending
+  Accepted
+  Rejected
+  Ready
+  PickedUp
+  Delivered
 }
 
 type Query {
-  getRestaurant(input: GetRestaurantInput!): Restaurant!
-  getAllRestaurants: [Restaurant!]!
+  getOrder(input: ClientGetOrderInput!): OrderDTO!
 }
 
-input GetRestaurantInput {
-  id: String!
+input ClientGetOrderInput {
+  orderId: String!
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): CreateUserOutput!
-  changePassword(input: ChangePasswordInput!): ChangePasswordOutput!
   login(input: LoginInput!): LoginOutput!
-  createRestaurant(input: CreateRestaurantInput!): Restaurant!
-}
-
-input CreateUserInput {
-  email: String!
-  password: String!
-  role: UserRole!
-}
-
-input ChangePasswordInput {
-  password: String!
-  newPassword: String!
 }
 
 input LoginInput {
   email: String!
   password: String!
-}
-
-input CreateRestaurantInput {
-  name: String!
-  address: String!
-  category: String!
 }

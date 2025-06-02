@@ -1,11 +1,11 @@
-import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
+import { RestaurantRecord } from 'src/restaurant/orm-records/restaurant.record';
 import { Dish } from '../domain/dish.entity';
 import { DishRepository } from './dish-repository.interface';
 
 export class MemoryDishRepository implements DishRepository {
   private dishes: Dish[] = [];
 
-  async save(restaurant: Restaurant, dish: Dish): Promise<Dish> {
+  async save(restaurant: RestaurantRecord, dish: Dish): Promise<Dish> {
     dish.restaurant = restaurant;
     this.dishes.push(dish);
     return dish;

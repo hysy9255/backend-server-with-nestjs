@@ -1,14 +1,12 @@
-import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
-import { User } from 'src/user/domain/user.entity';
-import { Order } from '../domain/order.entity';
-import { OrderStatus } from 'src/constants/orderStatus';
+import { DriverRecord } from 'src/user/orm-records/driver.record';
+import { OrderRecord } from '../orm-records/order.record';
+import { UserRecord } from 'src/user/orm-records/user.record';
 
 export interface OrderRepository {
-  save(order: Order): Promise<Order>;
-  findOneById(id: string): Promise<Order | null>;
-  findHistoryByUserId(userId: string): Promise<Order[]>;
-  findByRestaurant(restaurantId: string): Promise<Order[]>;
-  findAvailableOrdersForDriver(driver: User): Promise<Order[]>;
-  //   find(): Promise<Restaurant[]>;
-  //   findOneByOwner(user: User): Promise<Restaurant | null>;
+  save(order: OrderRecord): Promise<OrderRecord>;
+  findOneById(id: string): Promise<OrderRecord | null>;
+  findOneWithFullRelationById(id: string): Promise<OrderRecord | null>;
+  findHistoryByUserId(userId: string): Promise<OrderRecord[]>;
+  findByRestaurant(restaurantId: string): Promise<OrderRecord[]>;
+  findAvailableOrdersForDriver(driver: DriverRecord): Promise<OrderRecord[]>;
 }

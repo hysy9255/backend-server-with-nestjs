@@ -1,123 +1,149 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { UnauthorizedException } from '@nestjs/common';
 import { OrderStatus } from 'src/constants/orderStatus';
-import { UserRole } from 'src/constants/userRole';
-import { Restaurant } from 'src/restaurant/domain/restaurant.entity';
-import { User } from 'src/user/domain/user.entity';
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { RestaurantEntity } from 'src/restaurant/domain/restaurant.entity';
+import { CustomerEntity } from 'src/user/domain/customer.entity';
+import { DriverEntity } from 'src/user/domain/driver.entity';
 import { v4 as uuidv4 } from 'uuid';
 
-@ObjectType()
-@Entity()
-export class Order {
-  @Field(() => String)
-  @PrimaryColumn('uuid')
-  id: string;
+export class OrderEntity {
+  private _driver: DriverEntity;
+  private _rejectedDrivers: DriverEntity[];
 
-  @Field(() => OrderStatus)
-  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.Pending })
-  status: OrderStatus;
-
-  @Field(() => Boolean)
-  get driverAssigned(): boolean {
-    return !!this.driver;
+  constructor(
+    private readonly _id: string,
+    private _status: OrderStatus,
+    private readonly _restaurant: RestaurantEntity,
+    private readonly _customer: CustomerEntity,
+  ) {
+    this._rejectedDrivers = [];
   }
 
-  @ManyToOne(() => User, (user) => user.orders, {
-    onDelete: 'CASCADE',
-  })
-  driver: User;
+  static createNew(
+    restaurant: RestaurantEntity,
+    customer: CustomerEntity,
+  ): OrderEntity {
+    return new OrderEntity(uuidv4(), OrderStatus.Pending, restaurant, customer);
+  }
 
-  @ManyToOne(() => Restaurant, (restaurant) => restaurant.orders, {
-    onDelete: 'CASCADE',
-  })
-  restaurant: Restaurant;
+  static fromPersistance(
+    id: string,
+    status: OrderStatus,
+    restaurant: RestaurantEntity,
+    customer: CustomerEntity,
+    driver?: DriverEntity,
+    rejectedDrivers?: DriverEntity[],
+  ): OrderEntity {
+    const orderEntity = new OrderEntity(id, status, restaurant, customer);
 
-  @ManyToOne(() => User, (user) => user.orders, {
-    onDelete: 'CASCADE',
-  })
-  customer: User;
+    if (driver) {
+      orderEntity._driver = driver;
+    }
 
-  @ManyToMany(() => User, (user) => user.rejectedOrders)
-  @JoinTable()
-  rejectedByDrivers: User[];
+    if (rejectedDrivers) {
+      orderEntity._rejectedDrivers = rejectedDrivers;
+    }
 
-  constructor(customer: User, restaurant: Restaurant) {
-    this.id = uuidv4();
-    this.status = OrderStatus.Pending;
-    this.customer = customer;
-    this.restaurant = restaurant;
+    return orderEntity;
+  }
+
+  get id(): string {
+    return this._id;
+  }
+
+  get status(): OrderStatus {
+    return this._status;
+  }
+
+  get restaurant(): RestaurantEntity {
+    return this._restaurant;
+  }
+
+  get customer(): CustomerEntity {
+    return this._customer;
+  }
+
+  get driver(): DriverEntity {
+    return this._driver;
+  }
+
+  get rejectedDrivers(): DriverEntity[] {
+    return this._rejectedDrivers;
+  }
+
+  isOwnedBy(customer: CustomerEntity): boolean {
+    return this._customer.id === customer.id;
+  }
+
+  ensureOwnedBy(customer: CustomerEntity) {
+    if (!this.isOwnedBy(customer)) {
+      throw new UnauthorizedException('You do not own this order');
+    }
   }
 
   markAccepted() {
-    if (this.status !== OrderStatus.Pending) {
+    if (this._status !== OrderStatus.Pending) {
       throw new Error('Order is not in a state to be accepted');
     }
-    this.status = OrderStatus.Accepted;
-  }
-
-  markReady() {
-    if (this.status !== OrderStatus.Accepted) {
-      throw new Error('Order is not in a state to be marked as ready');
-    }
-    this.status = OrderStatus.Ready;
+    this._status = OrderStatus.Accepted;
   }
 
   markRejected() {
-    if (this.status !== OrderStatus.Pending) {
+    if (this._status !== OrderStatus.Pending) {
       throw new Error('Order is not in a state to be rejected');
     }
-    this.status = OrderStatus.Rejected;
+    this._status = OrderStatus.Rejected;
   }
 
-  assignDriver(driver: User) {
+  markReady() {
+    if (this._status !== OrderStatus.Accepted) {
+      throw new Error('Order is not in a state to be marked as ready');
+    }
+    this._status = OrderStatus.Ready;
+  }
+
+  assignDriver(driver: DriverEntity) {
     if (
-      this.status !== OrderStatus.Accepted &&
-      this.status !== OrderStatus.Ready
+      this._status !== OrderStatus.Accepted &&
+      this._status !== OrderStatus.Ready
     ) {
       throw new Error(
         'Driver can only be assigned to an accepted or ready order',
       );
     }
-    if (this.driver) {
+    if (this._driver) {
       throw new Error('Driver is already assigned to this order');
     }
-    this.driver = driver;
+    this._driver = driver;
   }
 
-  markRejectedByDriver(driver: User) {
+  markRejectedByDriver(driver: DriverEntity) {
     if (
-      this.status !== OrderStatus.Accepted &&
-      this.status !== OrderStatus.Ready
+      this._status !== OrderStatus.Accepted &&
+      this._status !== OrderStatus.Ready
     ) {
       throw new Error('Order is not in a state to be rejected by driver');
     }
-    this.rejectedByDrivers.push(driver);
+
+    this._rejectedDrivers.push(driver);
   }
 
-  markPickedUp(driver: User) {
-    if (!this.driver || this.driver.id !== driver.id) {
+  markPickedUp(driver: DriverEntity) {
+    if (!this._driver || this._driver.id !== driver.id) {
       throw new Error('Only the assigned driver can pick up this order');
     }
-    if (this.status !== OrderStatus.Ready) {
+    if (this._status !== OrderStatus.Ready) {
       throw new Error('Order is not in a state to be picked up');
     }
-    this.status = OrderStatus.PickedUp;
+    this._status = OrderStatus.PickedUp;
   }
 
-  markDelivered(driver: User) {
-    if (!this.driver || this.driver.id !== driver.id) {
+  markDelivered(driver: DriverEntity) {
+    if (!this._driver || this._driver.id !== driver.id) {
       throw new Error('Only the assigned driver can deliver this order');
     }
-    if (this.status !== OrderStatus.PickedUp) {
+    if (this._status !== OrderStatus.PickedUp) {
       throw new Error('Order is not in a state to be delivered');
     }
-    this.status = OrderStatus.Delivered;
+    this._status = OrderStatus.Delivered;
   }
 }
