@@ -24,6 +24,9 @@ import { OrderItem } from './order/orm-records/orderItem.entity';
 import { UserRecord } from './user/orm-records/user.record';
 import { RestaurantRecord } from './restaurant/orm-records/restaurant.record';
 import { OrderRecord } from './order/orm-records/order.record';
+import { CustomerRecord } from './user/orm-records/customer.record';
+import { DriverRecord } from './user/orm-records/driver.record';
+import { OwnerRecord } from './user/orm-records/owner.record';
 
 @Module({
   imports: [
@@ -45,7 +48,16 @@ import { OrderRecord } from './order/orm-records/order.record';
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [UserRecord, RestaurantRecord, Dish, OrderRecord, OrderItem],
+      entities: [
+        UserRecord,
+        OwnerRecord,
+        CustomerRecord,
+        DriverRecord,
+        RestaurantRecord,
+        Dish,
+        OrderRecord,
+        OrderItem,
+      ],
       synchronize: true,
     }),
     UserModule,

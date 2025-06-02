@@ -1,3 +1,4 @@
+import { OwnerMapper } from 'src/user/mapper/owner.mapper';
 import { RestaurantEntity } from '../domain/restaurant.entity';
 import { RestaurantRecord } from '../orm-records/restaurant.record';
 
@@ -20,8 +21,7 @@ export class RestaurantMapper {
       restaurantRecord.name,
       restaurantRecord.address,
       restaurantRecord.category,
-      //   RestaurantMapper.toDomain(orderEntity.restaurant),
-      //   CustomerMapper.toDomain(orderEntity.customer),
+      OwnerMapper.toDomain(restaurantRecord.owner),
     );
   }
 }

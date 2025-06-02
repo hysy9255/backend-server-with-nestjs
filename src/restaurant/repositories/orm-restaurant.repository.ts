@@ -10,10 +10,10 @@ export class OrmRestaurantRepository implements RestaurantRepository {
   constructor(private readonly em: EntityManager) {}
 
   async save(
-    user: UserRecord,
+    // user: UserRecord,
     restaurant: RestaurantRecord,
   ): Promise<RestaurantRecord> {
-    restaurant.owner = user;
+    // restaurant.owner = user;
     return this.em.save(restaurant);
   }
 

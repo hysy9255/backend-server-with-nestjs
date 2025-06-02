@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OrderRecord } from 'src/order/orm-records/order.record';
-import { OwnerRecord, UserRecord } from 'src/user/orm-records/user.record';
+import { OwnerRecord } from 'src/user/orm-records/owner.record';
 
 import {
   Column,
@@ -11,7 +11,6 @@ import {
   PrimaryColumn,
   Unique,
 } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 
 @ObjectType()
 @Entity()
@@ -39,11 +38,4 @@ export class RestaurantRecord {
 
   @OneToMany(() => OrderRecord, (order) => order.restaurant)
   orders: OrderRecord[];
-
-  // constructor(name: string, address: string, category: string) {
-  //   this.id = uuidv4();
-  //   this.name = name;
-  //   this.address = address;
-  //   this.category = category;
-  // }
 }

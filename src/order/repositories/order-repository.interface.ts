@@ -1,3 +1,4 @@
+import { DriverRecord } from 'src/user/orm-records/driver.record';
 import { OrderRecord } from '../orm-records/order.record';
 import { UserRecord } from 'src/user/orm-records/user.record';
 
@@ -7,5 +8,5 @@ export interface OrderRepository {
   findOneWithFullRelationById(id: string): Promise<OrderRecord | null>;
   findHistoryByUserId(userId: string): Promise<OrderRecord[]>;
   findByRestaurant(restaurantId: string): Promise<OrderRecord[]>;
-  findAvailableOrdersForDriver(driver: UserRecord): Promise<OrderRecord[]>;
+  findAvailableOrdersForDriver(driver: DriverRecord): Promise<OrderRecord[]>;
 }

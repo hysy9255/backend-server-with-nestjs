@@ -1,25 +1,26 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { OrderStatus } from 'src/constants/orderStatus';
 import { RestaurantEntity } from 'src/restaurant/domain/restaurant.entity';
-import { UserEntity } from 'src/user/domain/user.entity';
+import { CustomerEntity } from 'src/user/domain/customer.entity';
+import { DriverEntity } from 'src/user/domain/driver.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 export class OrderEntity {
-  private _driver: UserEntity;
-  private _rejectedDrivers: UserEntity[];
+  private _driver: DriverEntity;
+  private _rejectedDrivers: DriverEntity[];
 
   constructor(
     private readonly _id: string,
     private _status: OrderStatus,
     private readonly _restaurant: RestaurantEntity,
-    private readonly _customer: UserEntity,
+    private readonly _customer: CustomerEntity,
   ) {
     this._rejectedDrivers = [];
   }
 
   static createNew(
     restaurant: RestaurantEntity,
-    customer: UserEntity,
+    customer: CustomerEntity,
   ): OrderEntity {
     return new OrderEntity(uuidv4(), OrderStatus.Pending, restaurant, customer);
   }
@@ -28,9 +29,9 @@ export class OrderEntity {
     id: string,
     status: OrderStatus,
     restaurant: RestaurantEntity,
-    customer: UserEntity,
-    driver?: UserEntity,
-    rejectedDrivers?: UserEntity[],
+    customer: CustomerEntity,
+    driver?: DriverEntity,
+    rejectedDrivers?: DriverEntity[],
   ): OrderEntity {
     const orderEntity = new OrderEntity(id, status, restaurant, customer);
 
@@ -57,23 +58,23 @@ export class OrderEntity {
     return this._restaurant;
   }
 
-  get customer(): UserEntity {
+  get customer(): CustomerEntity {
     return this._customer;
   }
 
-  get driver(): UserEntity {
+  get driver(): DriverEntity {
     return this._driver;
   }
 
-  get rejectedDrivers(): UserEntity[] {
+  get rejectedDrivers(): DriverEntity[] {
     return this._rejectedDrivers;
   }
 
-  isOwnedBy(customer: UserEntity): boolean {
+  isOwnedBy(customer: CustomerEntity): boolean {
     return this._customer.id === customer.id;
   }
 
-  ensureOwnedBy(customer: UserEntity) {
+  ensureOwnedBy(customer: CustomerEntity) {
     if (!this.isOwnedBy(customer)) {
       throw new UnauthorizedException('You do not own this order');
     }
@@ -100,7 +101,7 @@ export class OrderEntity {
     this._status = OrderStatus.Ready;
   }
 
-  assignDriver(driver: UserEntity) {
+  assignDriver(driver: DriverEntity) {
     if (
       this._status !== OrderStatus.Accepted &&
       this._status !== OrderStatus.Ready
@@ -115,7 +116,7 @@ export class OrderEntity {
     this._driver = driver;
   }
 
-  markRejectedByDriver(driver: UserEntity) {
+  markRejectedByDriver(driver: DriverEntity) {
     if (
       this._status !== OrderStatus.Accepted &&
       this._status !== OrderStatus.Ready
@@ -126,7 +127,7 @@ export class OrderEntity {
     this._rejectedDrivers.push(driver);
   }
 
-  markPickedUp(driver: UserEntity) {
+  markPickedUp(driver: DriverEntity) {
     if (!this._driver || this._driver.id !== driver.id) {
       throw new Error('Only the assigned driver can pick up this order');
     }
@@ -136,7 +137,7 @@ export class OrderEntity {
     this._status = OrderStatus.PickedUp;
   }
 
-  markDelivered(driver: UserEntity) {
+  markDelivered(driver: DriverEntity) {
     if (!this._driver || this._driver.id !== driver.id) {
       throw new Error('Only the assigned driver can deliver this order');
     }

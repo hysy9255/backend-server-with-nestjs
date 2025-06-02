@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { OrderRepository } from '../repositories/order-repository.interface';
-import { UserRecord } from 'src/user/orm-records/user.record';
+import { OrderDTO } from '../dtos/order.dto';
+import { OrderMapper } from '../mapper/order.mapper';
+import { DriverEntity } from 'src/user/domain/driver.entity';
+import { DriverMapper } from 'src/user/mapper/driver.mapper';
+import { OrderEntity } from '../domain/order.entity';
 
 @Injectable()
 export class DriverOrderService {
@@ -9,39 +13,51 @@ export class DriverOrderService {
     private readonly orderRepository: OrderRepository,
   ) {}
 
-  async availableOrders(driver: UserRecord): Promise<Order[]> {
-    return await this.orderRepository.findAvailableOrdersForDriver(driver);
+  async availableOrders(driver: DriverEntity): Promise<OrderDTO[]> {
+    const driverRecord = DriverMapper.toRecord(driver);
+    const orderRecords =
+      await this.orderRepository.findAvailableOrdersForDriver(driverRecord);
+
+    const orderEntities = orderRecords.map((orderRecord) =>
+      OrderMapper.toDomain(orderRecord),
+    );
+
+    return orderEntities.map((orderEntity) => new OrderDTO(orderEntity));
   }
 
-  async acceptOrder(orderId: string, driver: UserRecord): Promise<any> {
+  async acceptOrder(orderId: string, driver: DriverEntity): Promise<any> {
     const order = await this.getOrderOrThrow(orderId);
     order.assignDriver(driver);
-    return await this.orderRepository.save(order);
+    const orderRecord = OrderMapper.toRecord(order);
+    return await this.orderRepository.save(orderRecord);
   }
 
-  async rejectOrder(orderId: string, driver: UserRecord): Promise<any> {
+  async rejectOrder(orderId: string, driver: DriverEntity): Promise<any> {
     const order = await this.getOrderOrThrow(orderId);
     order.markRejectedByDriver(driver);
-    return await this.orderRepository.save(order);
+    const orderRecord = OrderMapper.toRecord(order);
+    return await this.orderRepository.save(orderRecord);
   }
 
-  async pickupOrder(orderId: string, driver: UserRecord): Promise<any> {
+  async pickupOrder(orderId: string, driver: DriverEntity): Promise<any> {
     const order = await this.getOrderOrThrow(orderId);
     order.markPickedUp(driver);
-    return await this.orderRepository.save(order);
+    const orderRecord = OrderMapper.toRecord(order);
+    return await this.orderRepository.save(orderRecord);
   }
 
-  async completeOrder(orderId: string, driver: UserRecord): Promise<any> {
+  async completeOrder(orderId: string, driver: DriverEntity): Promise<any> {
     const order = await this.getOrderOrThrow(orderId);
     order.markDelivered(driver);
-    return await this.orderRepository.save(order);
+    const orderRecord = OrderMapper.toRecord(order);
+    return await this.orderRepository.save(orderRecord);
   }
 
-  private async getOrderOrThrow(orderId: string): Promise<Order> {
-    const order = await this.orderRepository.findOneById(orderId);
-    if (!order) {
+  private async getOrderOrThrow(orderId: string): Promise<OrderEntity> {
+    const orderRecord = await this.orderRepository.findOneById(orderId);
+    if (!orderRecord) {
       throw new Error('Order not found');
     }
-    return order;
+    return OrderMapper.toDomain(orderRecord);
   }
 }

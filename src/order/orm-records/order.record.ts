@@ -1,11 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { OrderStatus } from 'src/constants/orderStatus';
-import { UserRole } from 'src/constants/userRole';
-import {
-  CustomerRecord,
-  DriverRecord,
-  UserRecord,
-} from 'src/user/orm-records/user.record';
+
 import {
   Column,
   Entity,
@@ -21,6 +16,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { OrderItem } from './orderItem.entity';
 import { RestaurantRecord } from 'src/restaurant/orm-records/restaurant.record';
 import { UserEntity } from 'src/user/domain/user.entity';
+import { CustomerRecord } from 'src/user/orm-records/customer.record';
+import { DriverRecord } from 'src/user/orm-records/driver.record';
 
 @ObjectType()
 @Entity()
@@ -51,7 +48,7 @@ export class OrderRecord {
   @ManyToOne(() => DriverRecord, (driver) => driver.assignedOrders, {
     onDelete: 'CASCADE',
   })
-  assignedDriver?: DriverRecord | null;
+  driver?: DriverRecord | null;
 
   @ManyToOne(() => RestaurantRecord, (restaurant) => restaurant.orders, {
     onDelete: 'CASCADE',

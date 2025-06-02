@@ -7,6 +7,7 @@ import { OrderStatus } from 'src/constants/orderStatus';
 import { Brackets } from 'typeorm';
 import { OrderRecord } from '../orm-records/order.record';
 import { UserRecord } from 'src/user/orm-records/user.record';
+import { DriverRecord } from 'src/user/orm-records/driver.record';
 
 @Injectable()
 export class OrmOrderRepository implements OrderRepository {
@@ -43,7 +44,7 @@ export class OrmOrderRepository implements OrderRepository {
   }
 
   async findAvailableOrdersForDriver(
-    driver: UserRecord,
+    driver: DriverRecord,
   ): Promise<OrderRecord[]> {
     return this.em
       .getRepository(OrderRecord)

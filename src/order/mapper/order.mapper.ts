@@ -2,6 +2,8 @@ import { RestaurantMapper } from 'src/restaurant/mapper/restaurant.mapper';
 import { OrderEntity } from '../domain/order.entity';
 import { OrderRecord } from '../orm-records/order.record';
 import { UserMapper } from 'src/user/mapper/user.mapper';
+import { CustomerMapper } from 'src/user/mapper/customer.mapper';
+import { DriverMapper } from 'src/user/mapper/driver.mapper';
 
 export class OrderMapper {
   static toRecord(orderEntity: OrderEntity): OrderRecord {
@@ -9,12 +11,12 @@ export class OrderMapper {
     orderRecord.id = orderEntity.id;
     orderRecord.status = orderEntity.status;
     orderRecord.restaurant = RestaurantMapper.toRecord(orderEntity.restaurant);
-    orderRecord.customer = UserMapper.toRecord(orderEntity.customer);
+    orderRecord.customer = CustomerMapper.toRecord(orderEntity.customer);
     orderRecord.driver = orderEntity.driver
-      ? UserMapper.toRecord(orderEntity.driver)
+      ? DriverMapper.toRecord(orderEntity.driver)
       : null;
     orderRecord.rejectedDrivers = orderEntity.rejectedDrivers.map((driver) =>
-      UserMapper.toRecord(driver),
+      DriverMapper.toRecord(driver),
     );
 
     return orderRecord;
@@ -25,9 +27,13 @@ export class OrderMapper {
       orderRecord.id,
       orderRecord.status,
       RestaurantMapper.toDomain(orderRecord.restaurant),
-      UserMapper.toDomain(orderRecord.customer),
-      orderRecord.driver ? UserMapper.toDomain(orderRecord.driver) : undefined,
-      orderRecord.rejectedDrivers.map((driver) => UserMapper.toDomain(driver)),
+      CustomerMapper.toDomain(orderRecord.customer),
+      orderRecord.driver
+        ? DriverMapper.toDomain(orderRecord.driver)
+        : undefined,
+      orderRecord.rejectedDrivers.map((driver) =>
+        DriverMapper.toDomain(driver),
+      ),
     );
   }
 }

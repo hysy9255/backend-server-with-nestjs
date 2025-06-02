@@ -3,7 +3,7 @@ import { RestaurantRecord } from '../orm-records/restaurant.record';
 
 export interface RestaurantRepository {
   save(
-    user: UserRecord,
+    // user: UserRecord,
     restaurant: RestaurantRecord,
   ): Promise<RestaurantRecord>;
   findOneById(id: string): Promise<RestaurantRecord | null>;
