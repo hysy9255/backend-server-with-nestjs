@@ -17,8 +17,9 @@ import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { RestaurantRegistrationService } from './domain/restaurant-registration.service';
 import { RestaurantMapper } from './mapper/restaurant.mapper';
 import { OwnerMapper } from 'src/user/mapper/owner.mapper';
-import { OwnerRepository } from 'src/user/repositories/owner-repository.interface';
+import { OwnerRepository } from 'src/user/repositories/interfaces/owner-repository.interface';
 import { RestaurantEntity } from './domain/restaurant.entity';
+import { RestaurantDTO } from './dtos/restaurant.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -29,7 +30,7 @@ export class RestaurantService {
     private readonly ownerRepository: OwnerRepository,
   ) {}
 
-  async registerRestaurant(
+  async createRestaurant(
     owner: OwnerEntity,
     { name, address, category }: CreateRestaurantInput,
   ) {
@@ -44,6 +45,7 @@ export class RestaurantService {
       await this.restaurantRepository.save(
         RestaurantMapper.toRecord(restaurant),
       );
+
       await this.ownerRepository.save(OwnerMapper.toRecord(owner));
     } catch (e) {
       console.error(e);
@@ -98,34 +100,39 @@ export class RestaurantService {
     }
   }
 
-  // async getRestaurant({ id }: GetRestaurantInput): Promise<Restaurant> {
-  //   try {
-  //     const restaurant = await this.restaurantRepository.findOneById(id);
+  async getRestaurant({ id }: GetRestaurantInput): Promise<RestaurantDTO> {
+    try {
+      const restaurantRecord = await this.restaurantRepository.findOneById(id);
 
-  //     if (!restaurant) {
-  //       throw new BadRequestException(
-  //         RESTAURANT_ERROR_MESSAGES.RESTAURANT_NOT_FOUND,
-  //       );
-  //     }
+      if (!restaurantRecord) {
+        throw new BadRequestException(
+          RESTAURANT_ERROR_MESSAGES.RESTAURANT_NOT_FOUND,
+        );
+      }
 
-  //     return restaurant;
-  //   } catch (e) {
-  //     console.error(e);
-  //     if (e instanceof HttpException) throw e;
-  //     throw new InternalServerErrorException(
-  //       RESTAURANT_ERROR_MESSAGES.RESTAURANT_FETCHING_FAILED,
-  //     );
-  //   }
-  // }
+      return new RestaurantDTO(RestaurantMapper.toDomain(restaurantRecord));
+    } catch (e) {
+      console.error(e);
+      if (e instanceof HttpException) throw e;
+      throw new InternalServerErrorException(
+        RESTAURANT_ERROR_MESSAGES.RESTAURANT_FETCHING_FAILED,
+      );
+    }
+  }
 
-  // async getAllRestaurants(): Promise<Restaurant[]> {
-  //   try {
-  //     return this.restaurantRepository.find();
-  //   } catch (e) {
-  //     console.error(e);
-  //     throw new InternalServerErrorException(
-  //       RESTAURANT_ERROR_MESSAGES.RESTAURANTS_FETCHING_FAILED,
-  //     );
-  //   }
-  // }
+  async getAllRestaurants(): Promise<RestaurantDTO[]> {
+    try {
+      // return this.restaurantRepository.find();
+      const restaurantRecords = await this.restaurantRepository.find();
+      const restaurants = restaurantRecords.map((restaurantRecord) =>
+        RestaurantMapper.toDomain(restaurantRecord),
+      );
+      return restaurants.map((restaurant) => new RestaurantDTO(restaurant));
+    } catch (e) {
+      console.error(e);
+      throw new InternalServerErrorException(
+        RESTAURANT_ERROR_MESSAGES.RESTAURANTS_FETCHING_FAILED,
+      );
+    }
+  }
 }

@@ -7,36 +7,40 @@ export class DriverEntity {
   private _rejectedOrders?: OrderEntity[];
   private _assignedOrders?: OrderEntity[];
 
-  constructor(private readonly _id: string) {}
+  constructor(
+    private readonly _id: string,
+    private readonly _userId: string,
+  ) {}
 
-  static createNew() {
-    return new DriverEntity(uuidv4());
+  static createNew(userId: string) {
+    return new DriverEntity(uuidv4(), userId);
   }
 
   static fromPersistance(
     id: string,
-    rejectedOrders: OrderRecord[],
-    assignedOrders: OrderRecord[],
+    userId: string,
+    // rejectedOrders: OrderEntity[],
+    // assignedOrders: OrderEntity[],
   ) {
-    const driver = new DriverEntity(id);
+    const driver = new DriverEntity(id, userId);
 
-    if (rejectedOrders) {
-      driver._rejectedOrders = rejectedOrders.map((rejectedOrder) =>
-        OrderMapper.toDomain(rejectedOrder),
-      );
-    }
+    // if (rejectedOrders) {
+    //   driver._rejectedOrders = rejectedOrders;
+    // }
 
-    if (assignedOrders) {
-      driver._assignedOrders = assignedOrders.map((assignedOrder) =>
-        OrderMapper.toDomain(assignedOrder),
-      );
-    }
+    // if (assignedOrders) {
+    //   driver._assignedOrders = assignedOrders;
+    // }
 
     return driver;
   }
 
   get id() {
     return this._id;
+  }
+
+  get userId() {
+    return this._userId;
   }
 
   get rejectedOrders() {

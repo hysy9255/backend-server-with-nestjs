@@ -31,35 +31,111 @@ export class OrmOrderRepository implements OrderRepository {
     });
   }
 
-  async findHistoryByUserId(userId: string): Promise<OrderRecord[]> {
-    return this.em.find(OrderRecord, {
-      where: { customer: { id: userId }, status: OrderStatus.Delivered },
-    });
-  }
-
-  async findByRestaurant(restaurantId: string): Promise<OrderRecord[]> {
-    return this.em.find(OrderRecord, {
-      where: { restaurant: { id: restaurantId } },
-    });
-  }
-
-  async findAvailableOrdersForDriver(
-    driver: DriverRecord,
+  async findDeliveredOrdersByCustomerId(
+    customerId: string,
   ): Promise<OrderRecord[]> {
+    return this.em.find(OrderRecord, {
+      where: { customerId, status: OrderStatus.Delivered },
+    });
+  }
+
+  // async findByRestaurant(restaurantId: string): Promise<OrderRecord[]> {
+  //   return this.em.find(OrderRecord, {
+  //     where: { restaurant: { id: restaurantId } },
+  //   });
+  // }
+
+  async findByRestaurantId(restaurantId: string): Promise<OrderRecord[]> {
+    return this.em.find(OrderRecord, {
+      where: { restaurantId },
+    });
+  }
+
+  async findWithCustomerInfoByRestaurantId(
+    restaurantId: string,
+  ): Promise<OrderRecord[]> {
+    return this.em.find(OrderRecord, {
+      where: { restaurantId },
+      relations: ['customer'],
+    });
+  }
+
+  async findOneWithCustomerInfoById(id: string): Promise<OrderRecord | null> {
+    return this.em.findOne(OrderRecord, {
+      where: { id },
+      relations: ['customer'],
+    });
+  }
+
+  async findAvailableOrdersForDriver2(
+    driverId: string,
+  ): Promise<OrderRecord[]> {
+    return (
+      this.em
+        .getRepository(OrderRecord)
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.rejectedDrivers', 'rejected') // 여기서 함께 불러옴
+        // .select(['order.id', 'order.status', 'order.restaurantId'])
+        // .leftJoin('order.rejectedDrivers', 'rejected')
+        // .where('order.status IN (:...statuses)', {
+        //   statuses: [OrderStatus.Accepted, OrderStatus.Ready],
+        // })
+        // .andWhere(
+        //   new Brackets((qb) => {
+        //     qb.where('rejected.id IS NULL').orWhere('rejected.id != :driverId', {
+        //       driverId: driver.id,
+        //     });
+        //   }),
+        // )
+        .getMany()
+    );
+  }
+
+  async findAvailableOrdersForDriver(driverId: string): Promise<OrderRecord[]> {
     return this.em
       .getRepository(OrderRecord)
       .createQueryBuilder('order')
-      .leftJoin('order.rejectedByDrivers', 'rejected')
+      .leftJoin('order.rejectedDrivers', 'rejected')
+      .leftJoin('order.customer', 'customer')
+      .select([
+        'order.id AS "id"',
+        'order.restaurantId AS "restaurantId"',
+        'order.customerId AS "customerId"',
+        'order.status AS "status"',
+        'customer.deliveryAddress AS "deliveryAddress"',
+      ])
       .where('order.status IN (:...statuses)', {
-        statuses: [OrderStatus.Accepted, OrderStatus.Ready],
+        statuses: ['Ready', 'Accepted'],
       })
       .andWhere(
         new Brackets((qb) => {
           qb.where('rejected.id IS NULL').orWhere('rejected.id != :driverId', {
-            driverId: driver.id,
+            driverId,
           });
         }),
       )
-      .getMany();
+      .getRawMany();
   }
+
+  // async findAvailableOrdersForDriver(
+  //   driver: DriverRecord,
+  // ): Promise<OrderRecord[]> {
+  //   return (
+  //     this.em
+  //       .getRepository(OrderRecord)
+  //       .createQueryBuilder('order')
+  //       .leftJoin('order.rejectedDrivers', 'rejected')
+  //       // .where('order.status IN (:...statuses)', {
+  //       //   statuses: [OrderStatus.Accepted, OrderStatus.Ready],
+  //       // })
+  //       // .andWhere(
+  //       //   new Brackets((qb) => {
+  //       //     qb.where('rejected.id IS NULL').orWhere('rejected.id != :driverId', {
+  //       //       driverId: driver.id,
+  //       //     });
+  //       //   }),
+  //       // )
+  //       .getMany()
+  //   );
+  // }
 }

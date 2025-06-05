@@ -8,29 +8,35 @@ export class CustomerEntity {
 
   constructor(
     private readonly _id: string,
+    private readonly _userId: string,
     private _deliveryAddress: string,
   ) {}
 
-  static createNew(deliveryAddress: string) {
-    return new CustomerEntity(uuidv4(), deliveryAddress);
+  static createNew(userId: string, deliveryAddress: string) {
+    return new CustomerEntity(uuidv4(), userId, deliveryAddress);
   }
 
   static fromPersistance(
     id: string,
+    userId: string,
     deliverAddress: string,
-    orders?: OrderRecord[],
+    // orders?: OrderEntity[],
   ) {
-    const customer = new CustomerEntity(id, deliverAddress);
+    const customer = new CustomerEntity(id, userId, deliverAddress);
 
-    if (orders) {
-      customer._orders = orders.map((order) => OrderMapper.toDomain(order));
-    }
+    // if (orders) {
+    //   customer._orders = orders;
+    // }
 
     return customer;
   }
 
   get id() {
     return this._id;
+  }
+
+  get userId() {
+    return this._userId;
   }
 
   get deliveryAddress() {

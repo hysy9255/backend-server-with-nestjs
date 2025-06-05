@@ -8,6 +8,7 @@ export class CustomerMapper {
   static toRecord(customerEntity: CustomerEntity): CustomerRecord {
     const customerRecord = new CustomerRecord();
     customerRecord.id = customerEntity.id;
+    customerRecord.userId = customerEntity.userId;
     customerRecord.deliveryAddress = customerEntity.deliveryAddress;
     if (customerEntity.orders) {
       customerRecord.orders = customerEntity.orders?.map((order) =>
@@ -21,8 +22,9 @@ export class CustomerMapper {
   static toDomain(customerRecord: CustomerRecord): CustomerEntity {
     return CustomerEntity.fromPersistance(
       customerRecord.id,
+      customerRecord.userId,
       customerRecord.deliveryAddress,
-      customerRecord.orders,
+      // customerRecord.orders.map((order) => OrderMapper.toDomain(order)),
     );
   }
 }

@@ -9,7 +9,7 @@ import {
 import { UserRecord } from './user.record';
 import { OrderRecord } from 'src/order/orm-records/order.record';
 
-@Entity()
+@Entity('customer')
 export class CustomerRecord {
   @PrimaryColumn('uuid')
   id: string;
@@ -17,7 +17,10 @@ export class CustomerRecord {
   @Column()
   deliveryAddress: string;
 
-  @OneToOne(() => UserRecord, (user) => user.customer)
+  @Column()
+  userId: string;
+
+  @OneToOne(() => UserRecord, (user) => user.customer, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: UserRecord;
 

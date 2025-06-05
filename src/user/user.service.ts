@@ -5,8 +5,14 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { CreateUserInput, CreateUserOutput } from './dtos/CreateUser.dto';
-import { UserRepository } from './repositories/user-repository.interface';
+import {
+  CreateCustomerInput,
+  CreateDriverInput,
+  CreateOwnerInput,
+  CreateUserInput,
+  CreateUserOutput,
+} from './dtos/CreateUser.dto';
+import { UserRepository } from './repositories/interfaces/user-repository.interface';
 import {
   ChangePasswordInput,
   ChangePasswordOutput,
@@ -15,6 +21,16 @@ import { ERROR_MESSAGES } from 'src/constants/errorMessages';
 import { UserEntity } from './domain/user.entity';
 import { UserMapper } from './mapper/user.mapper';
 import { UserRecord } from './orm-records/user.record';
+import { DriverEntity } from './domain/driver.entity';
+import { DriverMapper } from './mapper/driver.mapper';
+import { OwnerEntity } from './domain/owner.entity';
+import { OwnerMapper } from './mapper/owner.mapper';
+import { CustomerEntity } from './domain/customer.entity';
+import { CustomerMapper } from './mapper/customer.mapper';
+import { OwnerRepository } from './repositories/interfaces/owner-repository.interface';
+import { DriverRepository } from './repositories/interfaces/driver-repository.interface';
+import { CustomerRepository } from './repositories/interfaces/customer-repository.interface';
+import { UserRole } from 'src/constants/userRole';
 // import { UserFactory } from './domain/user.factory';
 
 @Injectable()
@@ -22,22 +38,88 @@ export class UserService {
   constructor(
     @Inject('UserRepository')
     private readonly userRepository: UserRepository,
-    // private readonly userFactory: UserFactory,
+    @Inject('DriverRepository')
+    private readonly driverRepository: DriverRepository,
+    @Inject('CustomerRepository')
+    private readonly customerRepository: CustomerRepository,
+    @Inject('OwnerRepository')
+    private readonly ownerRepository: OwnerRepository,
   ) {}
 
-  async createUser(createUserInput: CreateUserInput): Promise<void> {
+  async createOwner(createOwnerInput: CreateOwnerInput): Promise<void> {
     try {
-      await this.validateDuplicateEmail(createUserInput.email);
+      await this.validateDuplicateEmail(createOwnerInput.email);
 
       const user = UserEntity.createNew(
-        createUserInput.email,
-        createUserInput.password,
-        createUserInput.role,
+        createOwnerInput.email,
+        createOwnerInput.password,
+        createOwnerInput.role,
       );
 
-      await user.hashPassword();
+      if (user.isOwner()) {
+        await user.hashPassword();
+        const owner = OwnerEntity.createNew(user.id);
 
-      await this.userRepository.save(UserMapper.toRecord(user));
+        await this.userRepository.save(UserMapper.toRecord(user));
+        await this.ownerRepository.save(OwnerMapper.toRecord(owner));
+      }
+    } catch (e) {
+      console.error(e);
+      if (e instanceof HttpException) throw e;
+      throw new InternalServerErrorException(
+        ERROR_MESSAGES.USER_CREATION_FAILED,
+      );
+    }
+  }
+
+  async createCustomer(
+    createCustomerInput: CreateCustomerInput,
+  ): Promise<void> {
+    try {
+      await this.validateDuplicateEmail(createCustomerInput.email);
+
+      const user = UserEntity.createNew(
+        createCustomerInput.email,
+        createCustomerInput.password,
+        createCustomerInput.role,
+      );
+
+      if (user.isCustomer()) {
+        await user.hashPassword();
+        const customer = CustomerEntity.createNew(
+          user.id,
+          createCustomerInput.deliveryAddress,
+        );
+
+        await this.userRepository.save(UserMapper.toRecord(user));
+        await this.customerRepository.save(CustomerMapper.toRecord(customer));
+      }
+    } catch (e) {
+      console.error(e);
+      if (e instanceof HttpException) throw e;
+      throw new InternalServerErrorException(
+        ERROR_MESSAGES.USER_CREATION_FAILED,
+      );
+    }
+  }
+
+  async createDriver(createDriverInput: CreateDriverInput): Promise<void> {
+    try {
+      await this.validateDuplicateEmail(createDriverInput.email);
+
+      const user = UserEntity.createNew(
+        createDriverInput.email,
+        createDriverInput.password,
+        createDriverInput.role,
+      );
+
+      if (user.isDriver()) {
+        await user.hashPassword();
+        const driver = DriverEntity.createNew(user.id);
+
+        await this.userRepository.save(UserMapper.toRecord(user));
+        await this.driverRepository.save(DriverMapper.toRecord(driver));
+      }
     } catch (e) {
       console.error(e);
       if (e instanceof HttpException) throw e;
@@ -97,13 +179,27 @@ export class UserService {
     }
   }
 
-  async findUserById(id: string) {
+  async findUserById(id: string): Promise<UserRecord> {
     try {
-      const result = await this.userRepository.findById(id);
-      if (!result) {
+      const userRecord = await this.userRepository.findById(id);
+      if (!userRecord) {
         throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
       }
-      return result;
+      return userRecord;
+    } catch (e) {
+      console.error(e);
+      if (e instanceof HttpException) throw e;
+      throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
+    }
+  }
+
+  async findUserRecordById(id: string): Promise<UserRecord> {
+    try {
+      const userRecord = await this.userRepository.findById(id);
+      if (!userRecord) {
+        throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
+      }
+      return userRecord;
     } catch (e) {
       console.error(e);
       if (e instanceof HttpException) throw e;
@@ -124,5 +220,35 @@ export class UserService {
       if (e instanceof HttpException) throw e;
       throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
     }
+  }
+
+  async findDriverByUserId(userId: string): Promise<DriverEntity> {
+    const driverRecord = await this.driverRepository.findByUserId(userId);
+
+    if (!driverRecord) {
+      throw new Error('Driver is not found');
+    }
+
+    return DriverMapper.toDomain(driverRecord);
+  }
+
+  async findOwnerByUserId(userId: string): Promise<OwnerEntity> {
+    const ownerRecord = await this.ownerRepository.findByUserId(userId);
+
+    if (!ownerRecord) {
+      throw new Error('Owner is not found');
+    }
+
+    return OwnerMapper.toDomain(ownerRecord);
+  }
+
+  async findCustomerByUserId(userId: string): Promise<CustomerEntity> {
+    const customerRecord = await this.customerRepository.findByUserId(userId);
+
+    if (!customerRecord) {
+      throw new Error('Customer is not found');
+    }
+
+    return CustomerMapper.toDomain(customerRecord);
   }
 }

@@ -1,4 +1,4 @@
-import { UserRecord } from '../orm-records/user.record';
+import { UserRecord } from '../../orm-records/user.record';
 
 export interface UserRepository {
   save(user: UserRecord): Promise<UserRecord>;

@@ -6,15 +6,18 @@ export class OwnerMapper {
   static toRecord(ownerEntity: OwnerEntity): OwnerRecord {
     const ownerRecord = new OwnerRecord();
     ownerRecord.id = ownerEntity.id;
-
+    ownerRecord.userId = ownerEntity.userId;
+    ownerRecord.restaurantId = ownerEntity.restaurantId
+      ? ownerEntity.restaurantId
+      : null;
     return ownerRecord;
   }
 
   static toDomain(ownerRecord: OwnerRecord): OwnerEntity {
-    const restaurant = ownerRecord.restaurant
-      ? RestaurantMapper.toDomain(ownerRecord.restaurant)
-      : undefined;
-
-    return OwnerEntity.fromPersistance(ownerRecord.id, restaurant);
+    return OwnerEntity.fromPersistance(
+      ownerRecord.id,
+      ownerRecord.userId,
+      ownerRecord.restaurantId ? ownerRecord.restaurantId : undefined,
+    );
   }
 }

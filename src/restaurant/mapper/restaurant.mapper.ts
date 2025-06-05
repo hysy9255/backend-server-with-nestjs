@@ -9,6 +9,8 @@ export class RestaurantMapper {
     restaurantRecord.name = restaurantEntity.name;
     restaurantRecord.address = restaurantEntity.address;
     restaurantRecord.category = restaurantEntity.category;
+    restaurantRecord.ownerId = restaurantEntity.ownerId;
+    // restaurantRecord.owner = res
     // orderEntity.restaurant = RestaurantMapper.toEntity(orderModel.restaurant);
     // orderEntity.customer = CustomerMapper.toEntity(orderModel.customer);
 
@@ -21,7 +23,8 @@ export class RestaurantMapper {
       restaurantRecord.name,
       restaurantRecord.address,
       restaurantRecord.category,
-      OwnerMapper.toDomain(restaurantRecord.owner),
+      restaurantRecord.ownerId,
+      // OwnerMapper.toDomain(restaurantRecord.owner),
     );
   }
 }

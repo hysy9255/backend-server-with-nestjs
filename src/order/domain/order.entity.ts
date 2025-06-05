@@ -6,41 +6,43 @@ import { DriverEntity } from 'src/user/domain/driver.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 export class OrderEntity {
-  private _driver: DriverEntity;
-  private _rejectedDrivers: DriverEntity[];
+  private _driverId: string;
+  private _rejectedDriverIds: string[];
 
   constructor(
     private readonly _id: string,
     private _status: OrderStatus,
-    private readonly _restaurant: RestaurantEntity,
-    private readonly _customer: CustomerEntity,
+    private readonly _restaurantId: string,
+    private readonly _customerId: string,
   ) {
-    this._rejectedDrivers = [];
+    this._rejectedDriverIds = [];
   }
 
-  static createNew(
-    restaurant: RestaurantEntity,
-    customer: CustomerEntity,
-  ): OrderEntity {
-    return new OrderEntity(uuidv4(), OrderStatus.Pending, restaurant, customer);
+  static createNew(restaurantId: string, customerId: string): OrderEntity {
+    return new OrderEntity(
+      uuidv4(),
+      OrderStatus.Pending,
+      restaurantId,
+      customerId,
+    );
   }
 
   static fromPersistance(
     id: string,
     status: OrderStatus,
-    restaurant: RestaurantEntity,
-    customer: CustomerEntity,
-    driver?: DriverEntity,
-    rejectedDrivers?: DriverEntity[],
+    restaurantId: string,
+    customerId: string,
+    driverId?: string,
+    rejectedDriverIds?: string[],
   ): OrderEntity {
-    const orderEntity = new OrderEntity(id, status, restaurant, customer);
+    const orderEntity = new OrderEntity(id, status, restaurantId, customerId);
 
-    if (driver) {
-      orderEntity._driver = driver;
+    if (driverId) {
+      orderEntity._driverId = driverId;
     }
 
-    if (rejectedDrivers) {
-      orderEntity._rejectedDrivers = rejectedDrivers;
+    if (rejectedDriverIds) {
+      orderEntity._rejectedDriverIds = rejectedDriverIds;
     }
 
     return orderEntity;
@@ -54,24 +56,24 @@ export class OrderEntity {
     return this._status;
   }
 
-  get restaurant(): RestaurantEntity {
-    return this._restaurant;
+  get restaurantId(): string {
+    return this._restaurantId;
   }
 
-  get customer(): CustomerEntity {
-    return this._customer;
+  get customerId(): string {
+    return this._customerId;
   }
 
-  get driver(): DriverEntity {
-    return this._driver;
+  get driverId(): string {
+    return this._driverId;
   }
 
-  get rejectedDrivers(): DriverEntity[] {
-    return this._rejectedDrivers;
+  get rejectedDriverIds(): string[] {
+    return this._rejectedDriverIds;
   }
 
   isOwnedBy(customer: CustomerEntity): boolean {
-    return this._customer.id === customer.id;
+    return this._customerId === customer.id;
   }
 
   ensureOwnedBy(customer: CustomerEntity) {
@@ -110,10 +112,10 @@ export class OrderEntity {
         'Driver can only be assigned to an accepted or ready order',
       );
     }
-    if (this._driver) {
+    if (this._driverId) {
       throw new Error('Driver is already assigned to this order');
     }
-    this._driver = driver;
+    this._driverId = driver.id;
   }
 
   markRejectedByDriver(driver: DriverEntity) {
@@ -124,11 +126,11 @@ export class OrderEntity {
       throw new Error('Order is not in a state to be rejected by driver');
     }
 
-    this._rejectedDrivers.push(driver);
+    this._rejectedDriverIds.push(driver.id);
   }
 
   markPickedUp(driver: DriverEntity) {
-    if (!this._driver || this._driver.id !== driver.id) {
+    if (!this._driverId || this._driverId !== driver.id) {
       throw new Error('Only the assigned driver can pick up this order');
     }
     if (this._status !== OrderStatus.Ready) {
@@ -138,7 +140,7 @@ export class OrderEntity {
   }
 
   markDelivered(driver: DriverEntity) {
-    if (!this._driver || this._driver.id !== driver.id) {
+    if (!this._driverId || this._driverId !== driver.id) {
       throw new Error('Only the assigned driver can deliver this order');
     }
     if (this._status !== OrderStatus.PickedUp) {

@@ -1,4 +1,8 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import {
+  createParamDecorator,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { UserMapper } from 'src/user/mapper/user.mapper';
 import { UserEntity } from 'src/user/domain/user.entity';
@@ -8,19 +12,25 @@ import { CustomerMapper } from 'src/user/mapper/customer.mapper';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { CustomerEntity } from 'src/user/domain/customer.entity';
 import { OwnerEntity } from 'src/user/domain/owner.entity';
+import { UserService } from 'src/user/user.service';
+import { OwnerMapper } from 'src/user/mapper/owner.mapper';
 
-export const AuthUser = createParamDecorator(
-  (_, context: ExecutionContext): UserEntity => {
+export const AuthOwner = createParamDecorator(
+  async (_, context: ExecutionContext): Promise<OwnerEntity> => {
     const gqlContext = GqlExecutionContext.create(context).getContext();
-
-    const userRecord = gqlContext['userRecord'];
-
-    return UserMapper.toDomain(userRecord);
 
     // const domainUser: DriverEntity | CustomerEntity | OwnerEntity =
     //   gqlContext['domainUser'];
 
     // console.log('from decorator', domainUser);
+
+    const userRecord: UserRecord = gqlContext['userRecord'];
+    const userService: UserService = gqlContext.req.userService;
+
+    const owner = await userService.findOwnerByUserId(userRecord.id);
+    if (!owner) throw new ForbiddenException();
+
+    return owner;
 
     // return domainUser;
     // let userRecord: UserRecord;

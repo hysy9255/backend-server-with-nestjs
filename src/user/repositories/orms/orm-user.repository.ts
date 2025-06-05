@@ -1,7 +1,7 @@
-import { UserRepository } from './user-repository.interface';
+import { UserRepository } from '../interfaces/user-repository.interface';
 import { EntityManager } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { UserRecord } from '../orm-records/user.record';
+import { UserRecord } from '../../orm-records/user.record';
 
 @Injectable()
 export class OrmUserRepository implements UserRepository {
@@ -16,7 +16,9 @@ export class OrmUserRepository implements UserRepository {
   }
 
   async findById(id: string): Promise<UserRecord | null> {
-    return await this.em.findOne(UserRecord, { where: { id } });
+    return await this.em.findOne(UserRecord, {
+      where: { id },
+    });
   }
 
   async findWithAssociatedRestaurantById(

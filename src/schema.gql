@@ -16,7 +16,7 @@ type RestaurantDTO {
 type OrderDTO {
   id: String!
   status: OrderStatus!
-  restaurant: RestaurantDTO!
+  restaurantId: String!
 }
 
 enum OrderStatus {
@@ -28,19 +28,104 @@ enum OrderStatus {
   Delivered
 }
 
-type Query {
-  getOrder(input: ClientGetOrderInput!): OrderDTO!
+type OrderDTOForOwner {
+  id: String!
+  status: OrderStatus!
+  restaurantId: String!
+  customerId: String!
+  deliveryAddress: String!
 }
 
-input ClientGetOrderInput {
+type Query {
+  getRestaurant(input: GetRestaurantInput!): RestaurantDTO!
+  getAllRestaurants: [RestaurantDTO!]!
+  getOrderByClient(input: GetOrderByClientInput!): OrderDTO!
+  getOrderHistory: [OrderDTO!]!
+  getOrdersByOwner: [OrderDTOForOwner!]!
+  getOrderByOwner(input: GetOrderByOwnerInput!): OrderDTOForOwner!
+  getOrdersByDriver: [OrderDTO!]!
+}
+
+input GetRestaurantInput {
+  id: String!
+}
+
+input GetOrderByClientInput {
+  orderId: String!
+}
+
+input GetOrderByOwnerInput {
   orderId: String!
 }
 
 type Mutation {
+  createOwner(input: CreateOwnerInput!): Boolean!
+  createCustomer(input: CreateCustomerInput!): Boolean!
+  createDriver(input: CreateDriverInput!): Boolean!
+  changePassword(input: ChangePasswordInput!): Boolean!
   login(input: LoginInput!): LoginOutput!
+  createRestaurant(input: CreateRestaurantInput!): Boolean!
+  createOrder(input: CreateOrderInput!): Boolean!
+  acceptOrderByOwner(input: AcceptOrderInput!): Boolean!
+  rejectOrderByOwner(input: RejectOrderInput!): Boolean!
+  markOrderAsReadyByOwner(input: MarkOrderAsReadyInput!): Boolean!
+  acceptOrderByDriver(input: AcceptOrderInput!): Boolean!
+  rejectOrderByDriver(input: RejectOrderInput!): Boolean!
+}
+
+input CreateOwnerInput {
+  email: String!
+  password: String!
+  role: UserRole!
+}
+
+enum UserRole {
+  Client
+  Owner
+  Delivery
+}
+
+input CreateCustomerInput {
+  email: String!
+  password: String!
+  role: UserRole!
+  deliveryAddress: String!
+}
+
+input CreateDriverInput {
+  email: String!
+  password: String!
+  role: UserRole!
+}
+
+input ChangePasswordInput {
+  password: String!
+  newPassword: String!
 }
 
 input LoginInput {
   email: String!
   password: String!
+}
+
+input CreateRestaurantInput {
+  name: String!
+  address: String!
+  category: String!
+}
+
+input CreateOrderInput {
+  restaurantId: String!
+}
+
+input AcceptOrderInput {
+  orderId: String!
+}
+
+input RejectOrderInput {
+  orderId: String!
+}
+
+input MarkOrderAsReadyInput {
+  orderId: String!
 }

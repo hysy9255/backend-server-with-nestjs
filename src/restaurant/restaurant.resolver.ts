@@ -7,31 +7,32 @@ import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UserEntity } from 'src/user/domain/user.entity';
 import { AuthUser } from 'src/auth/auth-user.decorator';
+import { OwnerEntity } from 'src/user/domain/owner.entity';
+import { AuthOwner } from 'src/auth/auth-owner.decorator';
+import { RestaurantDTO } from './dtos/restaurant.dto';
 
 @Resolver()
 export class RestaurantResolver {
   constructor(private readonly restaurantService: RestaurantService) {}
 
-  // @Mutation(() => Restaurant)
-  // @UseGuards(AuthGuard)
-  // async createRestaurant(
-  //   // @Context() context,
-  //   @AuthUser() user: UserEntity
-  //   @Args('input') createRestaurantInput: CreateRestaurantInput,
-  // ): Promise<Restaurant> {
-  //   // const user = context.req.user;
-  //   return this.restaurantService.registerRestaurant(user, createRestaurantInput);
-  // }
+  @Mutation(() => Boolean)
+  async createRestaurant(
+    @AuthOwner() owner: OwnerEntity,
+    @Args('input') createRestaurantInput: CreateRestaurantInput,
+  ): Promise<boolean> {
+    await this.restaurantService.createRestaurant(owner, createRestaurantInput);
+    return true;
+  }
 
-  // @Query(() => Restaurant)
-  // async getRestaurant(
-  //   @Args('input') getRestaurantInput: GetRestaurantInput,
-  // ): Promise<Restaurant> {
-  //   return this.restaurantService.getRestaurant(getRestaurantInput);
-  // }
+  @Query(() => RestaurantDTO)
+  getRestaurant(
+    @Args('input') getRestaurantInput: GetRestaurantInput,
+  ): Promise<RestaurantDTO> {
+    return this.restaurantService.getRestaurant(getRestaurantInput);
+  }
 
-  // @Query(() => [Restaurant])
-  // async getAllRestaurants(): Promise<Restaurant[]> {
-  //   return this.restaurantService.getAllRestaurants();
-  // }
+  @Query(() => [RestaurantDTO])
+  getAllRestaurants(): Promise<RestaurantDTO[]> {
+    return this.restaurantService.getAllRestaurants();
+  }
 }

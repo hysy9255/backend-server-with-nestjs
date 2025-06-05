@@ -13,6 +13,18 @@ export class CreateUserInput {
   role: UserRole;
 }
 
+@InputType()
+export class CreateOwnerInput extends CreateUserInput {}
+
+@InputType()
+export class CreateCustomerInput extends CreateUserInput {
+  @Field(() => String)
+  deliveryAddress: string;
+}
+
+@InputType()
+export class CreateDriverInput extends CreateUserInput {}
+
 @ObjectType()
 export class CreateUserOutput {
   @Field(() => String)

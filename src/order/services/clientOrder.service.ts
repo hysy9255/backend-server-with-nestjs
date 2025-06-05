@@ -8,6 +8,7 @@ import { UserRecord } from 'src/user/orm-records/user.record';
 import { UserEntity } from 'src/user/domain/user.entity';
 import { CustomerEntity } from 'src/user/domain/customer.entity';
 import { OrderDTO } from '../dtos/order.dto';
+import { CustomerRecord } from 'src/user/orm-records/customer.record';
 
 @Injectable()
 export class ClientOrderService {
@@ -19,14 +20,16 @@ export class ClientOrderService {
   async createOrder(
     customer: CustomerEntity,
     createOrderInput: CreateOrderInput,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const restaurant = await this.restaurantService.getRestaurantEntityById(
       createOrderInput.restaurantId,
     );
 
-    const order = OrderEntity.createNew(restaurant, customer);
+    const order = OrderEntity.createNew(restaurant.id, customer.id);
 
     await this.orderRepository.save(OrderMapper.toRecord(order));
+
+    return true;
   }
 
   async getOrder(customer: CustomerEntity, orderId: string): Promise<OrderDTO> {
@@ -41,10 +44,10 @@ export class ClientOrderService {
     return new OrderDTO(order);
   }
 
-  async getOrderHistory(customer: UserRecord): Promise<OrderDTO[]> {
-    const orderRecords = await this.orderRepository.findHistoryByUserId(
-      customer.id,
-    );
+  async getOrderHistory(customer: CustomerEntity): Promise<OrderDTO[]> {
+    const orderRecords =
+      await this.orderRepository.findDeliveredOrdersByCustomerId(customer.id);
+
     const orders = orderRecords.map((record) => OrderMapper.toDomain(record));
 
     return orders.map((order) => new OrderDTO(order));

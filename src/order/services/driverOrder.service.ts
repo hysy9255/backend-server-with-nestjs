@@ -13,11 +13,10 @@ export class DriverOrderService {
     private readonly orderRepository: OrderRepository,
   ) {}
 
-  async availableOrders(driver: DriverEntity): Promise<OrderDTO[]> {
-    const driverRecord = DriverMapper.toRecord(driver);
+  async getAvailableOrders(driver: DriverEntity): Promise<OrderDTO[]> {
     const orderRecords =
-      await this.orderRepository.findAvailableOrdersForDriver(driverRecord);
-
+      await this.orderRepository.findAvailableOrdersForDriver(driver.id);
+    console.log(orderRecords[0]);
     const orderEntities = orderRecords.map((orderRecord) =>
       OrderMapper.toDomain(orderRecord),
     );
@@ -39,19 +38,19 @@ export class DriverOrderService {
     return await this.orderRepository.save(orderRecord);
   }
 
-  async pickupOrder(orderId: string, driver: DriverEntity): Promise<any> {
-    const order = await this.getOrderOrThrow(orderId);
-    order.markPickedUp(driver);
-    const orderRecord = OrderMapper.toRecord(order);
-    return await this.orderRepository.save(orderRecord);
-  }
+  // async pickupOrder(orderId: string, driver: DriverEntity): Promise<any> {
+  //   const order = await this.getOrderOrThrow(orderId);
+  //   order.markPickedUp(driver);
+  //   const orderRecord = OrderMapper.toRecord(order);
+  //   return await this.orderRepository.save(orderRecord);
+  // }
 
-  async completeOrder(orderId: string, driver: DriverEntity): Promise<any> {
-    const order = await this.getOrderOrThrow(orderId);
-    order.markDelivered(driver);
-    const orderRecord = OrderMapper.toRecord(order);
-    return await this.orderRepository.save(orderRecord);
-  }
+  // async completeOrder(orderId: string, driver: DriverEntity): Promise<any> {
+  //   const order = await this.getOrderOrThrow(orderId);
+  //   order.markDelivered(driver);
+  //   const orderRecord = OrderMapper.toRecord(order);
+  //   return await this.orderRepository.save(orderRecord);
+  // }
 
   private async getOrderOrThrow(orderId: string): Promise<OrderEntity> {
     const orderRecord = await this.orderRepository.findOneById(orderId);

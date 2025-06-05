@@ -4,7 +4,7 @@ import { OwnerRecord } from './owner.record';
 import { CustomerRecord } from './customer.record';
 import { DriverRecord } from './driver.record';
 
-@Entity()
+@Entity('user')
 export class UserRecord {
   @PrimaryColumn('uuid')
   id: string;

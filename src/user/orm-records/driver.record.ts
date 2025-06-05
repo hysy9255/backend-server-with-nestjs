@@ -1,4 +1,5 @@
 import {
+  Column,
   Entity,
   JoinColumn,
   ManyToMany,
@@ -9,12 +10,15 @@ import {
 import { UserRecord } from './user.record';
 import { OrderRecord } from 'src/order/orm-records/order.record';
 
-@Entity()
+@Entity('driver')
 export class DriverRecord {
   @PrimaryColumn('uuid')
   id: string;
 
-  @OneToOne(() => UserRecord, (user) => user.driver)
+  @Column()
+  userId: string;
+
+  @OneToOne(() => UserRecord, (user) => user.driver, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: UserRecord;
 

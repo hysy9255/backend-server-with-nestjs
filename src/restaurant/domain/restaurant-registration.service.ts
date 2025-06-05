@@ -17,9 +17,9 @@ export class RestaurantRegistrationService {
       name,
       address,
       category,
-      owner,
+      owner.id,
     );
-    owner.assignRestaurant(restaurant);
+    owner.assignRestaurant(restaurant.id);
     return restaurant;
   }
 }

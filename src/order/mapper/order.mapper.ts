@@ -10,14 +10,16 @@ export class OrderMapper {
     const orderRecord = new OrderRecord();
     orderRecord.id = orderEntity.id;
     orderRecord.status = orderEntity.status;
-    orderRecord.restaurant = RestaurantMapper.toRecord(orderEntity.restaurant);
-    orderRecord.customer = CustomerMapper.toRecord(orderEntity.customer);
-    orderRecord.driver = orderEntity.driver
-      ? DriverMapper.toRecord(orderEntity.driver)
-      : null;
-    orderRecord.rejectedDrivers = orderEntity.rejectedDrivers.map((driver) =>
-      DriverMapper.toRecord(driver),
-    );
+    orderRecord.restaurantId = orderEntity.restaurantId;
+    orderRecord.customerId = orderEntity.customerId;
+    orderRecord.driverId = orderEntity.driverId;
+
+    // orderRecord.driver = orderEntity.driverId
+    //   ? DriverMapper.toRecord(orderEntity.driver)
+    //   : null;
+    // orderRecord.rejectedDrivers = orderEntity.rejectedDrivers?.map((driver) =>
+    //   DriverMapper.toRecord(driver),
+    // );
 
     return orderRecord;
   }
@@ -26,14 +28,15 @@ export class OrderMapper {
     return OrderEntity.fromPersistance(
       orderRecord.id,
       orderRecord.status,
-      RestaurantMapper.toDomain(orderRecord.restaurant),
-      CustomerMapper.toDomain(orderRecord.customer),
-      orderRecord.driver
-        ? DriverMapper.toDomain(orderRecord.driver)
-        : undefined,
-      orderRecord.rejectedDrivers.map((driver) =>
-        DriverMapper.toDomain(driver),
-      ),
+      orderRecord.restaurantId,
+      orderRecord.customerId,
+      orderRecord.driverId ?? orderRecord.driverId,
+      // orderRecord.driver
+      //   ? DriverMapper.toDomain(orderRecord.driver)
+      //   : undefined,
+      // orderRecord.rejectedDrivers.map((driver) =>
+      //   DriverMapper.toDomain(driver),
+      // ),
     );
   }
 }

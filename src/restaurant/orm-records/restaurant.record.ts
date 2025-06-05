@@ -12,25 +12,28 @@ import {
   Unique,
 } from 'typeorm';
 
-@ObjectType()
-@Entity()
-@Unique(['owner'])
+// @ObjectType()
+@Entity('restaurant')
+@Unique(['ownerId'])
 export class RestaurantRecord {
-  @Field(() => String)
+  // @Field(() => String)
   @PrimaryColumn('uuid')
   id: string;
 
-  @Field(() => String)
+  // @Field(() => String)
   @Column()
   name: string;
 
-  @Field(() => String)
+  // @Field(() => String)
   @Column()
   address: string;
 
-  @Field(() => String)
+  // @Field(() => String)
   @Column()
   category: string;
+
+  @Column()
+  ownerId: string;
 
   @OneToOne(() => OwnerRecord)
   @JoinColumn({ name: 'ownerId' }) // creates `ownerId` column in Restaurant

@@ -49,6 +49,18 @@ export class UserEntity {
     return this._role;
   }
 
+  isOwner(): boolean {
+    return this._role === UserRole.Owner;
+  }
+
+  isCustomer(): boolean {
+    return this._role === UserRole.Client;
+  }
+
+  isDriver(): boolean {
+    return this._role === UserRole.Delivery;
+  }
+
   checkUserRole(role: UserRole): void {
     const matches = this._role === role;
     if (!matches) {
