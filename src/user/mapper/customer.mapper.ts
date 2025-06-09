@@ -1,25 +1,24 @@
 import { OrderMapper } from 'src/order/mapper/order.mapper';
 import { DriverEntity } from '../domain/driver.entity';
-import { DriverRecord } from '../orm-records/driver.record';
 import { CustomerEntity } from '../domain/customer.entity';
-import { CustomerRecord } from '../orm-records/customer.record';
+import { CustomerOrmEntity } from '../orm-entities/customer.orm.entity';
 
 export class CustomerMapper {
-  static toRecord(customerEntity: CustomerEntity): CustomerRecord {
-    const customerRecord = new CustomerRecord();
+  static toRecord(customerEntity: CustomerEntity): CustomerOrmEntity {
+    const customerRecord = new CustomerOrmEntity();
     customerRecord.id = customerEntity.id;
     customerRecord.userId = customerEntity.userId;
     customerRecord.deliveryAddress = customerEntity.deliveryAddress;
-    if (customerEntity.orders) {
-      customerRecord.orders = customerEntity.orders?.map((order) =>
-        OrderMapper.toRecord(order),
-      );
-    }
+    // if (customerEntity.orders) {
+    //   customerRecord.orders = customerEntity.orders?.map((order) =>
+    //     OrderMapper.toRecord(order),
+    //   );
+    // }
 
     return customerRecord;
   }
 
-  static toDomain(customerRecord: CustomerRecord): CustomerEntity {
+  static toDomain(customerRecord: CustomerOrmEntity): CustomerEntity {
     return CustomerEntity.fromPersistance(
       customerRecord.id,
       customerRecord.userId,

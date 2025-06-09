@@ -1,30 +1,30 @@
 import { UserRepository } from '../interfaces/user-repository.interface';
 import { EntityManager } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { UserRecord } from '../../orm-records/user.record';
+import { UserOrmEntity } from 'src/user/orm-entities/user.orm.entity';
 
 @Injectable()
 export class OrmUserRepository implements UserRepository {
   constructor(private readonly em: EntityManager) {}
 
-  async save(user: UserRecord): Promise<UserRecord> {
-    return await this.em.save(UserRecord, user);
+  async save(user: UserOrmEntity): Promise<UserOrmEntity> {
+    return await this.em.save(UserOrmEntity, user);
   }
 
   async findByEmail(email: string) {
-    return await this.em.findOne(UserRecord, { where: { email } });
+    return await this.em.findOne(UserOrmEntity, { where: { email } });
   }
 
-  async findById(id: string): Promise<UserRecord | null> {
-    return await this.em.findOne(UserRecord, {
+  async findById(id: string): Promise<UserOrmEntity | null> {
+    return await this.em.findOne(UserOrmEntity, {
       where: { id },
     });
   }
 
   async findWithAssociatedRestaurantById(
     id: string,
-  ): Promise<UserRecord | null> {
-    return await this.em.findOne(UserRecord, {
+  ): Promise<UserOrmEntity | null> {
+    return await this.em.findOne(UserOrmEntity, {
       where: { id },
       relations: ['restaurant'],
     });

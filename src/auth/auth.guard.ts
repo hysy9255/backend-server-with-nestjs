@@ -26,7 +26,7 @@ import { UserRole } from 'src/constants/userRole';
 import { DriverMapper } from 'src/user/mapper/driver.mapper';
 import { OwnerMapper } from 'src/user/mapper/owner.mapper';
 import { CustomerMapper } from 'src/user/mapper/customer.mapper';
-import { UserRecord } from 'src/user/orm-records/user.record';
+import { UserOrmEntity } from 'src/user/orm-entities/user.orm.entity';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -50,7 +50,7 @@ export class AuthGuard implements CanActivate {
     // GraphQL 요청인지 확인
     if (context.getType<GqlContextType>() === 'graphql') {
       const gqlContext = GqlExecutionContext.create(context).getContext();
-      const userRecord: UserRecord = gqlContext.req?.user;
+      const userRecord: UserOrmEntity = gqlContext.req?.user;
 
       gqlContext['userRecord'] = userRecord;
 

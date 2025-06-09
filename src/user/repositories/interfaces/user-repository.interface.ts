@@ -1,8 +1,8 @@
-import { UserRecord } from '../../orm-records/user.record';
+import { UserOrmEntity } from 'src/user/orm-entities/user.orm.entity';
 
 export interface UserRepository {
-  save(user: UserRecord): Promise<UserRecord>;
-  findByEmail(email: string): Promise<UserRecord | null>;
-  findById(id: string): Promise<UserRecord | null>;
-  findWithAssociatedRestaurantById(id: string): Promise<UserRecord | null>;
+  save(user: UserOrmEntity): Promise<UserOrmEntity>;
+  findByEmail(email: string): Promise<UserOrmEntity | null>;
+  findById(id: string): Promise<UserOrmEntity | null>;
+  findWithAssociatedRestaurantById(id: string): Promise<UserOrmEntity | null>;
 }

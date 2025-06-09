@@ -20,7 +20,6 @@ import {
 import { ERROR_MESSAGES } from 'src/constants/errorMessages';
 import { UserEntity } from './domain/user.entity';
 import { UserMapper } from './mapper/user.mapper';
-import { UserRecord } from './orm-records/user.record';
 import { DriverEntity } from './domain/driver.entity';
 import { DriverMapper } from './mapper/driver.mapper';
 import { OwnerEntity } from './domain/owner.entity';
@@ -31,6 +30,7 @@ import { OwnerRepository } from './repositories/interfaces/owner-repository.inte
 import { DriverRepository } from './repositories/interfaces/driver-repository.interface';
 import { CustomerRepository } from './repositories/interfaces/customer-repository.interface';
 import { UserRole } from 'src/constants/userRole';
+import { UserOrmEntity } from './orm-entities/user.orm.entity';
 // import { UserFactory } from './domain/user.factory';
 
 @Injectable()
@@ -179,7 +179,7 @@ export class UserService {
     }
   }
 
-  async findUserById(id: string): Promise<UserRecord> {
+  async findUserById(id: string): Promise<UserOrmEntity> {
     try {
       const userRecord = await this.userRepository.findById(id);
       if (!userRecord) {
@@ -193,7 +193,7 @@ export class UserService {
     }
   }
 
-  async findUserRecordById(id: string): Promise<UserRecord> {
+  async findUserRecordById(id: string): Promise<UserOrmEntity> {
     try {
       const userRecord = await this.userRepository.findById(id);
       if (!userRecord) {

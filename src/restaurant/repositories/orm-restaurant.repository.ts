@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-
 import { RestaurantRepository } from './restaurant-repository.interface';
-import { UserRecord } from 'src/user/orm-records/user.record';
-import { RestaurantRecord } from '../orm-records/restaurant.record';
+import { RestaurantRecord } from '../orm-entities/restaurant.orm.entity';
 
 @Injectable()
 export class OrmRestaurantRepository implements RestaurantRepository {
@@ -25,7 +23,7 @@ export class OrmRestaurantRepository implements RestaurantRepository {
     return this.em.find(RestaurantRecord);
   }
 
-  async findOneByOwner(user: UserRecord): Promise<RestaurantRecord | null> {
-    return this.em.findOne(RestaurantRecord, { where: { owner: user } });
-  }
+  // async findOneByOwner(user: UserRecord): Promise<RestaurantRecord | null> {
+  //   return this.em.findOne(RestaurantRecord, { where: { owner: user } });
+  // }
 }

@@ -1,8 +1,7 @@
-import { UserRecord } from 'src/user/orm-records/user.record';
-import { DriverRecord } from '../../orm-records/driver.record';
+import { DriverOrmEntity } from 'src/user/orm-entities/driver.orm.entity';
 
 export interface DriverRepository {
-  save(driverRecord: DriverRecord): Promise<void>;
-  findByUserId(userId: string): Promise<DriverRecord | null>;
-  findById(id: string): Promise<DriverRecord | null>;
+  save(driverRecord: DriverOrmEntity): Promise<void>;
+  findByUserId(userId: string): Promise<DriverOrmEntity | null>;
+  findById(id: string): Promise<DriverOrmEntity | null>;
 }

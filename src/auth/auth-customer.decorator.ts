@@ -6,19 +6,20 @@ import {
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { UserMapper } from 'src/user/mapper/user.mapper';
 import { UserEntity } from 'src/user/domain/user.entity';
-import { UserRecord } from 'src/user/orm-records/user.record';
+
 import { UserRole } from 'src/constants/userRole';
 import { CustomerMapper } from 'src/user/mapper/customer.mapper';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { CustomerEntity } from 'src/user/domain/customer.entity';
 import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { UserService } from 'src/user/user.service';
+import { UserOrmEntity } from 'src/user/orm-entities/user.orm.entity';
 
 export const AuthCustomer = createParamDecorator(
   async (_, context: ExecutionContext): Promise<CustomerEntity> => {
     const gqlContext = GqlExecutionContext.create(context).getContext();
 
-    const userRecord: UserRecord = gqlContext['userRecord'];
+    const userRecord: UserOrmEntity = gqlContext['userRecord'];
     const userService: UserService = gqlContext.req.userService;
 
     const customer = await userService.findCustomerByUserId(userRecord.id);

@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ClientOrderService } from './services/clientOrder.service';
-import { OrderDTO, OrderDTOForOwner } from './dtos/order.dto';
+import { OrderDTO, OrderDTOForOwner, OrderSummaryDTO } from './dtos/order.dto';
 import { CustomerEntity } from 'src/user/domain/customer.entity';
 import { CreateOrderInput } from './dtos/createOrder.dto';
 import { AuthCustomer } from 'src/auth/auth-customer.decorator';
@@ -28,39 +28,43 @@ export class ClientOrderResolver {
     return this.clientOrderService.createOrder(customer, createOrderInput);
   }
 
-  @Query(() => OrderDTO)
-  getOrderByClient(
-    @AuthCustomer() customer: CustomerEntity,
-    @Args('input') { orderId }: GetOrderByClientInput,
-  ): Promise<OrderDTO> {
-    return this.clientOrderService.getOrder(customer, orderId);
-  }
+  // @Query(() => OrderDTO)
+  // async getOrderByClient(
+  //   @AuthCustomer() customer: CustomerEntity,
+  //   @Args('input') { orderId }: GetOrderByClientInput,
+  // ): Promise<OrderDTO> {
+  //   return new OrderDTO(
+  //     await this.clientOrderService.getOrder(customer, orderId),
+  //   );
+  // }
 
-  @Query(() => [OrderDTO])
-  getOrderHistory(
-    @AuthCustomer() customer: CustomerEntity,
-  ): Promise<OrderDTO[]> {
-    return this.clientOrderService.getOrderHistory(customer);
-  }
+  // @Query(() => [OrderDTO])
+  // getOrderHistory(
+  //   @AuthCustomer() customer: CustomerEntity,
+  // ): Promise<OrderDTO[]> {
+  //   return this.clientOrderService.getOrderHistory(customer);
+  // }
 }
 
 @Resolver()
 export class OwnerOrderResolver {
   constructor(private readonly ownerOrderService: OwnerOrderService) {}
 
-  @Query(() => [OrderDTOForOwner])
-  getOrdersByOwner(
+  @Query(() => [OrderSummaryDTO])
+  async getOrdersByOwner(
     @AuthOwner() owner: OwnerEntity,
-  ): Promise<OrderDTOForOwner[]> {
-    return this.ownerOrderService.getOrders(owner);
+  ): Promise<OrderSummaryDTO[]> {
+    const projections = await this.ownerOrderService.getOrders(owner);
+    return projections.map((projection) => new OrderSummaryDTO(projection));
   }
 
-  @Query(() => OrderDTOForOwner)
-  getOrderByOwner(
+  @Query(() => OrderSummaryDTO)
+  async getOrderByOwner(
     @AuthOwner() owner: OwnerEntity,
     @Args('input') { orderId }: GetOrderByOwnerInput,
-  ): Promise<OrderDTOForOwner> {
-    return this.ownerOrderService.getOrder(orderId, owner);
+  ): Promise<OrderSummaryDTO> {
+    const projection = await this.ownerOrderService.getOrder(owner, orderId);
+    return new OrderSummaryDTO(projection);
   }
 
   @Mutation(() => Boolean)
@@ -95,10 +99,10 @@ export class OwnerOrderResolver {
 export class DriverOrderResolver {
   constructor(private readonly driverOrderService: DriverOrderService) {}
 
-  @Query(() => [OrderDTO])
-  getOrdersByDriver(@AuthDriver() driver: DriverEntity): Promise<OrderDTO[]> {
-    return this.driverOrderService.getAvailableOrders(driver);
-  }
+  // @Query(() => [OrderDTO])
+  // getOrdersByDriver(@AuthDriver() driver: DriverEntity): Promise<OrderDTO[]> {
+  //   return this.driverOrderService.getAvailableOrders(driver);
+  // }
 
   // @Query(() => OrderDTOForOwner)
   // getOrderByOwner(
@@ -108,23 +112,23 @@ export class DriverOrderResolver {
   //   return this.ownerOrderService.getOrder(orderId, owner);
   // }
 
-  @Mutation(() => Boolean)
-  async acceptOrderByDriver(
-    @AuthDriver() driver: DriverEntity,
-    @Args('input') { orderId }: AcceptOrderInput,
-  ): Promise<boolean> {
-    await this.driverOrderService.acceptOrder(orderId, driver);
-    return true;
-  }
+  // @Mutation(() => Boolean)
+  // async acceptOrderByDriver(
+  //   @AuthDriver() driver: DriverEntity,
+  //   @Args('input') { orderId }: AcceptOrderInput,
+  // ): Promise<boolean> {
+  //   await this.driverOrderService.acceptOrder(orderId, driver);
+  //   return true;
+  // }
 
-  @Mutation(() => Boolean)
-  async rejectOrderByDriver(
-    @AuthDriver() driver: DriverEntity,
-    @Args('input') { orderId }: RejectOrderInput,
-  ): Promise<boolean> {
-    await this.driverOrderService.rejectOrder(orderId, driver);
-    return true;
-  }
+  // @Mutation(() => Boolean)
+  // async rejectOrderByDriver(
+  //   @AuthDriver() driver: DriverEntity,
+  //   @Args('input') { orderId }: RejectOrderInput,
+  // ): Promise<boolean> {
+  //   await this.driverOrderService.rejectOrder(orderId, driver);
+  //   return true;
+  // }
 
   // @Mutation(() => Boolean)
   // async markOrderAsReadyByOwner(

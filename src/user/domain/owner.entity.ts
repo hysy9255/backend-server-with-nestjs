@@ -1,7 +1,7 @@
 import { OrderEntity } from 'src/order/domain/order.entity';
 import { RestaurantEntity } from 'src/restaurant/domain/restaurant.entity';
 import { RestaurantMapper } from 'src/restaurant/mapper/restaurant.mapper';
-import { RestaurantRecord } from 'src/restaurant/orm-records/restaurant.record';
+import { RestaurantRecord } from 'src/restaurant/orm-entities/restaurant.orm.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 export class OwnerEntity {

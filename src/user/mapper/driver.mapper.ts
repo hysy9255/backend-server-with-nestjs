@@ -1,10 +1,10 @@
 import { OrderMapper } from 'src/order/mapper/order.mapper';
 import { DriverEntity } from '../domain/driver.entity';
-import { DriverRecord } from '../orm-records/driver.record';
+import { DriverOrmEntity } from '../orm-entities/driver.orm.entity';
 
 export class DriverMapper {
-  static toRecord(driverEntity: DriverEntity): DriverRecord {
-    const driverRecord = new DriverRecord();
+  static toRecord(driverEntity: DriverEntity): DriverOrmEntity {
+    const driverRecord = new DriverOrmEntity();
     driverRecord.id = driverEntity.id;
     driverRecord.userId = driverEntity.userId;
     // if (driverEntity.rejectedOrders) {
@@ -21,7 +21,7 @@ export class DriverMapper {
     return driverRecord;
   }
 
-  static toDomain(driverRecord: DriverRecord): DriverEntity {
+  static toDomain(driverRecord: DriverOrmEntity): DriverEntity {
     return DriverEntity.fromPersistance(
       driverRecord.id,
       driverRecord.userId,

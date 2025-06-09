@@ -7,7 +7,6 @@ export class RestaurantEntity {
     private readonly _name: string,
     private readonly _address: string,
     private readonly _category: string,
-    // private readonly _owner: OwnerEntity,
     private readonly _ownerId: string,
   ) {}
 
@@ -16,7 +15,6 @@ export class RestaurantEntity {
     address: string,
     category: string,
     ownerId: string,
-    // owner: OwnerEntity,
   ): RestaurantEntity {
     return new RestaurantEntity(uuidv4(), name, address, category, ownerId);
   }

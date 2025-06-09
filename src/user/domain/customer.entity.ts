@@ -1,6 +1,7 @@
 import { OrderEntity } from 'src/order/domain/order.entity';
-import { OrderMapper } from 'src/order/mapper/order.mapper';
-import { OrderRecord } from 'src/order/orm-records/order.record';
+import { OrderProjection } from 'src/order/projections/order.projection';
+import { ClientOrderSummary } from 'src/order/projections/orderSummaryForClient.projection';
+// import { OrderSummaryForClientProjection } from 'src/order/projections/orderSummaryForClient.projection';
 import { v4 as uuidv4 } from 'uuid';
 
 export class CustomerEntity {
@@ -45,5 +46,11 @@ export class CustomerEntity {
 
   get orders() {
     return this._orders;
+  }
+
+  ensureOwnsOrderOf(orderProjections: ClientOrderSummary) {
+    if (this._id !== orderProjections.customerId) {
+      throw new Error("You don't own this order");
+    }
   }
 }

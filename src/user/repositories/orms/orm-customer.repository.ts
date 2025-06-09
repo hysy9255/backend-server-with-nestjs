@@ -1,27 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { OwnerRepository } from '../interfaces/owner-repository.interface';
 import { EntityManager } from 'typeorm';
-import { OwnerRecord } from '../../orm-records/owner.record';
-import { UserRecord } from 'src/user/orm-records/user.record';
 import { CustomerRepository } from '../interfaces/customer-repository.interface';
-import { CustomerRecord } from 'src/user/orm-records/customer.record';
+import { CustomerOrmEntity } from 'src/user/orm-entities/customer.orm.entity';
 
 @Injectable()
 export class OrmCustomerRepository implements CustomerRepository {
   constructor(private readonly em: EntityManager) {}
 
-  async save(customer: CustomerRecord): Promise<void> {
-    await this.em.save(CustomerRecord, customer);
+  async save(customer: CustomerOrmEntity): Promise<void> {
+    await this.em.save(CustomerOrmEntity, customer);
   }
 
-  async findByUserId(userId: string): Promise<CustomerRecord | null> {
-    return await this.em.findOne(CustomerRecord, {
+  async findByUserId(userId: string): Promise<CustomerOrmEntity | null> {
+    return await this.em.findOne(CustomerOrmEntity, {
       where: { userId },
     });
   }
 
-  async findById(id: string): Promise<CustomerRecord | null> {
-    return await this.em.findOne(CustomerRecord, {
+  async findById(id: string): Promise<CustomerOrmEntity | null> {
+    return await this.em.findOne(CustomerOrmEntity, {
       where: { id },
     });
   }

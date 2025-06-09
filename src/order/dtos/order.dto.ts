@@ -42,6 +42,32 @@ export class OrderDTOForOwner extends OrderDTO {
 }
 
 @ObjectType()
+export class OrderSummaryDTO {
+  @Field(() => String)
+  id: string;
+
+  @Field(() => OrderStatus)
+  status: OrderStatus;
+
+  @Field(() => String)
+  restaurantId: string;
+
+  @Field(() => String)
+  customerId: string;
+
+  @Field(() => String)
+  deliveryAddress: string;
+
+  constructor(orderSummaryProjection: any) {
+    this.id = orderSummaryProjection.id;
+    this.status = orderSummaryProjection.status;
+    this.restaurantId = orderSummaryProjection.restaurantId;
+    this.customerId = orderSummaryProjection.customerId;
+    this.deliveryAddress = orderSummaryProjection.deliveryAddress;
+  }
+}
+
+@ObjectType()
 export class OrderDTOForDriver extends OrderDTO {
   @Field(() => String)
   customerId: string;

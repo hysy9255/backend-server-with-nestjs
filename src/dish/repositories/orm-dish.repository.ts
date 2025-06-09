@@ -3,7 +3,7 @@ import { DishRepository } from './dish-repository.interface';
 import { EntityManager } from 'typeorm';
 
 import { Dish } from '../domain/dish.entity';
-import { RestaurantRecord } from 'src/restaurant/orm-records/restaurant.record';
+import { RestaurantRecord } from 'src/restaurant/orm-entities/restaurant.orm.entity';
 
 @Injectable()
 export class OrmDishRepository implements DishRepository {

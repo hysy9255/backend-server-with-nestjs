@@ -1,6 +1,4 @@
 import { OrderEntity } from 'src/order/domain/order.entity';
-import { OrderMapper } from 'src/order/mapper/order.mapper';
-import { OrderRecord } from 'src/order/orm-records/order.record';
 import { v4 as uuidv4 } from 'uuid';
 
 export class DriverEntity {

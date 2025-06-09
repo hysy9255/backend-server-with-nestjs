@@ -13,10 +13,12 @@ type RestaurantDTO {
   category: String!
 }
 
-type OrderDTO {
+type OrderSummaryDTO {
   id: String!
   status: OrderStatus!
   restaurantId: String!
+  customerId: String!
+  deliveryAddress: String!
 }
 
 enum OrderStatus {
@@ -28,30 +30,15 @@ enum OrderStatus {
   Delivered
 }
 
-type OrderDTOForOwner {
-  id: String!
-  status: OrderStatus!
-  restaurantId: String!
-  customerId: String!
-  deliveryAddress: String!
-}
-
 type Query {
   getRestaurant(input: GetRestaurantInput!): RestaurantDTO!
   getAllRestaurants: [RestaurantDTO!]!
-  getOrderByClient(input: GetOrderByClientInput!): OrderDTO!
-  getOrderHistory: [OrderDTO!]!
-  getOrdersByOwner: [OrderDTOForOwner!]!
-  getOrderByOwner(input: GetOrderByOwnerInput!): OrderDTOForOwner!
-  getOrdersByDriver: [OrderDTO!]!
+  getOrdersByOwner: [OrderSummaryDTO!]!
+  getOrderByOwner(input: GetOrderByOwnerInput!): OrderSummaryDTO!
 }
 
 input GetRestaurantInput {
   id: String!
-}
-
-input GetOrderByClientInput {
-  orderId: String!
 }
 
 input GetOrderByOwnerInput {
@@ -69,8 +56,6 @@ type Mutation {
   acceptOrderByOwner(input: AcceptOrderInput!): Boolean!
   rejectOrderByOwner(input: RejectOrderInput!): Boolean!
   markOrderAsReadyByOwner(input: MarkOrderAsReadyInput!): Boolean!
-  acceptOrderByDriver(input: AcceptOrderInput!): Boolean!
-  rejectOrderByDriver(input: RejectOrderInput!): Boolean!
 }
 
 input CreateOwnerInput {

@@ -45,7 +45,6 @@ export class RestaurantService {
       await this.restaurantRepository.save(
         RestaurantMapper.toRecord(restaurant),
       );
-
       await this.ownerRepository.save(OwnerMapper.toRecord(owner));
     } catch (e) {
       console.error(e);
@@ -83,6 +82,27 @@ export class RestaurantService {
   async getRestaurantEntityById(id: string): Promise<RestaurantEntity> {
     try {
       const restaurantRecord = await this.restaurantRepository.findOneById(id);
+
+      if (!restaurantRecord) {
+        throw new BadRequestException(
+          RESTAURANT_ERROR_MESSAGES.RESTAURANT_NOT_FOUND,
+        );
+      }
+
+      return RestaurantMapper.toDomain(restaurantRecord);
+    } catch (e) {
+      console.error(e);
+      if (e instanceof HttpException) throw e;
+      throw new InternalServerErrorException(
+        RESTAURANT_ERROR_MESSAGES.RESTAURANT_FETCHING_FAILED,
+      );
+    }
+  }
+
+  async getRestaurantById(restaurantId: string): Promise<RestaurantEntity> {
+    try {
+      const restaurantRecord =
+        await this.restaurantRepository.findOneById(restaurantId);
 
       if (!restaurantRecord) {
         throw new BadRequestException(

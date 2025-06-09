@@ -1,25 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { UserRecord } from 'src/user/orm-records/user.record';
 import { DriverRepository } from '../interfaces/driver-repository.interface';
-import { DriverRecord } from 'src/user/orm-records/driver.record';
+import { DriverOrmEntity } from 'src/user/orm-entities/driver.orm.entity';
 
 @Injectable()
 export class OrmDriverRepository implements DriverRepository {
   constructor(private readonly em: EntityManager) {}
 
-  async save(driverRecord: DriverRecord): Promise<void> {
-    await this.em.save(DriverRecord, driverRecord);
+  async save(driverRecord: DriverOrmEntity): Promise<void> {
+    await this.em.save(DriverOrmEntity, driverRecord);
   }
 
-  async findById(id: string): Promise<DriverRecord | null> {
-    return await this.em.findOne(DriverRecord, {
+  async findById(id: string): Promise<DriverOrmEntity | null> {
+    return await this.em.findOne(DriverOrmEntity, {
       where: { id },
     });
   }
 
-  async findByUserId(userId: string): Promise<DriverRecord | null> {
-    return await this.em.findOne(DriverRecord, {
+  async findByUserId(userId: string): Promise<DriverOrmEntity | null> {
+    return await this.em.findOne(DriverOrmEntity, {
       where: { userId },
     });
   }

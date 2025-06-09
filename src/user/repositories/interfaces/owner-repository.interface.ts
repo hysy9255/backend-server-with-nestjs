@@ -1,8 +1,7 @@
-import { UserRecord } from 'src/user/orm-records/user.record';
-import { OwnerRecord } from '../../orm-records/owner.record';
+import { OwnerOrmEntity } from 'src/user/orm-entities/owner.orm.entity';
 
 export interface OwnerRepository {
-  save(ownerRecord: OwnerRecord);
-  findByUserId(userId: string): Promise<OwnerRecord | null>;
-  findById(id: string): Promise<OwnerRecord | null>;
+  save(ownerRecord: OwnerOrmEntity);
+  findByUserId(userId: string): Promise<OwnerOrmEntity | null>;
+  findById(id: string): Promise<OwnerOrmEntity | null>;
 }

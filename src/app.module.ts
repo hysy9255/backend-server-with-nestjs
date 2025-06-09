@@ -7,7 +7,6 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
-
 import { JwtModule } from './jwt/jwt.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -15,18 +14,16 @@ import { join } from 'node:path';
 import { AuthModule } from './auth/auth.module';
 import { JwtMiddleWare } from './jwt/jwt.middleware';
 import { RestaurantModule } from './restaurant/restaurant.module';
-
 import { DishModule } from './dish/dish.module';
-import { Dish } from './dish/domain/dish.entity';
 import { OrderModule } from './order/order.module';
-
-import { OrderItem } from './order/orm-records/orderItem.entity';
-import { UserRecord } from './user/orm-records/user.record';
-import { RestaurantRecord } from './restaurant/orm-records/restaurant.record';
-import { OrderRecord } from './order/orm-records/order.record';
-import { CustomerRecord } from './user/orm-records/customer.record';
-import { DriverRecord } from './user/orm-records/driver.record';
-import { OwnerRecord } from './user/orm-records/owner.record';
+import { UserOrmEntity } from './user/orm-entities/user.orm.entity';
+import { OrderOrmEntity } from './order/orm-entities/order.orm.entity';
+import { CustomerOrmEntity } from './user/orm-entities/customer.orm.entity';
+import { OwnerOrmEntity } from './user/orm-entities/owner.orm.entity';
+import { DriverOrmEntity } from './user/orm-entities/driver.orm.entity';
+import { OrderDriverRejectionOrmEntity } from './order/orm-entities/order-driver-rejection.orm';
+import { RestaurantOrmEntity } from './restaurant/orm-entities/restaurant.orm.entity';
+import { OrderOwnerRejectionOrmEntity } from './order/orm-entities/order-owner-rejection.orm';
 
 @Module({
   imports: [
@@ -50,14 +47,14 @@ import { OwnerRecord } from './user/orm-records/owner.record';
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
       entities: [
-        UserRecord,
-        OwnerRecord,
-        CustomerRecord,
-        DriverRecord,
-        RestaurantRecord,
-        Dish,
-        OrderRecord,
-        OrderItem,
+        UserOrmEntity,
+        OwnerOrmEntity,
+        CustomerOrmEntity,
+        DriverOrmEntity,
+        RestaurantOrmEntity,
+        OrderOrmEntity,
+        OrderDriverRejectionOrmEntity,
+        OrderOwnerRejectionOrmEntity,
       ],
       synchronize: true,
     }),

@@ -6,6 +6,7 @@ import { OrderMapper } from '../mapper/order.mapper';
 import { OrderDTO, OrderDTOForOwner } from '../dtos/order.dto';
 import { CustomerMapper } from 'src/user/mapper/customer.mapper';
 import { CustomerRepository } from 'src/user/repositories/interfaces/customer-repository.interface';
+import { OwnerOrderSummary } from '../projections/orderSummaryForOwner.projection';
 
 @Injectable()
 export class OwnerOrderService {
@@ -16,48 +17,83 @@ export class OwnerOrderService {
     private readonly customerRepository: CustomerRepository,
   ) {}
 
-  async getOrders(owner: OwnerEntity): Promise<OrderDTOForOwner[]> {
+  // async getOrders(owner: OwnerEntity): Promise<OrderDTOForOwner[]> {
+  //   if (!owner.hasRestaurant()) {
+  //     throw new Error("You don't have a registered restaurant yet!");
+  //   }
+
+  //   const orderRecords =
+  //     await this.orderRepository.findWithCustomerInfoByRestaurantId(
+  //       owner.restaurantId!,
+  //     );
+
+  //   return orderRecords.map(
+  //     (orderRecord) =>
+  //       new OrderDTOForOwner(
+  //         OrderMapper.toDomain(orderRecord),
+  //         CustomerMapper.toDomain(orderRecord.customer),
+  //       ),
+  //   );
+  // }
+
+  async getOrders(owner: OwnerEntity): Promise<OwnerOrderSummary[]> {
     if (!owner.hasRestaurant()) {
       throw new Error("You don't have a registered restaurant yet!");
     }
 
-    const orderRecords =
-      await this.orderRepository.findWithCustomerInfoByRestaurantId(
+    const orderProjections =
+      await this.orderRepository.findOrderSummariesByRestaurant(
         owner.restaurantId!,
       );
 
-    return orderRecords.map(
-      (orderRecord) =>
-        new OrderDTOForOwner(
-          OrderMapper.toDomain(orderRecord),
-          CustomerMapper.toDomain(orderRecord.customer),
-        ),
-    );
+    return orderProjections;
   }
 
   async getOrder(
-    orderId: string,
     owner: OwnerEntity,
-  ): Promise<OrderDTOForOwner> {
+    orderId: string,
+  ): Promise<OwnerOrderSummary> {
     if (!owner.hasRestaurant()) {
       throw new Error("You don't have a registered restaurant yet!");
     }
 
-    const order = await this.getOrderOrThrow(orderId);
-    this.validateOrderAccessRights(order, owner);
+    const orderProjection =
+      await this.orderRepository.findSummaryForOwner(orderId);
 
-    const customerRecord = await this.customerRepository.findById(
-      order.customerId,
-    );
-
-    if (!customerRecord) {
-      throw new Error('Customer is not found');
+    if (!orderProjection) {
+      throw new Error('Order is not found');
     }
 
-    const customer = CustomerMapper.toDomain(customerRecord);
+    if (!owner.ownsRestaurantOf(orderProjection.restaurantId)) {
+      throw new Error('You do not own the restaurant for this order');
+    }
 
-    return new OrderDTOForOwner(order, customer);
+    return orderProjection;
   }
+
+  // async getOrder(
+  //   owner: OwnerEntity,
+  //   orderId: string,
+  // ): Promise<OrderDTOForOwner> {
+  //   if (!owner.hasRestaurant()) {
+  //     throw new Error("You don't have a registered restaurant yet!");
+  //   }
+
+  //   const order = await this.getOrderOrThrow(orderId);
+  //   this.validateOrderAccessRights(order, owner);
+
+  //   const customerRecord = await this.customerRepository.findById(
+  //     order.customerId,
+  //   );
+
+  //   if (!customerRecord) {
+  //     throw new Error('Customer is not found');
+  //   }
+
+  //   const customer = CustomerMapper.toDomain(customerRecord);
+
+  //   return new OrderDTOForOwner(order, customer);
+  // }
 
   async acceptOrder(orderId: string, owner: OwnerEntity): Promise<void> {
     const order = await this.getOrderOrThrow(orderId);
@@ -81,11 +117,11 @@ export class OwnerOrderService {
   }
 
   private async getOrderOrThrow(orderId: string): Promise<OrderEntity> {
-    const orderRecord = await this.orderRepository.findOneById(orderId);
-    if (!orderRecord) {
+    const orderEntity = await this.orderRepository.findOneById(orderId);
+    if (!orderEntity) {
       throw new Error('Order not found');
     }
-    return OrderMapper.toDomain(orderRecord);
+    return OrderMapper.toDomain(orderEntity);
   }
 
   private validateOrderAccessRights(
