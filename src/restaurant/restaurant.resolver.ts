@@ -10,6 +10,7 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { AuthOwner } from 'src/auth/auth-owner.decorator';
 import { RestaurantDTO } from './dtos/restaurant.dto';
+import { Role } from 'src/auth/role.decorator';
 
 @Resolver()
 export class RestaurantResolver {
@@ -17,6 +18,7 @@ export class RestaurantResolver {
 
   // used
   @Mutation(() => Boolean)
+  @Role(['Owner'])
   async createRestaurant(
     @AuthOwner() owner: OwnerEntity,
     @Args('input') createRestaurantInput: CreateRestaurantInput,
@@ -27,6 +29,7 @@ export class RestaurantResolver {
 
   // used
   @Query(() => RestaurantDTO)
+  @Role(['Any'])
   async getRestaurant(
     @Args('input') { id: restaurantId }: GetRestaurantInput,
   ): Promise<RestaurantDTO> {
@@ -37,6 +40,7 @@ export class RestaurantResolver {
 
   // used
   @Query(() => [RestaurantDTO])
+  @Role(['Any'])
   async getRestaurants(): Promise<RestaurantDTO[]> {
     const restaurants = await this.restaurantService.getRestaurantSummaries();
     return restaurants.map((restaurant) => new RestaurantDTO(restaurant));

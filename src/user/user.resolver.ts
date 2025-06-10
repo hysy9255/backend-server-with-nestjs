@@ -15,12 +15,14 @@ import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UserEntity } from './domain/user.entity';
 import { AuthUser } from 'src/auth/auth-user.decorator';
+import { Role } from 'src/auth/role.decorator';
 
 @Resolver()
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Mutation(() => Boolean)
+  @Role(['Any'])
   async createOwner(
     @Args('input') createOwnerInput: CreateOwnerInput,
   ): Promise<boolean> {
@@ -29,6 +31,7 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
+  @Role(['Any'])
   async createCustomer(
     @Args('input') createCustomerInput: CreateCustomerInput,
   ): Promise<boolean> {
@@ -37,6 +40,7 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
+  @Role(['Any'])
   async createDriver(
     @Args('input') createDriverInput: CreateDriverInput,
   ): Promise<boolean> {
@@ -45,6 +49,7 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
+  @Role(['Any'])
   async changePassword(
     @AuthUser() user: UserEntity,
     @Args('input') changePasswordInput: ChangePasswordInput,

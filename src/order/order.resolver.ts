@@ -21,6 +21,8 @@ import { DriverOrderService } from './services/driverOrder.service';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { AuthDriver } from 'src/auth/auth-driver.decorator';
 import { GetOrderByDriverInput } from './dtos/getOrderByDriver.dto';
+import { Role } from 'src/auth/role.decorator';
+import { UserRole } from 'src/constants/userRole';
 
 @Resolver()
 export class ClientOrderResolver {
@@ -28,6 +30,7 @@ export class ClientOrderResolver {
 
   // used
   @Mutation(() => Boolean)
+  @Role(['Client'])
   async createOrder(
     @AuthCustomer() customer: CustomerEntity,
     @Args('input') createOrderInput: CreateOrderInput,
@@ -38,6 +41,7 @@ export class ClientOrderResolver {
 
   // used
   @Query(() => OrderSummaryDTOForClient)
+  @Role(['Client'])
   async getOnGoingOrderForClient(
     @AuthCustomer() customer: CustomerEntity,
   ): Promise<OrderSummaryDTOForClient> {
@@ -47,6 +51,7 @@ export class ClientOrderResolver {
 
   // used
   @Query(() => [OrderPreviewDTOForClient])
+  @Role(['Client'])
   async getOrderHistoryForClient(
     @AuthCustomer() customer: CustomerEntity,
   ): Promise<OrderPreviewDTOForClient[]> {
@@ -56,6 +61,7 @@ export class ClientOrderResolver {
 
   // used
   @Query(() => OrderSummaryDTOForClient)
+  @Role(['Client'])
   async getOrderForClient(
     @AuthCustomer() customer: CustomerEntity,
     @Args('input') { orderId }: GetOrderByClientInput,
@@ -74,6 +80,7 @@ export class OwnerOrderResolver {
 
   // used
   @Query(() => [OrderSummaryDTOForOwner])
+  @Role(['Owner'])
   async getOrdersForOwner(
     @AuthOwner() owner: OwnerEntity,
   ): Promise<OrderSummaryDTOForOwner[]> {
@@ -83,6 +90,7 @@ export class OwnerOrderResolver {
 
   // used
   @Query(() => OrderSummaryDTOForOwner)
+  @Role(['Owner'])
   async getOrderForOwner(
     @AuthOwner() owner: OwnerEntity,
     @Args('input') { orderId }: GetOrderByOwnerInput,
@@ -93,6 +101,7 @@ export class OwnerOrderResolver {
 
   // used
   @Mutation(() => Boolean)
+  @Role(['Owner'])
   async acceptOrderByOwner(
     @AuthOwner() owner: OwnerEntity,
     @Args('input') { orderId }: AcceptOrderInput,
@@ -103,6 +112,7 @@ export class OwnerOrderResolver {
 
   // used
   @Mutation(() => Boolean)
+  @Role(['Owner'])
   async rejectOrderByOwner(
     @AuthOwner() owner: OwnerEntity,
     @Args('input') { orderId }: RejectOrderInput,
@@ -113,6 +123,7 @@ export class OwnerOrderResolver {
 
   // used
   @Mutation(() => Boolean)
+  @Role(['Owner'])
   async markOrderAsReadyByOwner(
     @AuthOwner() owner: OwnerEntity,
     @Args('input') { orderId }: MarkOrderAsReadyInput,
@@ -128,6 +139,7 @@ export class DriverOrderResolver {
 
   // used
   @Query(() => [OrderSummaryDTOForDriver])
+  @Role(['Delivery'])
   async getOrdersForDriver(
     @AuthDriver() driver: DriverEntity,
   ): Promise<OrderSummaryDTOForDriver[]> {
@@ -136,6 +148,7 @@ export class DriverOrderResolver {
   }
 
   @Query(() => OrderSummaryDTOForDriver)
+  @Role(['Delivery'])
   async getOrderForDriver(
     @AuthDriver() driver: DriverEntity,
     @Args('input') { orderId }: GetOrderByDriverInput,
@@ -149,6 +162,7 @@ export class DriverOrderResolver {
 
   // used
   @Mutation(() => Boolean)
+  @Role(['Delivery'])
   async acceptOrderByDriver(
     @AuthDriver() driver: DriverEntity,
     @Args('input') { orderId }: AcceptOrderInput,
@@ -158,6 +172,7 @@ export class DriverOrderResolver {
   }
 
   @Mutation(() => Boolean)
+  @Role(['Delivery'])
   async rejectOrderByDriver(
     @AuthDriver() driver: DriverEntity,
     @Args('input') { orderId }: RejectOrderInput,
@@ -168,6 +183,7 @@ export class DriverOrderResolver {
 
   // used
   @Mutation(() => Boolean)
+  @Role(['Delivery'])
   async pickUpOrderByDriver(
     @AuthDriver() driver: DriverEntity,
     @Args('input') { orderId }: RejectOrderInput,
@@ -178,6 +194,7 @@ export class DriverOrderResolver {
 
   // used
   @Mutation(() => Boolean)
+  @Role(['Delivery'])
   async completeDelivery(
     @AuthDriver() driver: DriverEntity,
     @Args('input') { orderId }: RejectOrderInput,

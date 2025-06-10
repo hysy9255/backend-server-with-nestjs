@@ -36,10 +36,10 @@ export class AuthGuard implements CanActivate {
     private readonly userService: UserService,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // const roles = this.reflector.get<AllowedRoles>(
-    //   'roles',
-    //   context.getHandler(),
-    // );
+    const roles = this.reflector.get<AllowedRoles>(
+      'roles',
+      context.getHandler(),
+    );
 
     // if (!roles) {
     //   return true;
@@ -51,8 +51,24 @@ export class AuthGuard implements CanActivate {
     if (context.getType<GqlContextType>() === 'graphql') {
       const gqlContext = GqlExecutionContext.create(context).getContext();
       const userRecord: UserOrmEntity = gqlContext.req?.user;
-
       gqlContext['userRecord'] = userRecord;
+
+      if (roles.includes('Any')) {
+        console.log('roles:', roles);
+        return true;
+      }
+      return roles.includes(userRecord.role);
+
+      // if (!roles) {
+      //   return true;
+      // }
+
+      // if (roles.includes('Any')) {
+      //   return true;
+      // }
+      // return roles.includes(userRecord.role);
+
+      // return true;
 
       // // console.log(userRecord);
 
@@ -81,7 +97,7 @@ export class AuthGuard implements CanActivate {
       //   // return roles.includes(userRecord.role);
       // }
 
-      return true;
+      // return true;
 
       // const gqlContext = GqlExecutionContext.create(context).getContext();
       // const token = gqlContext.token;
