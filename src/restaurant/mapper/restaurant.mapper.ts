@@ -1,27 +1,25 @@
-import { OwnerMapper } from 'src/user/mapper/owner.mapper';
 import { RestaurantEntity } from '../domain/restaurant.entity';
-import { RestaurantRecord } from '../orm-entities/restaurant.orm.entity';
+import { RestaurantOrmEntity } from '../orm-entities/restaurant.orm.entity';
 
 export class RestaurantMapper {
-  static toRecord(restaurantEntity: RestaurantEntity): RestaurantRecord {
-    const restaurantRecord = new RestaurantRecord();
-    restaurantRecord.id = restaurantEntity.id;
-    restaurantRecord.name = restaurantEntity.name;
-    restaurantRecord.address = restaurantEntity.address;
-    restaurantRecord.category = restaurantEntity.category;
-    restaurantRecord.ownerId = restaurantEntity.ownerId;
+  static toOrmEntity(entity: RestaurantEntity): RestaurantOrmEntity {
+    const record = new RestaurantOrmEntity();
+    record.id = entity.id;
+    record.name = entity.name;
+    record.address = entity.address;
+    record.category = entity.category;
+    record.ownerId = entity.ownerId;
 
-    return restaurantRecord;
+    return record;
   }
 
-  static toDomain(restaurantRecord: RestaurantRecord): RestaurantEntity {
+  static toDomain(record: RestaurantOrmEntity): RestaurantEntity {
     return RestaurantEntity.fromPersistance(
-      restaurantRecord.id,
-      restaurantRecord.name,
-      restaurantRecord.address,
-      restaurantRecord.category,
-      restaurantRecord.ownerId,
-      // OwnerMapper.toDomain(restaurantRecord.owner),
+      record.id,
+      record.name,
+      record.address,
+      record.category,
+      record.ownerId,
     );
   }
 }

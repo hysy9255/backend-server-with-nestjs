@@ -14,6 +14,7 @@ import {
 } from './order.resolver';
 import { OwnerOrderService } from './services/ownerOrder.service';
 import { OrmCustomerRepository } from 'src/user/repositories/orms/orm-customer.repository';
+import { OrmOrderDriverRejectionRepository } from './repositories/orm-order-driver-rejection.repository';
 // import { OrderResolver } from './order.resolver';
 
 @Module({
@@ -30,6 +31,13 @@ import { OrmCustomerRepository } from 'src/user/repositories/orms/orm-customer.r
       provide: 'CustomerRepository',
       useFactory: (dataSource: DataSource) => {
         return new OrmCustomerRepository(dataSource.manager);
+      },
+      inject: [getDataSourceToken()],
+    },
+    {
+      provide: 'OrderDriverRejectionRepository',
+      useFactory: (dataSource: DataSource) => {
+        return new OrmOrderDriverRejectionRepository(dataSource.manager);
       },
       inject: [getDataSourceToken()],
     },

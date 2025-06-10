@@ -1,7 +1,4 @@
 import { OrderEntity } from 'src/order/domain/order.entity';
-import { RestaurantEntity } from 'src/restaurant/domain/restaurant.entity';
-import { RestaurantMapper } from 'src/restaurant/mapper/restaurant.mapper';
-import { RestaurantRecord } from 'src/restaurant/orm-entities/restaurant.orm.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 export class OwnerEntity {
@@ -13,14 +10,15 @@ export class OwnerEntity {
     private readonly _userId: string,
   ) {}
 
+  // used
   static createNew(userId: string) {
     return new OwnerEntity(uuidv4(), userId);
   }
 
+  // used
   static fromPersistance(
     id: string,
     userId: string,
-    // restaurant?: RestaurantEntity,
     restaurantId?: string,
   ): OwnerEntity {
     const owner = new OwnerEntity(id, userId);
@@ -32,22 +30,22 @@ export class OwnerEntity {
     return owner;
   }
 
+  // used
   ownsRestaurantOf(restaurantId: string) {
     return restaurantId === this._restaurantId;
   }
 
+  // used
   canAccessOrderOf(order: OrderEntity) {
     return order.restaurantId === this._restaurantId;
   }
 
-  // canAccessOrderOf(restaurantId: string) {
-  //   return restaurantId === this._restaurantId;
-  // }
-
+  // used
   hasRestaurant() {
     return !!this._restaurantId;
   }
 
+  // used
   assignRestaurant(restaurantId: string) {
     this._restaurantId = restaurantId;
   }

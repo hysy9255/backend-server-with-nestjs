@@ -17,6 +17,7 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
+  // used
   async login(loginInput: LoginInput): Promise<LoginOutput> {
     try {
       const user = UserMapper.toDomain(

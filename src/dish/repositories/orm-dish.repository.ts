@@ -3,13 +3,13 @@ import { DishRepository } from './dish-repository.interface';
 import { EntityManager } from 'typeorm';
 
 import { Dish } from '../domain/dish.entity';
-import { RestaurantRecord } from 'src/restaurant/orm-entities/restaurant.orm.entity';
+import { RestaurantOrmEntity } from 'src/restaurant/orm-entities/restaurant.orm.entity';
 
 @Injectable()
 export class OrmDishRepository implements DishRepository {
   constructor(private readonly em: EntityManager) {}
 
-  async save(restaurant: RestaurantRecord, dish: Dish): Promise<Dish> {
+  async save(restaurant: RestaurantOrmEntity, dish: Dish): Promise<Dish> {
     dish.restaurant = restaurant;
     return this.em.save(dish);
   }

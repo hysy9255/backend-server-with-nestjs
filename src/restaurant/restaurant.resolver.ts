@@ -15,6 +15,7 @@ import { RestaurantDTO } from './dtos/restaurant.dto';
 export class RestaurantResolver {
   constructor(private readonly restaurantService: RestaurantService) {}
 
+  // used
   @Mutation(() => Boolean)
   async createRestaurant(
     @AuthOwner() owner: OwnerEntity,
@@ -24,15 +25,20 @@ export class RestaurantResolver {
     return true;
   }
 
+  // used
   @Query(() => RestaurantDTO)
-  getRestaurant(
-    @Args('input') getRestaurantInput: GetRestaurantInput,
+  async getRestaurant(
+    @Args('input') { id: restaurantId }: GetRestaurantInput,
   ): Promise<RestaurantDTO> {
-    return this.restaurantService.getRestaurant(getRestaurantInput);
+    return new RestaurantDTO(
+      await this.restaurantService.getRestaurantSummaryById(restaurantId),
+    );
   }
 
+  // used
   @Query(() => [RestaurantDTO])
-  getAllRestaurants(): Promise<RestaurantDTO[]> {
-    return this.restaurantService.getAllRestaurants();
+  async getRestaurants(): Promise<RestaurantDTO[]> {
+    const restaurants = await this.restaurantService.getRestaurantSummaries();
+    return restaurants.map((restaurant) => new RestaurantDTO(restaurant));
   }
 }

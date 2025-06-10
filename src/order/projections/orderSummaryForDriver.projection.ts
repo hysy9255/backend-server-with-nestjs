@@ -1,10 +1,11 @@
 import { OrderStatus } from 'src/constants/orderStatus';
 
-export class OrderProjectionForEntity {
+export class DriverOrderSummaryProjection {
   id: string;
   status: OrderStatus;
+  deliveryAddress: string;
   customerId: string;
-  driverId?: string | null;
   restaurantId: string;
-  rejectedDriverIds: string[];
+  restaurantName: string;
+  driverId?: string | null;
 }

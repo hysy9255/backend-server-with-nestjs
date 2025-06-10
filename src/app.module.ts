@@ -54,7 +54,7 @@ import { OrderOwnerRejectionOrmEntity } from './order/orm-entities/order-owner-r
         RestaurantOrmEntity,
         OrderOrmEntity,
         OrderDriverRejectionOrmEntity,
-        OrderOwnerRejectionOrmEntity,
+        // OrderOwnerRejectionOrmEntity,
       ],
       synchronize: true,
     }),

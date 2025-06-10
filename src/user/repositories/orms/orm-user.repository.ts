@@ -11,22 +11,24 @@ export class OrmUserRepository implements UserRepository {
     return await this.em.save(UserOrmEntity, user);
   }
 
+  // used
   async findByEmail(email: string) {
     return await this.em.findOne(UserOrmEntity, { where: { email } });
   }
 
+  // used
   async findById(id: string): Promise<UserOrmEntity | null> {
     return await this.em.findOne(UserOrmEntity, {
       where: { id },
     });
   }
 
-  async findWithAssociatedRestaurantById(
-    id: string,
-  ): Promise<UserOrmEntity | null> {
-    return await this.em.findOne(UserOrmEntity, {
-      where: { id },
-      relations: ['restaurant'],
-    });
-  }
+  // async findWithAssociatedRestaurantById(
+  //   id: string,
+  // ): Promise<UserOrmEntity | null> {
+  //   return await this.em.findOne(UserOrmEntity, {
+  //     where: { id },
+  //     relations: ['restaurant'],
+  //   });
+  // }
 }

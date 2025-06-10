@@ -29,9 +29,7 @@ import { CustomerMapper } from './mapper/customer.mapper';
 import { OwnerRepository } from './repositories/interfaces/owner-repository.interface';
 import { DriverRepository } from './repositories/interfaces/driver-repository.interface';
 import { CustomerRepository } from './repositories/interfaces/customer-repository.interface';
-import { UserRole } from 'src/constants/userRole';
 import { UserOrmEntity } from './orm-entities/user.orm.entity';
-// import { UserFactory } from './domain/user.factory';
 
 @Injectable()
 export class UserService {
@@ -46,6 +44,7 @@ export class UserService {
     private readonly ownerRepository: OwnerRepository,
   ) {}
 
+  // used
   async createOwner(createOwnerInput: CreateOwnerInput): Promise<void> {
     try {
       await this.validateDuplicateEmail(createOwnerInput.email);
@@ -60,8 +59,8 @@ export class UserService {
         await user.hashPassword();
         const owner = OwnerEntity.createNew(user.id);
 
-        await this.userRepository.save(UserMapper.toRecord(user));
-        await this.ownerRepository.save(OwnerMapper.toRecord(owner));
+        await this.userRepository.save(UserMapper.toOrmEntity(user));
+        await this.ownerRepository.save(OwnerMapper.toOrmEntity(owner));
       }
     } catch (e) {
       console.error(e);
@@ -72,6 +71,7 @@ export class UserService {
     }
   }
 
+  // used
   async createCustomer(
     createCustomerInput: CreateCustomerInput,
   ): Promise<void> {
@@ -91,8 +91,10 @@ export class UserService {
           createCustomerInput.deliveryAddress,
         );
 
-        await this.userRepository.save(UserMapper.toRecord(user));
-        await this.customerRepository.save(CustomerMapper.toRecord(customer));
+        await this.userRepository.save(UserMapper.toOrmEntity(user));
+        await this.customerRepository.save(
+          CustomerMapper.toOrmEntity(customer),
+        );
       }
     } catch (e) {
       console.error(e);
@@ -103,6 +105,7 @@ export class UserService {
     }
   }
 
+  // used
   async createDriver(createDriverInput: CreateDriverInput): Promise<void> {
     try {
       await this.validateDuplicateEmail(createDriverInput.email);
@@ -117,8 +120,8 @@ export class UserService {
         await user.hashPassword();
         const driver = DriverEntity.createNew(user.id);
 
-        await this.userRepository.save(UserMapper.toRecord(user));
-        await this.driverRepository.save(DriverMapper.toRecord(driver));
+        await this.userRepository.save(UserMapper.toOrmEntity(user));
+        await this.driverRepository.save(DriverMapper.toOrmEntity(driver));
       }
     } catch (e) {
       console.error(e);
@@ -129,6 +132,7 @@ export class UserService {
     }
   }
 
+  // used
   async changePassword(
     user: UserEntity,
     changePasswordInput: ChangePasswordInput,
@@ -140,7 +144,7 @@ export class UserService {
 
       await user.hashPassword();
 
-      await this.userRepository.save(UserMapper.toRecord(user));
+      await this.userRepository.save(UserMapper.toOrmEntity(user));
     } catch (e) {
       console.error(e);
       if (e instanceof HttpException) throw e;
@@ -150,6 +154,7 @@ export class UserService {
     }
   }
 
+  // used
   async validateDuplicateEmail(email: string): Promise<void> {
     try {
       const emailExists = await this.userRepository.findByEmail(email);
@@ -165,6 +170,7 @@ export class UserService {
     }
   }
 
+  // used
   async findUserByEmail(email: string) {
     try {
       const result = await this.userRepository.findByEmail(email);
@@ -179,49 +185,12 @@ export class UserService {
     }
   }
 
-  async findUserById(id: string): Promise<UserOrmEntity> {
-    try {
-      const userRecord = await this.userRepository.findById(id);
-      if (!userRecord) {
-        throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
-      }
-      return userRecord;
-    } catch (e) {
-      console.error(e);
-      if (e instanceof HttpException) throw e;
-      throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
-    }
+  // used
+  async findUserById(id: string): Promise<UserOrmEntity | null> {
+    return await this.userRepository.findById(id);
   }
 
-  async findUserRecordById(id: string): Promise<UserOrmEntity> {
-    try {
-      const userRecord = await this.userRepository.findById(id);
-      if (!userRecord) {
-        throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
-      }
-      return userRecord;
-    } catch (e) {
-      console.error(e);
-      if (e instanceof HttpException) throw e;
-      throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
-    }
-  }
-
-  async findUserWithAssociatedRestaurantById(id: string) {
-    try {
-      const result =
-        await this.userRepository.findWithAssociatedRestaurantById(id);
-      if (!result) {
-        throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
-      }
-      return result;
-    } catch (e) {
-      console.error(e);
-      if (e instanceof HttpException) throw e;
-      throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
-    }
-  }
-
+  // used
   async findDriverByUserId(userId: string): Promise<DriverEntity> {
     const driverRecord = await this.driverRepository.findByUserId(userId);
 
@@ -232,16 +201,18 @@ export class UserService {
     return DriverMapper.toDomain(driverRecord);
   }
 
+  // used
   async findOwnerByUserId(userId: string): Promise<OwnerEntity> {
-    const ownerRecord = await this.ownerRepository.findByUserId(userId);
+    const projection = await this.ownerRepository.findByUserId(userId);
 
-    if (!ownerRecord) {
+    if (!projection) {
       throw new Error('Owner is not found');
     }
 
-    return OwnerMapper.toDomain(ownerRecord);
+    return OwnerMapper.toDomain(projection);
   }
 
+  // used
   async findCustomerByUserId(userId: string): Promise<CustomerEntity> {
     const customerRecord = await this.customerRepository.findByUserId(userId);
 
@@ -251,4 +222,43 @@ export class UserService {
 
     return CustomerMapper.toDomain(customerRecord);
   }
+
+  // // used
+  // async findUserById(id: string): Promise<UserOrmEntity | null> {
+  //   try {
+  //     return await this.userRepository.findById(id);
+  //   } catch (e) {
+  //     console.error(e);
+  //     throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
+  //   }
+  // }
+
+  // async findUserById(id: string): Promise<UserOrmEntity> {
+  //   try {
+  //     const userRecord = await this.userRepository.findById(id);
+  //     if (!userRecord) {
+  //       throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
+  //     }
+  //     return userRecord;
+  //   } catch (e) {
+  //     console.error(e);
+  //     if (e instanceof HttpException) throw e;
+  //     throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
+  //   }
+  // }
+
+  // async findUserWithAssociatedRestaurantById(id: string) {
+  //   try {
+  //     const result =
+  //       await this.userRepository.findWithAssociatedRestaurantById(id);
+  //     if (!result) {
+  //       throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
+  //     }
+  //     return result;
+  //   } catch (e) {
+  //     console.error(e);
+  //     if (e instanceof HttpException) throw e;
+  //     throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
+  //   }
+  // }
 }

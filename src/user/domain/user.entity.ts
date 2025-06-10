@@ -16,6 +16,7 @@ export class UserEntity {
     private readonly _role: UserRole,
   ) {}
 
+  // used
   static createNew(
     email: string,
     password: string,
@@ -24,6 +25,7 @@ export class UserEntity {
     return new UserEntity(uuidv4(), email, password, role);
   }
 
+  // used
   static fromPersistance(
     id: string,
     email: string,
@@ -49,25 +51,22 @@ export class UserEntity {
     return this._role;
   }
 
+  // used
   isOwner(): boolean {
     return this._role === UserRole.Owner;
   }
 
+  // used
   isCustomer(): boolean {
     return this._role === UserRole.Client;
   }
 
+  // used
   isDriver(): boolean {
     return this._role === UserRole.Delivery;
   }
 
-  checkUserRole(role: UserRole): void {
-    const matches = this._role === role;
-    if (!matches) {
-      throw new BadRequestException(ERROR_MESSAGES.USER_ROLE_MISMATCH);
-    }
-  }
-
+  // used
   async hashPassword(): Promise<void> {
     if (this._password) {
       try {
@@ -79,6 +78,7 @@ export class UserEntity {
     }
   }
 
+  // used
   async checkPassword(aPassword: string): Promise<void> {
     try {
       const ok = await bcrypt.compare(aPassword, this._password);
@@ -94,7 +94,15 @@ export class UserEntity {
     }
   }
 
+  // used
   changePassword(newPassword: string) {
     this._password = newPassword;
+  }
+
+  checkUserRole(role: UserRole): void {
+    const matches = this._role === role;
+    if (!matches) {
+      throw new BadRequestException(ERROR_MESSAGES.USER_ROLE_MISMATCH);
+    }
   }
 }

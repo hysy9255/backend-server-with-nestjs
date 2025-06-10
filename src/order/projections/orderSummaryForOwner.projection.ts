@@ -1,6 +1,7 @@
 import { OrderStatus } from 'src/constants/orderStatus';
 
-export class OwnerOrderSummary {
+// used
+export class OwnerOrderSummaryProjection {
   id: string;
   status: OrderStatus;
   deliveryAddress: string;

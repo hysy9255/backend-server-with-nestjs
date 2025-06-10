@@ -1,25 +1,37 @@
 import { OrderEntity } from '../domain/order.entity';
 import { OrderOrmEntity } from '../orm-entities/order.orm.entity';
+import { OrderProjectionForEntity } from '../projections/order.projection';
 
 export class OrderMapper {
-  static toRecord(orderEntity: OrderEntity): OrderOrmEntity {
-    const orderOrmEntity = new OrderOrmEntity();
-    orderOrmEntity.id = orderEntity.id;
-    orderOrmEntity.status = orderEntity.status;
-    orderOrmEntity.restaurantId = orderEntity.restaurantId;
-    orderOrmEntity.customerId = orderEntity.customerId;
-    orderOrmEntity.driverId = orderEntity.driverId;
+  static toOrmEntity(entity: OrderEntity): OrderOrmEntity {
+    const record = new OrderOrmEntity();
+    record.id = entity.id;
+    record.status = entity.status;
+    record.restaurantId = entity.restaurantId;
+    record.customerId = entity.customerId;
+    record.driverId = entity.driverId;
 
-    return orderOrmEntity;
+    return record;
   }
 
-  static toDomain(orderOrmEntity: OrderOrmEntity): OrderEntity {
+  static toDomain(projection: OrderProjectionForEntity): OrderEntity {
     return OrderEntity.fromPersistance(
-      orderOrmEntity.id,
-      orderOrmEntity.status,
-      orderOrmEntity.restaurantId,
-      orderOrmEntity.customerId,
-      orderOrmEntity.driverId ?? orderOrmEntity.driverId,
+      projection.id,
+      projection.status,
+      projection.restaurantId,
+      projection.customerId,
+      projection.driverId ? projection.driverId : undefined,
+      projection.rejectedDriverIds,
+    );
+  }
+
+  static toDomainTemporary(record: OrderOrmEntity): OrderEntity {
+    return OrderEntity.fromPersistance(
+      record.id,
+      record.status,
+      record.restaurantId,
+      record.customerId,
+      record.driverId ? record.driverId : undefined,
     );
   }
 }

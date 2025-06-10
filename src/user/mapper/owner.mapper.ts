@@ -1,22 +1,23 @@
 import { OwnerEntity } from '../domain/owner.entity';
 import { OwnerOrmEntity } from '../orm-entities/owner.orm.entity';
+import { OwnerProjection } from '../projections/owner.projection';
 
 export class OwnerMapper {
-  static toRecord(ownerEntity: OwnerEntity): OwnerOrmEntity {
-    const ownerRecord = new OwnerOrmEntity();
-    ownerRecord.id = ownerEntity.id;
-    ownerRecord.userId = ownerEntity.userId;
-    ownerRecord.restaurantId = ownerEntity.restaurantId
-      ? ownerEntity.restaurantId
-      : null;
-    return ownerRecord;
+  // used
+  static toOrmEntity(entity: OwnerEntity): OwnerOrmEntity {
+    const record = new OwnerOrmEntity();
+    record.id = entity.id;
+    record.userId = entity.userId;
+
+    return record;
   }
 
-  static toDomain(ownerRecord: OwnerOrmEntity): OwnerEntity {
+  // used
+  static toDomain(projection: OwnerProjection): OwnerEntity {
     return OwnerEntity.fromPersistance(
-      ownerRecord.id,
-      ownerRecord.userId,
-      ownerRecord.restaurantId ? ownerRecord.restaurantId : undefined,
+      projection.id,
+      projection.userId,
+      projection.restaurantId ? projection.restaurantId : undefined,
     );
   }
 }

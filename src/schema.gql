@@ -13,12 +13,14 @@ type RestaurantDTO {
   category: String!
 }
 
-type OrderSummaryDTO {
+type OrderSummaryDTOForClient {
   id: String!
   status: OrderStatus!
-  restaurantId: String!
-  customerId: String!
   deliveryAddress: String!
+  customerId: String!
+  driverId: String
+  restaurantId: String!
+  restaurantName: String!
 }
 
 enum OrderStatus {
@@ -30,18 +32,55 @@ enum OrderStatus {
   Delivered
 }
 
+type OrderPreviewDTOForClient {
+  id: String!
+  status: OrderStatus!
+  restaurantId: String!
+  restaurantName: String!
+}
+
+type OrderSummaryDTOForOwner {
+  id: String!
+  status: OrderStatus!
+  deliveryAddress: String!
+  customerId: String!
+  driverId: String
+}
+
+type OrderSummaryDTOForDriver {
+  id: String!
+  status: OrderStatus!
+  deliveryAddress: String!
+  customerId: String!
+  restaurantId: String!
+  restaurantName: String!
+}
+
 type Query {
   getRestaurant(input: GetRestaurantInput!): RestaurantDTO!
-  getAllRestaurants: [RestaurantDTO!]!
-  getOrdersByOwner: [OrderSummaryDTO!]!
-  getOrderByOwner(input: GetOrderByOwnerInput!): OrderSummaryDTO!
+  getRestaurants: [RestaurantDTO!]!
+  getOnGoingOrderForClient: OrderSummaryDTOForClient!
+  getOrderHistoryForClient: [OrderPreviewDTOForClient!]!
+  getOrderForClient(input: GetOrderByClientInput!): OrderSummaryDTOForClient!
+  getOrdersForOwner: [OrderSummaryDTOForOwner!]!
+  getOrderForOwner(input: GetOrderByOwnerInput!): OrderSummaryDTOForOwner!
+  getOrdersForDriver: [OrderSummaryDTOForDriver!]!
+  getOrderForDriver(input: GetOrderByDriverInput!): OrderSummaryDTOForDriver!
 }
 
 input GetRestaurantInput {
   id: String!
 }
 
+input GetOrderByClientInput {
+  orderId: String!
+}
+
 input GetOrderByOwnerInput {
+  orderId: String!
+}
+
+input GetOrderByDriverInput {
   orderId: String!
 }
 
@@ -56,6 +95,10 @@ type Mutation {
   acceptOrderByOwner(input: AcceptOrderInput!): Boolean!
   rejectOrderByOwner(input: RejectOrderInput!): Boolean!
   markOrderAsReadyByOwner(input: MarkOrderAsReadyInput!): Boolean!
+  acceptOrderByDriver(input: AcceptOrderInput!): Boolean!
+  rejectOrderByDriver(input: RejectOrderInput!): Boolean!
+  pickUpOrderByDriver(input: RejectOrderInput!): Boolean!
+  completeDelivery(input: RejectOrderInput!): Boolean!
 }
 
 input CreateOwnerInput {
