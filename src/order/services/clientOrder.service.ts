@@ -1,12 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 import { OrderRepository } from '../repositories/order-repository.interface';
-import { CreateOrderInput } from '../dtos/createOrder.dto';
+import { CreateOrderInput } from '../dtos/createOrderInput.dto';
 import { OrderEntity } from '../domain/order.entity';
 import { OrderMapper } from '../mapper/order.mapper';
 import { CustomerEntity } from 'src/user/domain/customer.entity';
-import { OrderSummaryForClient } from '../projections/orderSummaryForClient.projection';
-import { OrderPreviewForClient } from '../projections/deliveredOrdersForCustomer.projection';
+import {
+  OrderPreviewDTOForClient,
+  OrderSummaryDTOForClient,
+} from '../dtos/order.dto';
 
 @Injectable()
 export class ClientOrderService {
@@ -37,41 +39,42 @@ export class ClientOrderService {
   async getOrderSummaryForClient(
     customer: CustomerEntity,
     orderId: string,
-  ): Promise<OrderSummaryForClient> {
-    const orderProjection =
-      await this.orderRepository.findSummaryForClient(orderId);
+  ): Promise<OrderSummaryDTOForClient> {
+    const order = await this.orderRepository.findSummaryForClient(orderId);
 
-    if (!orderProjection) {
+    if (!order) {
       throw new Error('Order not found');
     }
 
-    customer.ensureOwnsOrderOf(orderProjection);
+    // customer.ensureOwnsOrderOf(order);
+    if (!customer.idMatches(order.customerId)) {
+      throw new Error("You don't own this order");
+    }
 
-    return orderProjection;
+    return order;
   }
 
   // used
   async getOrderHistory(
     customer: CustomerEntity,
-  ): Promise<OrderPreviewForClient[]> {
-    const deliveredOrdersProjections =
-      await this.orderRepository.findDeliveredOrdersByCustomer(customer.id);
-
-    return deliveredOrdersProjections;
+  ): Promise<OrderPreviewDTOForClient[]> {
+    return await this.orderRepository.findDeliveredOrdersByCustomer(
+      customer.id,
+    );
   }
 
   // used
   async getOnGoingOrder(
     customer: CustomerEntity,
-  ): Promise<OrderSummaryForClient> {
-    const onGoingOrder = await this.orderRepository.findOnGoingOrderForClient(
+  ): Promise<OrderSummaryDTOForClient> {
+    const order = await this.orderRepository.findOnGoingOrderForClient(
       customer.id,
     );
 
-    if (!onGoingOrder) {
+    if (!order) {
       throw new Error('Currently there is no on going order');
     }
 
-    return onGoingOrder;
+    return order;
   }
 }

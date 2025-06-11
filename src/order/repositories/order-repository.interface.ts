@@ -1,9 +1,11 @@
-import { OwnerOrderSummaryProjection } from '../projections/orderSummaryForOwner.projection';
 import { OrderOrmEntity } from '../orm-entities/order.orm.entity';
-import { DriverOrderSummaryProjection } from '../projections/orderSummaryForDriver.projection';
-import { OrderSummaryForClient } from '../projections/orderSummaryForClient.projection';
-import { OrderPreviewForClient } from '../projections/deliveredOrdersForCustomer.projection';
 import { OrderProjectionForEntity } from '../projections/order.projection';
+import {
+  OrderPreviewDTOForClient,
+  OrderSummaryDTOForClient,
+  OrderSummaryDTOForDriver,
+  OrderSummaryDTOForOwner,
+} from '../dtos/order.dto';
 
 export interface OrderRepository {
   // orm based operations
@@ -14,37 +16,39 @@ export interface OrderRepository {
 
   // raw query based operations
   // used
-  findSummaryForClient(orderId: string): Promise<OrderSummaryForClient | null>;
+  findSummaryForClient(
+    orderId: string,
+  ): Promise<OrderSummaryDTOForClient | null>;
 
   // used
   findDeliveredOrdersByCustomer(
     customerId: string,
-  ): Promise<OrderPreviewForClient[]>;
+  ): Promise<OrderPreviewDTOForClient[]>;
 
   // used
   findOnGoingOrderForClient(
     customerId: string,
-  ): Promise<OrderSummaryForClient | null>;
+  ): Promise<OrderSummaryDTOForClient | null>;
 
   // used
   findOrderSummariesByRestaurant(
     restaurantId: string,
-  ): Promise<OwnerOrderSummaryProjection[]>;
+  ): Promise<OrderSummaryDTOForOwner[]>;
 
   // used
   findOrderSummaryForOwner(
     orderId: string,
-  ): Promise<OwnerOrderSummaryProjection | null>;
+  ): Promise<OrderSummaryDTOForOwner | null>;
 
   // used
   findAvailableOrdersForDriver(
     driverId: string,
-  ): Promise<DriverOrderSummaryProjection[]>;
+  ): Promise<OrderSummaryDTOForDriver[]>;
 
   // used
   findOrderSummaryForDriver(
     orderId: string,
-  ): Promise<DriverOrderSummaryProjection>;
+  ): Promise<OrderSummaryDTOForDriver | null>;
 
   // used
   findOneForDriverById(

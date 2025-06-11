@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { OrderRepository } from './order-repository.interface';
 import { OrderOrmEntity } from '../orm-entities/order.orm.entity';
-import { OwnerOrderSummaryProjection } from '../projections/orderSummaryForOwner.projection';
-
-import { DriverOrderSummaryProjection } from '../projections/orderSummaryForDriver.projection';
-import { OrderSummaryForClient } from '../projections/orderSummaryForClient.projection';
-import { OrderPreviewForClient } from '../projections/deliveredOrdersForCustomer.projection';
 import { OrderProjectionForEntity } from '../projections/order.projection';
+import {
+  OrderPreviewDTOForClient,
+  OrderSummaryDTOForClient,
+  OrderSummaryDTOForDriver,
+  OrderSummaryDTOForOwner,
+} from '../dtos/order.dto';
 
 @Injectable()
 export class OrmOrderRepository implements OrderRepository {
@@ -49,8 +50,8 @@ export class OrmOrderRepository implements OrderRepository {
 
   // used
   async findSummaryForClient(
-    id: string,
-  ): Promise<OrderSummaryForClient | null> {
+    orderId: string,
+  ): Promise<OrderSummaryDTOForClient | null> {
     const result = await this.em
       .createQueryBuilder()
       .select([
@@ -69,16 +70,16 @@ export class OrmOrderRepository implements OrderRepository {
         'restaurant',
         'restaurant.id = order.restaurantId',
       )
-      .where('order.id = :id', { id })
+      .where('order.id = :id', { id: orderId })
       .getRawOne();
 
-    return result;
+    return result ? new OrderSummaryDTOForClient(result) : null;
   }
 
   // used
   async findDeliveredOrdersByCustomer(
     customerId: string,
-  ): Promise<OrderPreviewForClient[]> {
+  ): Promise<OrderPreviewDTOForClient[]> {
     const result = await this.em
       .createQueryBuilder()
       .select([
@@ -99,13 +100,13 @@ export class OrmOrderRepository implements OrderRepository {
       })
       .getRawMany();
 
-    return result;
+    return result.map((order) => new OrderPreviewDTOForClient(order));
   }
 
   // used
   async findOnGoingOrderForClient(
     customerId: string,
-  ): Promise<OrderSummaryForClient | null> {
+  ): Promise<OrderSummaryDTOForClient | null> {
     const result = await this.em
       .createQueryBuilder()
       .select([
@@ -130,13 +131,13 @@ export class OrmOrderRepository implements OrderRepository {
       })
       .getRawOne();
 
-    return result;
+    return result ? new OrderSummaryDTOForClient(result) : null;
   }
 
   // used
   async findOrderSummariesByRestaurant(
     restaurantId: string,
-  ): Promise<OwnerOrderSummaryProjection[]> {
+  ): Promise<OrderSummaryDTOForOwner[]> {
     const result = await this.em
       .createQueryBuilder()
       .select([
@@ -152,13 +153,13 @@ export class OrmOrderRepository implements OrderRepository {
       .where('order.restaurantId = :restaurantId', { restaurantId })
       .getRawMany();
 
-    return result;
+    return result.map((order) => new OrderSummaryDTOForOwner(order));
   }
 
   // used
   async findOrderSummaryForOwner(
     id: string,
-  ): Promise<OwnerOrderSummaryProjection | null> {
+  ): Promise<OrderSummaryDTOForOwner | null> {
     const result = await this.em
       .createQueryBuilder()
       .select([
@@ -174,13 +175,14 @@ export class OrmOrderRepository implements OrderRepository {
       .where('order.id = :id', { id })
       .getRawOne();
 
-    return result;
+    return result ? new OrderSummaryDTOForOwner(result) : null;
+    // return new OrderSummaryDTOForOwner(result);
   }
 
   // used
   async findAvailableOrdersForDriver(
     driverId: string,
-  ): Promise<DriverOrderSummaryProjection[]> {
+  ): Promise<OrderSummaryDTOForDriver[]> {
     const result = await this.em
       .createQueryBuilder()
       .select([
@@ -210,14 +212,14 @@ export class OrmOrderRepository implements OrderRepository {
       .andWhere('odr.id IS NULL')
       .getRawMany();
 
-    return result;
+    return result.map((order) => new OrderSummaryDTOForDriver(order));
   }
 
   // used
   async findOrderSummaryForDriver(
     orderId: string,
-  ): Promise<DriverOrderSummaryProjection> {
-    const result = this.em
+  ): Promise<OrderSummaryDTOForDriver | null> {
+    const result = await this.em
       .createQueryBuilder()
       .select([
         'order.id AS id',
@@ -238,7 +240,7 @@ export class OrmOrderRepository implements OrderRepository {
       .where('order.id = :id', { id: orderId })
       .getRawOne();
 
-    return result;
+    return result ? new OrderSummaryDTOForDriver(result) : result;
   }
 
   // async findAvailableOrdersForDriver(driverId: string): Promise<OrderRecord[]> {

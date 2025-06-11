@@ -1,5 +1,5 @@
 import { OrderEntity } from 'src/order/domain/order.entity';
-import { DriverOrderSummaryProjection } from 'src/order/projections/orderSummaryForDriver.projection';
+import { OrderSummaryDTOForDriver } from 'src/order/dtos/order.dto';
 import { v4 as uuidv4 } from 'uuid';
 
 export class DriverEntity {
@@ -22,14 +22,11 @@ export class DriverEntity {
   }
 
   // used
-  ensureCanAccessOrderOf(order: DriverOrderSummaryProjection) {
-    if (order.driverId !== null) {
-      if (order.driverId !== this.id) {
-        throw new Error(
-          "You can't access an order that has been assigned to other driver",
-        );
-      }
-    }
+  canAccessOrderOf(order: OrderSummaryDTOForDriver) {
+    const noDriverAssigned = !order.driverId;
+    const isAssignedToThisDriver = order.driverId === this.id;
+
+    return noDriverAssigned || isAssignedToThisDriver;
   }
 
   get id() {

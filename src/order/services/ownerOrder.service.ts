@@ -3,7 +3,7 @@ import { OrderRepository } from '../repositories/order-repository.interface';
 import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { OrderEntity } from '../domain/order.entity';
 import { OrderMapper } from '../mapper/order.mapper';
-import { OwnerOrderSummaryProjection } from '../projections/orderSummaryForOwner.projection';
+import { OrderSummaryDTOForOwner } from '../dtos/order.dto';
 
 @Injectable()
 export class OwnerOrderService {
@@ -13,7 +13,7 @@ export class OwnerOrderService {
   ) {}
 
   // used
-  async getOrders(owner: OwnerEntity): Promise<OwnerOrderSummaryProjection[]> {
+  async getOrders(owner: OwnerEntity): Promise<OrderSummaryDTOForOwner[]> {
     if (!owner.hasRestaurant()) {
       throw new Error("You don't have a registered restaurant yet!");
     }
@@ -27,23 +27,22 @@ export class OwnerOrderService {
   async getOrder(
     owner: OwnerEntity,
     orderId: string,
-  ): Promise<OwnerOrderSummaryProjection> {
+  ): Promise<OrderSummaryDTOForOwner> {
     if (!owner.hasRestaurant()) {
       throw new Error("You don't have a registered restaurant yet!");
     }
 
-    const orderProjection =
-      await this.orderRepository.findOrderSummaryForOwner(orderId);
+    const order = await this.orderRepository.findOrderSummaryForOwner(orderId);
 
-    if (!orderProjection) {
+    if (!order) {
       throw new Error('Order is not found');
     }
 
-    if (!owner.ownsRestaurantOf(orderProjection.restaurantId)) {
+    if (!owner.ownsRestaurantOf(order.restaurantId)) {
       throw new Error('You do not own the restaurant for this order');
     }
 
-    return orderProjection;
+    return order;
   }
 
   // used

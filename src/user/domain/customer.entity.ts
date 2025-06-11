@@ -1,5 +1,4 @@
 import { OrderEntity } from 'src/order/domain/order.entity';
-import { OrderSummaryForClient } from 'src/order/projections/orderSummaryForClient.projection';
 import { v4 as uuidv4 } from 'uuid';
 
 export class CustomerEntity {
@@ -22,10 +21,8 @@ export class CustomerEntity {
   }
 
   // used
-  ensureOwnsOrderOf(orderProjections: OrderSummaryForClient) {
-    if (this._id !== orderProjections.customerId) {
-      throw new Error("You don't own this order");
-    }
+  idMatches(id: string): boolean {
+    return this._id === id;
   }
 
   get id() {

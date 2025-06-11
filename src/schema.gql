@@ -45,6 +45,7 @@ type OrderSummaryDTOForOwner {
   deliveryAddress: String!
   customerId: String!
   driverId: String
+  restaurantId: String!
 }
 
 type OrderSummaryDTOForDriver {
@@ -52,6 +53,7 @@ type OrderSummaryDTOForDriver {
   status: OrderStatus!
   deliveryAddress: String!
   customerId: String!
+  driverId: String
   restaurantId: String!
   restaurantName: String!
 }
@@ -61,26 +63,18 @@ type Query {
   getRestaurants: [RestaurantDTO!]!
   getOnGoingOrderForClient: OrderSummaryDTOForClient!
   getOrderHistoryForClient: [OrderPreviewDTOForClient!]!
-  getOrderForClient(input: GetOrderByClientInput!): OrderSummaryDTOForClient!
+  getOrderForClient(input: GetOrderInput!): OrderSummaryDTOForClient!
   getOrdersForOwner: [OrderSummaryDTOForOwner!]!
-  getOrderForOwner(input: GetOrderByOwnerInput!): OrderSummaryDTOForOwner!
+  getOrderForOwner(input: GetOrderInput!): OrderSummaryDTOForOwner!
   getOrdersForDriver: [OrderSummaryDTOForDriver!]!
-  getOrderForDriver(input: GetOrderByDriverInput!): OrderSummaryDTOForDriver!
+  getOrderForDriver(input: GetOrderInput!): OrderSummaryDTOForDriver!
 }
 
 input GetRestaurantInput {
   id: String!
 }
 
-input GetOrderByClientInput {
-  orderId: String!
-}
-
-input GetOrderByOwnerInput {
-  orderId: String!
-}
-
-input GetOrderByDriverInput {
+input GetOrderInput {
   orderId: String!
 }
 
@@ -92,13 +86,13 @@ type Mutation {
   login(input: LoginInput!): LoginOutput!
   createRestaurant(input: CreateRestaurantInput!): Boolean!
   createOrder(input: CreateOrderInput!): Boolean!
-  acceptOrderByOwner(input: AcceptOrderInput!): Boolean!
-  rejectOrderByOwner(input: RejectOrderInput!): Boolean!
-  markOrderAsReadyByOwner(input: MarkOrderAsReadyInput!): Boolean!
-  acceptOrderByDriver(input: AcceptOrderInput!): Boolean!
-  rejectOrderByDriver(input: RejectOrderInput!): Boolean!
-  pickUpOrderByDriver(input: RejectOrderInput!): Boolean!
-  completeDelivery(input: RejectOrderInput!): Boolean!
+  acceptOrderByOwner(input: OrderActionInput!): Boolean!
+  rejectOrderByOwner(input: OrderActionInput!): Boolean!
+  markOrderAsReadyByOwner(input: OrderActionInput!): Boolean!
+  acceptOrderByDriver(input: OrderActionInput!): Boolean!
+  rejectOrderByDriver(input: OrderActionInput!): Boolean!
+  pickUpOrderByDriver(input: OrderActionInput!): Boolean!
+  completeDelivery(input: OrderActionInput!): Boolean!
 }
 
 input CreateOwnerInput {
@@ -146,14 +140,6 @@ input CreateOrderInput {
   restaurantId: String!
 }
 
-input AcceptOrderInput {
-  orderId: String!
-}
-
-input RejectOrderInput {
-  orderId: String!
-}
-
-input MarkOrderAsReadyInput {
+input OrderActionInput {
   orderId: String!
 }

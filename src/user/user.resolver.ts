@@ -3,14 +3,9 @@ import {
   CreateCustomerInput,
   CreateDriverInput,
   CreateOwnerInput,
-  CreateUserInput,
-  CreateUserOutput,
 } from './dtos/CreateUser.dto';
 import { UserService } from './user.service';
-import {
-  ChangePasswordInput,
-  ChangePasswordOutput,
-} from './dtos/ChangePassword.dto';
+import { ChangePasswordInput } from './dtos/ChangePassword.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UserEntity } from './domain/user.entity';

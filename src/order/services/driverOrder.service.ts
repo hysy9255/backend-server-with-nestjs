@@ -3,9 +3,9 @@ import { OrderRepository } from '../repositories/order-repository.interface';
 import { OrderMapper } from '../mapper/order.mapper';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { OrderEntity } from '../domain/order.entity';
-import { DriverOrderSummaryProjection } from '../projections/orderSummaryForDriver.projection';
 import { OrderDriverRejectionRepository } from '../repositories/order-driver-rejection-repository.interface';
 import { OrderDriverRejectionOrmEntity } from '../orm-entities/order-driver-rejection.orm';
+import { OrderSummaryDTOForDriver } from '../dtos/order.dto';
 
 @Injectable()
 export class DriverOrderService {
@@ -19,7 +19,7 @@ export class DriverOrderService {
   // used
   async getOrdersForDriver(
     driver: DriverEntity,
-  ): Promise<DriverOrderSummaryProjection[]> {
+  ): Promise<OrderSummaryDTOForDriver[]> {
     return await this.orderRepository.findAvailableOrdersForDriver(driver.id);
   }
 
@@ -29,9 +29,15 @@ export class DriverOrderService {
   async getOrderForDriver(
     driver: DriverEntity,
     orderId: string,
-  ): Promise<DriverOrderSummaryProjection> {
+  ): Promise<OrderSummaryDTOForDriver> {
     const order = await this.orderRepository.findOrderSummaryForDriver(orderId);
-    driver.ensureCanAccessOrderOf(order);
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    if (!driver.canAccessOrderOf(order)) {
+      throw new Error("You can't access an order assigned to another driver");
+    }
     return order;
   }
 
