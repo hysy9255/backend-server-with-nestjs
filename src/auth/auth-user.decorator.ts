@@ -1,40 +1,24 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import {
+  createParamDecorator,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
+import { UserSummaryProjection } from 'src/user/application/query/projections/user.projection';
 import { UserMapper } from 'src/user/application/service/mapper/user.mapper';
+import { UserService } from 'src/user/application/service/user.service';
 import { UserEntity } from 'src/user/domain/user.entity';
-import { UserRole } from 'src/constants/userRole';
-
-import { DriverEntity } from 'src/user/domain/driver.entity';
-import { CustomerEntity } from 'src/user/domain/customer.entity';
-import { OwnerEntity } from 'src/user/domain/owner.entity';
 
 export const AuthUser = createParamDecorator(
-  (_, context: ExecutionContext): UserEntity => {
+  async (_, context: ExecutionContext): Promise<UserEntity> => {
     const gqlContext = GqlExecutionContext.create(context).getContext();
 
-    const userRecord = gqlContext['userRecord'];
+    const userReadModel: UserSummaryProjection = gqlContext['user'];
+    const userService: UserService = gqlContext.req.userService;
 
-    return UserMapper.toDomain(userRecord);
+    const user = await userService.findUserByUserId(userReadModel.id);
+    if (!user) throw new ForbiddenException();
 
-    // const domainUser: DriverEntity | CustomerEntity | OwnerEntity =
-    //   gqlContext['domainUser'];
-
-    // console.log('from decorator', domainUser);
-
-    // return domainUser;
-    // let userRecord: UserRecord;
-    // // GraphQL context
-    // if (context.getType<'graphql'>() === 'graphql') {
-    //   const gqlCtx = GqlExecutionContext.create(context);
-    //   userRecord = gqlCtx.getContext().req.user;
-    // } else {
-    //   // HTTP context
-    //   const request = context.switchToHttp().getRequest();
-    //   userRecord = request.user;
-    // }
-    // // if (userRecord.role === UserRole.Client) {
-    // //   CustomerMapper.toDomain(userRecord)
-    // // }
-    // return UserMapper.toDomain(userRecord);
+    return user;
   },
 );

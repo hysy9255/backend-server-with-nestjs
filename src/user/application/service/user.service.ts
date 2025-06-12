@@ -187,15 +187,25 @@ export class UserService {
     return await this.userQryRepo.findById(id);
   }
 
+  async findUserByUserId(userId: string): Promise<UserEntity> {
+    const projection = await this.userCmdRepo.findByUserId(userId);
+
+    if (!projection) {
+      throw new Error('User is not found');
+    }
+
+    return UserMapper.toDomain(projection);
+  }
+
   // used
   async findDriverByUserId(userId: string): Promise<DriverEntity> {
-    const driverRecord = await this.driverCmdRepo.findByUserId(userId);
+    const projection = await this.driverCmdRepo.findByUserId(userId);
 
-    if (!driverRecord) {
+    if (!projection) {
       throw new Error('Driver is not found');
     }
 
-    return DriverMapper.toDomain(driverRecord);
+    return DriverMapper.toDomain(projection);
   }
 
   // used
@@ -211,13 +221,13 @@ export class UserService {
 
   // used
   async findCustomerByUserId(userId: string): Promise<CustomerEntity> {
-    const customerRecord = await this.customerCmdRepo.findByUserId(userId);
+    const projection = await this.customerCmdRepo.findByUserId(userId);
 
-    if (!customerRecord) {
+    if (!projection) {
       throw new Error('Customer is not found');
     }
 
-    return CustomerMapper.toDomain(customerRecord);
+    return CustomerMapper.toDomain(projection);
   }
 
   async updateOwner(owner: OwnerEntity): Promise<void> {

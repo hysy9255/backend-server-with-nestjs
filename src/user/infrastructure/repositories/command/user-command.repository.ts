@@ -27,4 +27,20 @@ export class UserCommandRepository implements IUserCommandRepository {
 
     return result;
   }
+
+  async findByUserId(userId: string): Promise<UserProjection | undefined> {
+    const result = await this.em
+      .createQueryBuilder()
+      .select([
+        'user.id AS id',
+        'user.email AS email',
+        'user.password AS password',
+        'user.role AS role',
+      ])
+      .from('user', 'user')
+      .where('user.id = :id', { id: userId })
+      .getRawOne<UserProjection>();
+
+    return result;
+  }
 }

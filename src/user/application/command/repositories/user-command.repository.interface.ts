@@ -3,6 +3,6 @@ import { UserProjection } from '../projections/user.projection';
 
 export interface IUserCommandRepository {
   save(user: UserOrmEntity): Promise<UserOrmEntity>;
-  // findById(id: string): Promise<UserProjection | undefined>;
-  findByEmail(id: string): Promise<UserProjection | undefined>;
+  findByEmail(email: string): Promise<UserProjection | undefined>;
+  findByUserId(userId: string): Promise<UserProjection | undefined>;
 }

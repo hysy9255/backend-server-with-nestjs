@@ -2,7 +2,6 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import { AllowedRoles } from './role.decorator';
-import { UserOrmEntity } from 'src/user/infrastructure/orm-entities/user.orm.entity';
 import { UserSummaryProjection } from 'src/user/application/query/projections/user.projection';
 
 @Injectable()
