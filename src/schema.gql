@@ -6,14 +6,14 @@ type LoginOutput {
   token: String!
 }
 
-type RestaurantDTO {
+type RestaurantSummaryDTO {
   id: String!
   name: String!
   address: String!
   category: String!
 }
 
-type OrderSummaryDTOForClient {
+type ClientOrderSummaryDTO {
   id: String!
   status: OrderStatus!
   deliveryAddress: String!
@@ -32,14 +32,14 @@ enum OrderStatus {
   Delivered
 }
 
-type OrderPreviewDTOForClient {
+type ClientOrderPreviewDTO {
   id: String!
   status: OrderStatus!
   restaurantId: String!
   restaurantName: String!
 }
 
-type OrderSummaryDTOForOwner {
+type OwnerOrderSummaryDTO {
   id: String!
   status: OrderStatus!
   deliveryAddress: String!
@@ -48,7 +48,7 @@ type OrderSummaryDTOForOwner {
   restaurantId: String!
 }
 
-type OrderSummaryDTOForDriver {
+type DriverOrderSummaryDTO {
   id: String!
   status: OrderStatus!
   deliveryAddress: String!
@@ -59,15 +59,15 @@ type OrderSummaryDTOForDriver {
 }
 
 type Query {
-  getRestaurant(input: GetRestaurantInput!): RestaurantDTO!
-  getRestaurants: [RestaurantDTO!]!
-  getOnGoingOrderForClient: OrderSummaryDTOForClient!
-  getOrderHistoryForClient: [OrderPreviewDTOForClient!]!
-  getOrderForClient(input: GetOrderInput!): OrderSummaryDTOForClient!
-  getOrdersForOwner: [OrderSummaryDTOForOwner!]!
-  getOrderForOwner(input: GetOrderInput!): OrderSummaryDTOForOwner!
-  getOrdersForDriver: [OrderSummaryDTOForDriver!]!
-  getOrderForDriver(input: GetOrderInput!): OrderSummaryDTOForDriver!
+  getRestaurant(input: GetRestaurantInput!): RestaurantSummaryDTO!
+  getRestaurants: [RestaurantSummaryDTO!]!
+  getOnGoingOrderForClient: ClientOrderSummaryDTO!
+  getOrderHistoryForClient: [ClientOrderPreviewDTO!]!
+  getOrderForClient(input: GetOrderInput!): ClientOrderSummaryDTO!
+  getOrdersForOwner: [OwnerOrderSummaryDTO!]!
+  getOrderForOwner(input: GetOrderInput!): OwnerOrderSummaryDTO!
+  getOrdersForDriver: [DriverOrderSummaryDTO!]!
+  getOrderForDriver(input: GetOrderInput!): DriverOrderSummaryDTO!
 }
 
 input GetRestaurantInput {

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DishService } from './dish.service';
 import { MemoryDishRepository } from './repositories/memory-dish.repository';
 import { MemoryRestaurantRepository } from 'src/restaurant/repositories/memory-restaurant.repository';
-import { Restaurant } from 'src/restaurant/orm-entities/restaurant.orm.entity';
+import { Restaurant } from 'src/restaurant/infrastructure/orm-entities/restaurant.orm.entity';
 import { User } from 'src/user/orm-entities/user.orm.entity';
 import { UserRole } from 'src/constants/userRole';
 import { Dish } from './domain/dish.entity';

@@ -9,7 +9,7 @@ import {
 import { NextFunction, Request, Response } from 'express';
 import { JWT_HEADER } from 'src/constants/header';
 import { JwtService } from './jwt.service';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/application/service/user.service';
 
 @Injectable()
 export class JwtMiddleWare implements NestMiddleware {

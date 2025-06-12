@@ -16,14 +16,14 @@ import { JwtMiddleWare } from './jwt/jwt.middleware';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { DishModule } from './dish/dish.module';
 import { OrderModule } from './order/order.module';
-import { UserOrmEntity } from './user/orm-entities/user.orm.entity';
-import { OrderOrmEntity } from './order/orm-entities/order.orm.entity';
-import { CustomerOrmEntity } from './user/orm-entities/customer.orm.entity';
-import { OwnerOrmEntity } from './user/orm-entities/owner.orm.entity';
-import { DriverOrmEntity } from './user/orm-entities/driver.orm.entity';
-import { OrderDriverRejectionOrmEntity } from './order/orm-entities/order-driver-rejection.orm';
-import { RestaurantOrmEntity } from './restaurant/orm-entities/restaurant.orm.entity';
-import { OrderOwnerRejectionOrmEntity } from './order/orm-entities/order-owner-rejection.orm';
+import { OrderOrmEntity } from './order/infrastructure/orm-entities/order.orm.entity';
+import { OrderDriverRejectionOrmEntity } from './order/infrastructure/orm-entities/order-driver-rejection.orm';
+import { RestaurantOrmEntity } from './restaurant/infrastructure/orm-entities/restaurant.orm.entity';
+import { OrderOwnerRejectionOrmEntity } from './order/infrastructure/orm-entities/order-owner-rejection.orm';
+import { UserOrmEntity } from './user/infrastructure/orm-entities/user.orm.entity';
+import { OwnerOrmEntity } from './user/infrastructure/orm-entities/owner.orm.entity';
+import { CustomerOrmEntity } from './user/infrastructure/orm-entities/customer.orm.entity';
+import { DriverOrmEntity } from './user/infrastructure/orm-entities/driver.orm.entity';
 
 @Module({
   imports: [

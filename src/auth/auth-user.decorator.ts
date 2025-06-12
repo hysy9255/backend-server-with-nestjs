@@ -1,9 +1,9 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { UserMapper } from 'src/user/mapper/user.mapper';
+import { UserMapper } from 'src/user/application/service/mapper/user.mapper';
 import { UserEntity } from 'src/user/domain/user.entity';
 import { UserRole } from 'src/constants/userRole';
-import { CustomerMapper } from 'src/user/mapper/customer.mapper';
+
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { CustomerEntity } from 'src/user/domain/customer.entity';
 import { OwnerEntity } from 'src/user/domain/owner.entity';

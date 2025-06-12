@@ -1,26 +1,26 @@
 import { Module } from '@nestjs/common';
-import { RestaurantService } from './restaurant.service';
+import { RestaurantService } from './application/service/restaurant.service';
 import { DataSource } from 'typeorm';
-import { OrmRestaurantRepository } from './repositories/orm-restaurant.repository';
 import { getDataSourceToken } from '@nestjs/typeorm';
-import { OrmOwnerRepository } from 'src/user/repositories/orms/orm-owner.repository';
-import { RestaurantResolver } from './restaurant.resolver';
-// import { RestaurantResolver } from './restaurant.resolver';
-// import { RestaurantController } from './restaurant.controller';
+import { RestaurantResolver } from './interface/restaurant.resolver';
+import { RestaurantCommandRepository } from './infrastructure/repositories/command/restaurant-command.repository';
+import { RestaurantQueryRepository } from './infrastructure/repositories/query/restaurant-query.repository';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
+  imports: [UserModule],
   providers: [
     {
-      provide: 'RestaurantRepository',
+      provide: 'IRestaurantCommandRepository',
       useFactory: (dataSource: DataSource) => {
-        return new OrmRestaurantRepository(dataSource.manager);
+        return new RestaurantCommandRepository(dataSource.manager);
       },
       inject: [getDataSourceToken()],
     },
     {
-      provide: 'OwnerRepository',
+      provide: 'IRestaurantQueryRepository',
       useFactory: (dataSource: DataSource) => {
-        return new OrmOwnerRepository(dataSource.manager);
+        return new RestaurantQueryRepository(dataSource.manager);
       },
       inject: [getDataSourceToken()],
     },

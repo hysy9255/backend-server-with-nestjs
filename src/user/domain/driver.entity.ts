@@ -1,5 +1,5 @@
+import { DriverOrderSummaryProjection } from 'src/order/application/query/projections/order.projection';
 import { OrderEntity } from 'src/order/domain/order.entity';
-import { OrderSummaryDTOForDriver } from 'src/order/dtos/order.dto';
 import { v4 as uuidv4 } from 'uuid';
 
 export class DriverEntity {
@@ -22,7 +22,7 @@ export class DriverEntity {
   }
 
   // used
-  canAccessOrderOf(order: OrderSummaryDTOForDriver) {
+  canAccessOrderOf(order: DriverOrderSummaryProjection) {
     const noDriverAssigned = !order.driverId;
     const isAssignedToThisDriver = order.driverId === this.id;
 

@@ -1,45 +1,52 @@
 import { Module } from '@nestjs/common';
 import { getDataSourceToken } from '@nestjs/typeorm';
-import { UserService } from './user.service';
-
-import { OrmUserRepository } from './repositories/orms/orm-user.repository';
+import { UserService } from './application/service/user.service';
 import { DataSource } from 'typeorm';
-import { OrmCustomerRepository } from './repositories/orms/orm-customer.repository';
-import { OrmDriverRepository } from './repositories/orms/orm-driver.repository';
-import { OrmOwnerRepository } from './repositories/orms/orm-owner.repository';
-import { UserResolver } from './user.resolver';
+import { CustomerCommandRepository } from './infrastructure/repositories/command/customer-command.repository';
+import { OwnerCommandRepository } from './infrastructure/repositories/command/owner-command.repository';
+import { UserResolver } from './interface/user.resolver';
 import { JwtModule } from 'src/jwt/jwt.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { UserQueryRepository } from './infrastructure/repositories/query/user-query.repository';
+import { UserCommandRepository } from './infrastructure/repositories/command/user-command.repository';
+import { DriverCommandRepository } from './infrastructure/repositories/command/driver-command.repository';
 // import { UserFactory } from './domain/user.factory';
 
 @Module({
   imports: [],
   providers: [
     {
-      provide: 'UserRepository',
+      provide: 'IUserQueryRepository',
       useFactory: (dataSource: DataSource) => {
-        return new OrmUserRepository(dataSource.manager);
+        return new UserQueryRepository(dataSource.manager);
       },
       inject: [getDataSourceToken()],
     },
     {
-      provide: 'CustomerRepository',
+      provide: 'IUserCommandRepository',
       useFactory: (dataSource: DataSource) => {
-        return new OrmCustomerRepository(dataSource.manager);
+        return new UserCommandRepository(dataSource.manager);
       },
       inject: [getDataSourceToken()],
     },
     {
-      provide: 'DriverRepository',
+      provide: 'ICustomerCommandRepository',
       useFactory: (dataSource: DataSource) => {
-        return new OrmDriverRepository(dataSource.manager);
+        return new CustomerCommandRepository(dataSource.manager);
       },
       inject: [getDataSourceToken()],
     },
     {
-      provide: 'OwnerRepository',
+      provide: 'IDriverCommandRepository',
       useFactory: (dataSource: DataSource) => {
-        return new OrmOwnerRepository(dataSource.manager);
+        return new DriverCommandRepository(dataSource.manager);
+      },
+      inject: [getDataSourceToken()],
+    },
+    {
+      provide: 'IOwnerCommandRepository',
+      useFactory: (dataSource: DataSource) => {
+        return new OwnerCommandRepository(dataSource.manager);
       },
       inject: [getDataSourceToken()],
     },
