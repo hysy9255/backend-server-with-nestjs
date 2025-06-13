@@ -10,6 +10,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UserQueryRepository } from './infrastructure/repositories/query/user-query.repository';
 import { UserCommandRepository } from './infrastructure/repositories/command/user-command.repository';
 import { DriverCommandRepository } from './infrastructure/repositories/command/driver-command.repository';
+import { UserAuthService } from './application/service/user-auth.service';
 // import { UserFactory } from './domain/user.factory';
 
 @Module({
@@ -51,10 +52,11 @@ import { DriverCommandRepository } from './infrastructure/repositories/command/d
       inject: [getDataSourceToken()],
     },
     UserService,
+    UserAuthService,
     UserResolver,
     // UserFactory,
   ],
   // controllers: [UserController],
-  exports: [UserService],
+  exports: [UserService, UserAuthService],
 })
 export class UserModule {}

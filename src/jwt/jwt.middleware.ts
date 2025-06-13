@@ -1,6 +1,5 @@
 import {
   HttpException,
-  Inject,
   Injectable,
   InternalServerErrorException,
   NestMiddleware,
@@ -9,13 +8,13 @@ import {
 import { NextFunction, Request, Response } from 'express';
 import { JWT_HEADER } from 'src/constants/header';
 import { JwtService } from './jwt.service';
-import { UserService } from 'src/user/application/service/user.service';
+import { UserAuthService } from 'src/user/application/service/user-auth.service';
 
 @Injectable()
 export class JwtMiddleWare implements NestMiddleware {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UserService,
+    private readonly userAuthService: UserAuthService,
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
@@ -28,19 +27,23 @@ export class JwtMiddleWare implements NestMiddleware {
         try {
           decoded = this.jwtService.verify(token.toString());
         } catch (e) {
-          throw new UnauthorizedException('Invalid token');
+          throw new UnauthorizedException('Invalid Token');
         }
 
-        const user = await this.userService.findUserById(decoded['id']);
+        const user = await this.userAuthService.findUserForMiddlewareById(
+          decoded['id'],
+        );
 
         if (!user) {
-          throw new UnauthorizedException('User no longer exists');
+          console.warn(
+            `[JWT Middleware] No user found for decoded ID: ${decoded['id']}`,
+          );
+          throw new UnauthorizedException('Unauthorized');
         }
 
         req['user'] = user;
       }
     } catch (e) {
-      console.error('JWT Middleware Error:', e);
       if (e instanceof HttpException) {
         throw e;
       }

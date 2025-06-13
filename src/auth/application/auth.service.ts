@@ -1,28 +1,28 @@
 import {
-  HttpException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
-
 import { JwtService } from 'src/jwt/jwt.service';
 import { LoginInput, LoginOutput } from '../interface/dtos/Login.dto';
-import { UserService } from 'src/user/application/service/user.service';
 import { ERROR_MESSAGES } from 'src/constants/errorMessages';
-import { UserMapper } from 'src/user/application/service/mapper/user.mapper';
+import { UserAuthService } from 'src/user/application/service/user-auth.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly userService: UserService,
+    private readonly userAuthService: UserAuthService,
   ) {}
 
   // used
   async login(loginInput: LoginInput): Promise<LoginOutput> {
     try {
-      const user = UserMapper.toDomain(
-        await this.userService.findUserByEmail(loginInput.email),
+      const user = await this.userAuthService.getUserForAuthByEmail(
+        loginInput.email,
       );
+
+      if (!user) throw new NotFoundException('User Not Found');
 
       await user.checkPassword(loginInput.password);
 

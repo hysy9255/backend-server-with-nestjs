@@ -19,7 +19,6 @@ import { OrderModule } from './order/order.module';
 import { OrderOrmEntity } from './order/infrastructure/orm-entities/order.orm.entity';
 import { OrderDriverRejectionOrmEntity } from './order/infrastructure/orm-entities/order-driver-rejection.orm';
 import { RestaurantOrmEntity } from './restaurant/infrastructure/orm-entities/restaurant.orm.entity';
-import { OrderOwnerRejectionOrmEntity } from './order/infrastructure/orm-entities/order-owner-rejection.orm';
 import { UserOrmEntity } from './user/infrastructure/orm-entities/user.orm.entity';
 import { OwnerOrmEntity } from './user/infrastructure/orm-entities/owner.orm.entity';
 import { CustomerOrmEntity } from './user/infrastructure/orm-entities/customer.orm.entity';
@@ -37,7 +36,21 @@ import { DriverOrmEntity } from './user/infrastructure/orm-entities/driver.orm.e
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       context: ({ req }) => ({ req }),
+      // debug: false,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      // formatError: (error: GraphQLError): GraphQLFormattedError => {
+      //   const { message, locations, path, extensions } = error;
+
+      //   return {
+      //     message,
+      //     locations,
+      //     path,
+      //     extensions: {
+      //       ...extensions,
+      //       stacktrace: undefined, // ✂️ Remove stacktrace
+      //     },
+      //   };
+      // },
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',

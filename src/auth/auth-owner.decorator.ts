@@ -5,19 +5,18 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { OwnerEntity } from 'src/user/domain/owner.entity';
-import { UserService } from 'src/user/application/service/user.service';
-import { UserOrmEntity } from 'src/user/infrastructure/orm-entities/user.orm.entity';
 import { UserSummaryProjection } from 'src/user/application/query/projections/user.projection';
+import { UserAuthService } from 'src/user/application/service/user-auth.service';
 
 export const AuthOwner = createParamDecorator(
   async (_, context: ExecutionContext): Promise<OwnerEntity> => {
     const gqlContext = GqlExecutionContext.create(context).getContext();
 
     const user: UserSummaryProjection = gqlContext['user'];
-    const userService: UserService = gqlContext.req.userService;
+    const userAuthService: UserAuthService = gqlContext.req.userAuthService;
 
-    const owner = await userService.findOwnerByUserId(user.id);
-    if (!owner) throw new ForbiddenException();
+    const owner = await userAuthService.getOwnerForAuth(user.id);
+    if (!owner) throw new ForbiddenException('Owner Not Found');
 
     return owner;
   },

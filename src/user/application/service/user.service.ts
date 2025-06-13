@@ -167,69 +167,6 @@ export class UserService {
     }
   }
 
-  // used
-  async findUserByEmail(email: string): Promise<UserProjection> {
-    try {
-      const result = await this.userCmdRepo.findByEmail(email);
-      if (!result) {
-        throw new BadRequestException(ERROR_MESSAGES.USER_NOT_FOUND);
-      }
-      return result;
-    } catch (e) {
-      console.error(e);
-      if (e instanceof HttpException) throw e;
-      throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
-    }
-  }
-
-  // used
-  async findUserById(id: string): Promise<UserSummaryProjection | null> {
-    return await this.userQryRepo.findById(id);
-  }
-
-  async findUserByUserId(userId: string): Promise<UserEntity> {
-    const projection = await this.userCmdRepo.findByUserId(userId);
-
-    if (!projection) {
-      throw new Error('User is not found');
-    }
-
-    return UserMapper.toDomain(projection);
-  }
-
-  // used
-  async findDriverByUserId(userId: string): Promise<DriverEntity> {
-    const projection = await this.driverCmdRepo.findByUserId(userId);
-
-    if (!projection) {
-      throw new Error('Driver is not found');
-    }
-
-    return DriverMapper.toDomain(projection);
-  }
-
-  // used
-  async findOwnerByUserId(userId: string): Promise<OwnerEntity> {
-    const projection = await this.ownerCmdRepo.findByUserId(userId);
-
-    if (!projection) {
-      throw new Error('Owner is not found');
-    }
-
-    return OwnerMapper.toDomain(projection);
-  }
-
-  // used
-  async findCustomerByUserId(userId: string): Promise<CustomerEntity> {
-    const projection = await this.customerCmdRepo.findByUserId(userId);
-
-    if (!projection) {
-      throw new Error('Customer is not found');
-    }
-
-    return CustomerMapper.toDomain(projection);
-  }
-
   async updateOwner(owner: OwnerEntity): Promise<void> {
     await this.ownerCmdRepo.save(OwnerMapper.toOrmEntity(owner));
   }

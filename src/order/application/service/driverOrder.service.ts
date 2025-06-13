@@ -1,4 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { OrderMapper } from './mapper/order.mapper';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { OrderEntity } from '../../domain/order.entity';
@@ -34,13 +39,11 @@ export class DriverOrderService {
     orderId: string,
   ): Promise<DriverOrderSummaryProjection> {
     const order = await this.orderQryRepo.findOrderSummaryForDriver(orderId);
-    if (!order) {
-      throw new Error('Order not found');
-    }
+    if (!order) throw new NotFoundException('Order Not Found');
 
-    if (!driver.canAccessOrderOf(order)) {
-      throw new Error("You can't access an order assigned to another driver");
-    }
+    if (!driver.canAccessOrderOf(order))
+      throw new ForbiddenException('You are not allowed to access this order.');
+
     return order;
   }
 
@@ -82,9 +85,8 @@ export class DriverOrderService {
   // used
   private async _getOrderOrThrow(orderId: string): Promise<OrderEntity> {
     const projection = await this.orderCmdRepo.findOneById(orderId);
-    if (!projection) {
-      throw new Error('Order not found');
-    }
+    if (!projection) throw new NotFoundException('Order Not Found');
+
     return OrderMapper.toDomain(projection);
   }
 }

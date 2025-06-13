@@ -5,19 +5,18 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { DriverEntity } from 'src/user/domain/driver.entity';
-import { UserService } from 'src/user/application/service/user.service';
-import { UserOrmEntity } from 'src/user/infrastructure/orm-entities/user.orm.entity';
 import { UserSummaryProjection } from 'src/user/application/query/projections/user.projection';
+import { UserAuthService } from 'src/user/application/service/user-auth.service';
 
 export const AuthDriver = createParamDecorator(
   async (_, context: ExecutionContext): Promise<DriverEntity> => {
     const gqlContext = GqlExecutionContext.create(context).getContext();
 
     const user: UserSummaryProjection = gqlContext['user'];
-    const userService: UserService = gqlContext.req.userService;
+    const userAuthService: UserAuthService = gqlContext.req.userAuthService;
 
-    const driver = await userService.findDriverByUserId(user.id);
-    if (!driver) throw new ForbiddenException();
+    const driver = await userAuthService.getDriverForAuth(user.id);
+    if (!driver) throw new ForbiddenException('Driver Not Found');
 
     return driver;
   },

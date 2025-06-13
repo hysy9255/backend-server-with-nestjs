@@ -1,4 +1,10 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { OrderEntity } from '../../domain/order.entity';
 import { OrderMapper } from './mapper/order.mapper';
@@ -18,7 +24,9 @@ export class OwnerOrderService {
   // used
   async getOrders(owner: OwnerEntity): Promise<OwnerOrderSummaryProjection[]> {
     if (!owner.hasRestaurant()) {
-      throw new Error("You don't have a registered restaurant yet!");
+      throw new BadRequestException(
+        'You must register a restaurant before viewing orders',
+      );
     }
     return await this.orderQryRepo.findOrderSummariesForOwner(
       owner.restaurantId!,
@@ -31,17 +39,21 @@ export class OwnerOrderService {
     orderId: string,
   ): Promise<OwnerOrderSummaryProjection> {
     if (!owner.hasRestaurant()) {
-      throw new Error("You don't have a registered restaurant yet!");
+      throw new BadRequestException(
+        'You must register a restaurant before viewing orders',
+      );
     }
 
     const order = await this.orderQryRepo.findOrderSummaryForOwner(orderId);
 
     if (!order) {
-      throw new Error('Order is not found');
+      throw new NotFoundException('Order Not Found');
     }
 
     if (!owner.ownsRestaurantOf(order.restaurantId)) {
-      throw new Error('You do not own the restaurant for this order');
+      throw new ForbiddenException(
+        'This order does not belong to your restaurant',
+      );
     }
 
     return order;
@@ -76,10 +88,9 @@ export class OwnerOrderService {
   private async _getOrderOrThrow(orderId: string): Promise<OrderEntity> {
     const orderRecord = await this.orderCmdRepo.findOneById(orderId);
     if (!orderRecord) {
-      throw new Error('Order not found');
+      throw new NotFoundException('Order Not Found');
     }
-    // should fix // attention
-    // return OrderMapper.toDomainTemporary(orderRecord);
+
     return OrderMapper.toDomain(orderRecord);
   }
 
@@ -90,7 +101,7 @@ export class OwnerOrderService {
   ): void {
     if (!owner.canAccessOrderOf(order)) {
       throw new ForbiddenException(
-        'You do not own the restaurant for this order',
+        'This order does not belong to your restaurant',
       );
     }
   }

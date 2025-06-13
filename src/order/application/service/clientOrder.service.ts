@@ -1,4 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { RestaurantService } from 'src/restaurant/application/service/restaurant.service';
 import { OrderEntity } from '../../domain/order.entity';
 import { OrderMapper } from './mapper/order.mapper';
@@ -45,14 +50,11 @@ export class ClientOrderService {
   ): Promise<ClientOrderSummaryProjection> {
     const order = await this.orderQryRepo.findSummaryForClient(orderId);
 
-    if (!order) {
-      throw new Error('Order not found');
-    }
+    if (!order) throw new NotFoundException('Order Not Found');
 
     // customer.ensureOwnsOrderOf(order);
-    if (!customer.idMatches(order.customerId)) {
-      throw new Error("You don't own this order");
-    }
+    if (!customer.idMatches(order.customerId))
+      throw new ForbiddenException('You are not allowed to access this order.');
 
     return order;
   }
@@ -72,9 +74,8 @@ export class ClientOrderService {
       customer.id,
     );
 
-    if (!order) {
-      throw new Error('Currently there is no on going order');
-    }
+    if (!order)
+      throw new NotFoundException('Currently there is no on going order');
 
     return order;
   }
