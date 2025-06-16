@@ -5,13 +5,10 @@ import { DataSource } from 'typeorm';
 import { CustomerCommandRepository } from './infrastructure/repositories/command/customer-command.repository';
 import { OwnerCommandRepository } from './infrastructure/repositories/command/owner-command.repository';
 import { UserResolver } from './interface/user.resolver';
-import { JwtModule } from 'src/jwt/jwt.module';
-import { AuthModule } from 'src/auth/auth.module';
 import { UserQueryRepository } from './infrastructure/repositories/query/user-query.repository';
 import { UserCommandRepository } from './infrastructure/repositories/command/user-command.repository';
 import { DriverCommandRepository } from './infrastructure/repositories/command/driver-command.repository';
 import { UserAuthService } from './application/service/user-auth.service';
-// import { UserFactory } from './domain/user.factory';
 
 @Module({
   imports: [],
