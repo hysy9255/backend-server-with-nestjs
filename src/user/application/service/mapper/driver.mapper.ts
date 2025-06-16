@@ -1,6 +1,6 @@
 import { DriverOrmEntity } from 'src/user/infrastructure/orm-entities/driver.orm.entity';
 import { DriverEntity } from '../../../domain/driver.entity';
-import { DriverProjection } from '../../command/projections/driver.projection';
+import { DriverCmdProjection } from 'src/user/infrastructure/repositories/command/driver-command.repository.interface';
 
 export class DriverMapper {
   static toOrmEntity(entity: DriverEntity): DriverOrmEntity {
@@ -11,7 +11,7 @@ export class DriverMapper {
     return record;
   }
 
-  static toDomain(projection: DriverProjection): DriverEntity {
+  static toDomain(projection: DriverCmdProjection): DriverEntity {
     return DriverEntity.fromPersistance(projection.id, projection.userId);
   }
 }

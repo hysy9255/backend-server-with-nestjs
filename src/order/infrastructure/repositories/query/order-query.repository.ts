@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { IOrderQueryRepository } from '../../../application/query/repositories/order-query.repository.interface';
+import { IOrderQueryRepository } from './order-query.repository.interface';
 import {
   ClientOrderPreviewProjection,
   ClientOrderSummaryProjection,
   DriverOrderSummaryProjection,
   OwnerOrderSummaryProjection,
-} from 'src/order/application/query/projections/order.projection';
+} from 'src/order/infrastructure/repositories/query/projections/order.projection';
 
 @Injectable()
 export class OrderQueryRepository implements IOrderQueryRepository {

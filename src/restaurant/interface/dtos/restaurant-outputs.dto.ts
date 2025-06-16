@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { RestaurantSummaryProjection } from 'src/restaurant/application/query/projections/restaurant.projection';
+import { RestaurantQueryProjection } from 'src/restaurant/infrastructure/repositories/query/retaurant-query.repository.interface';
 
 @ObjectType()
 export class RestaurantSummaryDTO {
@@ -15,7 +15,7 @@ export class RestaurantSummaryDTO {
   @Field(() => String)
   category: string;
 
-  constructor(projection: RestaurantSummaryProjection) {
+  constructor(projection: RestaurantQueryProjection) {
     this.id = projection.id;
     this.name = projection.name;
     this.address = projection.address;

@@ -1,11 +1,4 @@
-import {
-  HttpException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import { IUserCommandRepository } from '../command/repositories/user-command.repository.interface';
-import { ERROR_MESSAGES } from 'src/constants/errorMessages';
+import { Inject, Injectable } from '@nestjs/common';
 import { UserEntity } from '../../domain/user.entity';
 import { UserMapper } from './mapper/user.mapper';
 import { DriverEntity } from '../../domain/driver.entity';
@@ -14,11 +7,14 @@ import { OwnerEntity } from '../../domain/owner.entity';
 import { OwnerMapper } from './mapper/owner.mapper';
 import { CustomerEntity } from '../../domain/customer.entity';
 import { CustomerMapper } from './mapper/customer.mapper';
-import { IOwnerCommandRepository } from '../command/repositories/owner-command.repository.interface';
-import { UserSummaryProjection } from '../query/projections/user.projection';
-import { ICustomerCommandRepository } from '../command/repositories/customer-command.repository.interface';
-import { IDriverCommandRepository } from '../command/repositories/driver-command.repository.interface';
-import { IUserQueryRepository } from '../query/repositories/user-query.repository.interface';
+import {
+  IUserQueryRepository,
+  UserQueryProjection,
+} from '../../infrastructure/repositories/query/user-query.repository.interface';
+import { IUserCommandRepository } from 'src/user/infrastructure/repositories/command/user-command.repository.interface';
+import { IDriverCommandRepository } from 'src/user/infrastructure/repositories/command/driver-command.repository.interface';
+import { ICustomerCommandRepository } from 'src/user/infrastructure/repositories/command/customer-command.repository.interface';
+import { IOwnerCommandRepository } from 'src/user/infrastructure/repositories/command/owner-command.repository.interface';
 
 @Injectable()
 export class UserAuthService {
@@ -38,20 +34,14 @@ export class UserAuthService {
   // used
   async findUserForMiddlewareById(
     id: string,
-  ): Promise<UserSummaryProjection | null> {
+  ): Promise<UserQueryProjection | null> {
     return await this.userQryRepo.findById(id);
   }
 
   // used
   async getUserForAuthByEmail(email: string): Promise<UserEntity | null> {
-    try {
-      const projection = await this.userCmdRepo.findByEmail(email);
-      return projection ? UserMapper.toDomain(projection) : null;
-    } catch (e) {
-      console.error(e);
-      if (e instanceof HttpException) throw e;
-      throw new InternalServerErrorException(ERROR_MESSAGES.FIND_USER_FAILED);
-    }
+    const projection = await this.userCmdRepo.findByEmail(email);
+    return projection ? UserMapper.toDomain(projection) : null;
   }
 
   // used

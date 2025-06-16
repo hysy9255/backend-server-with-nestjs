@@ -8,9 +8,9 @@ import {
 import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { OrderEntity } from '../../domain/order.entity';
 import { OrderMapper } from './mapper/order.mapper';
-import { IOrderCommandRepository } from '../command/repositories/order-command.repository.interface';
-import { IOrderQueryRepository } from '../query/repositories/order-query.repository.interface';
-import { OwnerOrderSummaryProjection } from '../query/projections/order.projection';
+import { IOrderCommandRepository } from '../../infrastructure/repositories/command/order-command.repository.interface';
+import { IOrderQueryRepository } from '../../infrastructure/repositories/query/order-query.repository.interface';
+import { OwnerOrderSummaryProjection } from '../../infrastructure/repositories/query/projections/order.projection';
 
 @Injectable()
 export class OwnerOrderService {

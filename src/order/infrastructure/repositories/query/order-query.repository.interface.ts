@@ -3,7 +3,7 @@ import {
   ClientOrderSummaryProjection,
   DriverOrderSummaryProjection,
   OwnerOrderSummaryProjection,
-} from '../projections/order.projection';
+} from './projections/order.projection';
 
 export interface IOrderQueryRepository {
   findSummaryForClient(

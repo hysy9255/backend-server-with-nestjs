@@ -1,6 +1,6 @@
 import { OwnerOrmEntity } from 'src/user/infrastructure/orm-entities/owner.orm.entity';
 import { OwnerEntity } from '../../../domain/owner.entity';
-import { OwnerProjection } from '../../command/projections/owner.projection';
+import { OwnerCmdProjection } from 'src/user/infrastructure/repositories/command/owner-command.repository.interface';
 
 export class OwnerMapper {
   // used
@@ -13,7 +13,7 @@ export class OwnerMapper {
   }
 
   // used
-  static toDomain(projection: OwnerProjection): OwnerEntity {
+  static toDomain(projection: OwnerCmdProjection): OwnerEntity {
     return OwnerEntity.fromPersistance(
       projection.id,
       projection.userId,

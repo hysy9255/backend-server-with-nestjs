@@ -8,10 +8,10 @@ import { OrderMapper } from './mapper/order.mapper';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { OrderEntity } from '../../domain/order.entity';
 import { OrderDriverRejectionOrmEntity } from '../../infrastructure/orm-entities/order-driver-rejection.orm';
-import { IOrderCommandRepository } from '../command/repositories/order-command.repository.interface';
-import { IOrderQueryRepository } from '../query/repositories/order-query.repository.interface';
+import { IOrderCommandRepository } from '../../infrastructure/repositories/command/order-command.repository.interface';
+import { IOrderQueryRepository } from '../../infrastructure/repositories/query/order-query.repository.interface';
 import { OrderDriverRejectionCommandRepository } from '../../infrastructure/repositories/command/order-driver-rejection-command.repository';
-import { DriverOrderSummaryProjection } from '../query/projections/order.projection';
+import { DriverOrderSummaryProjection } from '../../infrastructure/repositories/query/projections/order.projection';
 
 @Injectable()
 export class DriverOrderService {

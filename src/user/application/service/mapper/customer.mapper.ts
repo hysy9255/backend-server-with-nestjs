@@ -1,6 +1,6 @@
 import { CustomerOrmEntity } from 'src/user/infrastructure/orm-entities/customer.orm.entity';
 import { CustomerEntity } from '../../../domain/customer.entity';
-import { CustomerProjection } from '../../command/projections/customer.projection';
+import { CustomerCmdProjection } from 'src/user/infrastructure/repositories/command/customer-command.repository.interface';
 
 export class CustomerMapper {
   // used
@@ -14,7 +14,7 @@ export class CustomerMapper {
   }
 
   // used
-  static toDomain(projection: CustomerProjection): CustomerEntity {
+  static toDomain(projection: CustomerCmdProjection): CustomerEntity {
     return CustomerEntity.fromPersistance(
       projection.id,
       projection.userId,

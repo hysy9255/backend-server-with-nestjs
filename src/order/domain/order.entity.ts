@@ -5,17 +5,14 @@ import { DriverEntity } from 'src/user/domain/driver.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 export class OrderEntity {
-  private _driverId: string;
-  private _rejectedDriverIds: string[];
-
   constructor(
     private readonly _id: string,
     private _status: OrderStatus,
     private readonly _restaurantId: string,
     private readonly _customerId: string,
-  ) {
-    this._rejectedDriverIds = [];
-  }
+    private _driverId?: string,
+    private _rejectedDriverIds: string[] = [],
+  ) {}
 
   static createNew(restaurantId: string, customerId: string): OrderEntity {
     return new OrderEntity(
@@ -45,30 +42,6 @@ export class OrderEntity {
     }
 
     return orderEntity;
-  }
-
-  get id(): string {
-    return this._id;
-  }
-
-  get status(): OrderStatus {
-    return this._status;
-  }
-
-  get restaurantId(): string {
-    return this._restaurantId;
-  }
-
-  get customerId(): string {
-    return this._customerId;
-  }
-
-  get driverId(): string {
-    return this._driverId;
-  }
-
-  get rejectedDriverIds(): string[] {
-    return this._rejectedDriverIds;
   }
 
   isOwnedBy(customer: CustomerEntity): boolean {
@@ -116,6 +89,11 @@ export class OrderEntity {
         'Driver can only be assigned to an accepted or ready order',
       );
     }
+    if (this._rejectedDriverIds.includes(driver.id)) {
+      throw new ConflictException(
+        'You cannot assign this order to a driver who has already rejected it',
+      );
+    }
     if (this._driverId) {
       if (this._driverId === driver.id) {
         throw new ConflictException('You already have accepted this order');
@@ -137,45 +115,65 @@ export class OrderEntity {
         'Order is not in a state to be rejected by driver',
       );
     }
+    if (this._rejectedDriverIds.includes(driver.id)) {
+      throw new ConflictException('You have already rejected this order');
+    }
     if (this._driverId) {
       throw new ConflictException(
         'You cannot reject this order because it has already been assigned to another driver.',
       );
-    }
-    if (this._rejectedDriverIds.includes(driver.id)) {
-      throw new ConflictException('You have already rejected this order');
     }
 
     this._rejectedDriverIds.push(driver.id);
   }
 
   markPickedUp(driver: DriverEntity) {
+    if (this._status !== OrderStatus.Ready) {
+      throw new BadRequestException('Order is not in a state to be picked up');
+    }
     if (!this._driverId || this._driverId !== driver.id) {
       throw new BadRequestException(
         'Only the assigned driver can pick up this order',
       );
     }
-    if (this._status !== OrderStatus.Ready) {
-      throw new BadRequestException('Order is not in a state to be picked up');
-    }
-    if (this._rejectedDriverIds.includes(driver.id)) {
-      throw new ConflictException('You have already rejected this order');
-    }
+
     this._status = OrderStatus.PickedUp;
   }
 
   markDelivered(driver: DriverEntity) {
+    if (this._status !== OrderStatus.PickedUp) {
+      throw new BadRequestException('Order is not in a state to be delivered');
+    }
     if (!this._driverId || this._driverId !== driver.id) {
       throw new BadRequestException(
         'Only the assigned driver can deliver this order',
       );
     }
-    if (this._status !== OrderStatus.PickedUp) {
-      throw new BadRequestException('Order is not in a state to be delivered');
-    }
-    if (this._rejectedDriverIds.includes(driver.id)) {
-      throw new ConflictException('You have already rejected this order');
-    }
+
     this._status = OrderStatus.Delivered;
+  }
+
+  get id(): string {
+    return this._id;
+  }
+
+  get status(): OrderStatus {
+    return this._status;
+  }
+
+  get restaurantId(): string {
+    return this._restaurantId;
+  }
+
+  get customerId(): string {
+    return this._customerId;
+  }
+
+  get driverId(): string | undefined {
+    return this._driverId;
+  }
+
+  get rejectedDriverIds(): string[] {
+    return this._rejectedDriverIds;
   }
 }

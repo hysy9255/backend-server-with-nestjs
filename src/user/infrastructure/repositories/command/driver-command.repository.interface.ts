@@ -1,7 +1,11 @@
 import { DriverOrmEntity } from 'src/user/infrastructure/orm-entities/driver.orm.entity';
-import { DriverProjection } from '../projections/driver.projection';
+
+export class DriverCmdProjection {
+  id: string;
+  userId: string;
+}
 
 export interface IDriverCommandRepository {
   save(driverRecord: DriverOrmEntity): Promise<void>;
-  findByUserId(userId: string): Promise<DriverProjection | null>;
+  findByUserId(userId: string): Promise<DriverCmdProjection | null>;
 }

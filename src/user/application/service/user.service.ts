@@ -1,16 +1,9 @@
-import {
-  BadRequestException,
-  HttpException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import {
   CreateCustomerInput,
   CreateDriverInput,
   CreateOwnerInput,
 } from '../../interface/dtos/CreateUser.dto';
-import { IUserCommandRepository } from '../command/repositories/user-command.repository.interface';
 import { ChangePasswordInput } from '../../interface/dtos/ChangePassword.dto';
 import { ERROR_MESSAGES } from 'src/constants/errorMessages';
 import { UserEntity } from '../../domain/user.entity';
@@ -21,12 +14,11 @@ import { OwnerEntity } from '../../domain/owner.entity';
 import { OwnerMapper } from './mapper/owner.mapper';
 import { CustomerEntity } from '../../domain/customer.entity';
 import { CustomerMapper } from './mapper/customer.mapper';
-import { IOwnerCommandRepository } from '../command/repositories/owner-command.repository.interface';
-import { IUserQueryRepository } from '../query/repositories/user-query.repository.interface';
-import { UserSummaryProjection } from '../query/projections/user.projection';
-import { ICustomerCommandRepository } from '../command/repositories/customer-command.repository.interface';
-import { IDriverCommandRepository } from '../command/repositories/driver-command.repository.interface';
-import { UserProjection } from '../command/projections/user.projection';
+import { IUserQueryRepository } from '../../infrastructure/repositories/query/user-query.repository.interface';
+import { IUserCommandRepository } from 'src/user/infrastructure/repositories/command/user-command.repository.interface';
+import { IDriverCommandRepository } from 'src/user/infrastructure/repositories/command/driver-command.repository.interface';
+import { ICustomerCommandRepository } from 'src/user/infrastructure/repositories/command/customer-command.repository.interface';
+import { IOwnerCommandRepository } from 'src/user/infrastructure/repositories/command/owner-command.repository.interface';
 
 @Injectable()
 export class UserService {
@@ -45,28 +37,20 @@ export class UserService {
 
   // used
   async createOwner(createOwnerInput: CreateOwnerInput): Promise<void> {
-    try {
-      await this.validateDuplicateEmail(createOwnerInput.email);
+    await this.validateDuplicateEmail(createOwnerInput.email);
 
-      const user = UserEntity.createNew(
-        createOwnerInput.email,
-        createOwnerInput.password,
-        createOwnerInput.role,
-      );
+    const user = UserEntity.createNew(
+      createOwnerInput.email,
+      createOwnerInput.password,
+      createOwnerInput.role,
+    );
 
-      if (user.isOwner()) {
-        await user.hashPassword();
-        const owner = OwnerEntity.createNew(user.id);
+    if (user.isOwner()) {
+      await user.hashPassword();
+      const owner = OwnerEntity.createNew(user.id);
 
-        await this.userCmdRepo.save(UserMapper.toOrmEntity(user));
-        await this.ownerCmdRepo.save(OwnerMapper.toOrmEntity(owner));
-      }
-    } catch (e) {
-      console.error(e);
-      if (e instanceof HttpException) throw e;
-      throw new InternalServerErrorException(
-        ERROR_MESSAGES.USER_CREATION_FAILED,
-      );
+      await this.userCmdRepo.save(UserMapper.toOrmEntity(user));
+      await this.ownerCmdRepo.save(OwnerMapper.toOrmEntity(owner));
     }
   }
 
@@ -74,58 +58,42 @@ export class UserService {
   async createCustomer(
     createCustomerInput: CreateCustomerInput,
   ): Promise<void> {
-    try {
-      await this.validateDuplicateEmail(createCustomerInput.email);
+    await this.validateDuplicateEmail(createCustomerInput.email);
 
-      const user = UserEntity.createNew(
-        createCustomerInput.email,
-        createCustomerInput.password,
-        createCustomerInput.role,
+    const user = UserEntity.createNew(
+      createCustomerInput.email,
+      createCustomerInput.password,
+      createCustomerInput.role,
+    );
+
+    if (user.isCustomer()) {
+      await user.hashPassword();
+      const customer = CustomerEntity.createNew(
+        user.id,
+        createCustomerInput.deliveryAddress,
       );
 
-      if (user.isCustomer()) {
-        await user.hashPassword();
-        const customer = CustomerEntity.createNew(
-          user.id,
-          createCustomerInput.deliveryAddress,
-        );
-
-        await this.userCmdRepo.save(UserMapper.toOrmEntity(user));
-        await this.customerCmdRepo.save(CustomerMapper.toOrmEntity(customer));
-      }
-    } catch (e) {
-      console.error(e);
-      if (e instanceof HttpException) throw e;
-      throw new InternalServerErrorException(
-        ERROR_MESSAGES.USER_CREATION_FAILED,
-      );
+      await this.userCmdRepo.save(UserMapper.toOrmEntity(user));
+      await this.customerCmdRepo.save(CustomerMapper.toOrmEntity(customer));
     }
   }
 
   // used
   async createDriver(createDriverInput: CreateDriverInput): Promise<void> {
-    try {
-      await this.validateDuplicateEmail(createDriverInput.email);
+    await this.validateDuplicateEmail(createDriverInput.email);
 
-      const user = UserEntity.createNew(
-        createDriverInput.email,
-        createDriverInput.password,
-        createDriverInput.role,
-      );
+    const user = UserEntity.createNew(
+      createDriverInput.email,
+      createDriverInput.password,
+      createDriverInput.role,
+    );
 
-      if (user.isDriver()) {
-        await user.hashPassword();
-        const driver = DriverEntity.createNew(user.id);
+    if (user.isDriver()) {
+      await user.hashPassword();
+      const driver = DriverEntity.createNew(user.id);
 
-        await this.userCmdRepo.save(UserMapper.toOrmEntity(user));
-        await this.driverCmdRepo.save(DriverMapper.toOrmEntity(driver));
-      }
-    } catch (e) {
-      console.error(e);
-      if (e instanceof HttpException) throw e;
-      throw new InternalServerErrorException(
-        ERROR_MESSAGES.USER_CREATION_FAILED,
-      );
+      await this.userCmdRepo.save(UserMapper.toOrmEntity(user));
+      await this.driverCmdRepo.save(DriverMapper.toOrmEntity(driver));
     }
   }
 
@@ -134,36 +102,20 @@ export class UserService {
     user: UserEntity,
     changePasswordInput: ChangePasswordInput,
   ): Promise<void> {
-    try {
-      await user.checkPassword(changePasswordInput.password);
+    await user.checkPassword(changePasswordInput.password);
 
-      user.changePassword(changePasswordInput.newPassword);
+    user.changePassword(changePasswordInput.newPassword);
 
-      await user.hashPassword();
+    await user.hashPassword();
 
-      await this.userCmdRepo.save(UserMapper.toOrmEntity(user));
-    } catch (e) {
-      console.error(e);
-      if (e instanceof HttpException) throw e;
-      throw new InternalServerErrorException(
-        ERROR_MESSAGES.PASSWORD_CHANGE_FAILED,
-      );
-    }
+    await this.userCmdRepo.save(UserMapper.toOrmEntity(user));
   }
 
   // used
   async validateDuplicateEmail(email: string): Promise<void> {
-    try {
-      const emailExists = await this.userQryRepo.findByEmail(email);
-      if (emailExists) {
-        throw new BadRequestException(ERROR_MESSAGES.DUPLICATE_EMAIL);
-      }
-    } catch (e) {
-      console.error(e);
-      if (e instanceof HttpException) throw e;
-      throw new InternalServerErrorException(
-        ERROR_MESSAGES.DUPLICATE_EMAIL_VALIDATION_FAILED,
-      );
+    const emailExists = await this.userQryRepo.findByEmail(email);
+    if (emailExists) {
+      throw new BadRequestException(ERROR_MESSAGES.DUPLICATE_EMAIL);
     }
   }
 

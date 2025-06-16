@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { IDriverCommandRepository } from '../../../application/command/repositories/driver-command.repository.interface';
 import { DriverOrmEntity } from '../../orm-entities/driver.orm.entity';
-import { DriverProjection } from 'src/user/application/command/projections/driver.projection';
+import {
+  DriverCmdProjection,
+  IDriverCommandRepository,
+} from './driver-command.repository.interface';
 
 @Injectable()
 export class DriverCommandRepository implements IDriverCommandRepository {
@@ -12,7 +14,7 @@ export class DriverCommandRepository implements IDriverCommandRepository {
     await this.em.save(DriverOrmEntity, driverRecord);
   }
 
-  async findByUserId(userId: string): Promise<DriverProjection | null> {
+  async findByUserId(userId: string): Promise<DriverCmdProjection | null> {
     const result = await this.em
       .createQueryBuilder()
       .select(['driver.id AS id', 'driver.userId AS "userId"'])

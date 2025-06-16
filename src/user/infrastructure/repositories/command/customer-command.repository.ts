@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { ICustomerCommandRepository } from '../../../application/command/repositories/customer-command.repository.interface';
 import { CustomerOrmEntity } from '../../orm-entities/customer.orm.entity';
-import { CustomerProjection } from 'src/user/application/command/projections/customer.projection';
+import {
+  CustomerCmdProjection,
+  ICustomerCommandRepository,
+} from './customer-command.repository.interface';
 
 @Injectable()
 export class CustomerCommandRepository implements ICustomerCommandRepository {
@@ -12,7 +14,7 @@ export class CustomerCommandRepository implements ICustomerCommandRepository {
     await this.em.save(CustomerOrmEntity, customer);
   }
 
-  async findByUserId(userId: string): Promise<CustomerProjection | null> {
+  async findByUserId(userId: string): Promise<CustomerCmdProjection | null> {
     const result = await this.em
       .createQueryBuilder()
       .select([

@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { IRestaurantQueryRepository } from 'src/restaurant/application/query/repositories/retaurant-query.repository.interface';
-import { RestaurantSummaryProjection } from 'src/restaurant/application/query/projections/restaurant.projection';
+import {
+  IRestaurantQueryRepository,
+  RestaurantQueryProjection,
+} from 'src/restaurant/infrastructure/repositories/query/retaurant-query.repository.interface';
 
 @Injectable()
 export class RestaurantQueryRepository implements IRestaurantQueryRepository {
   constructor(private readonly em: EntityManager) {}
 
   // used
-  async findSummary(
-    restaurantId: string,
-  ): Promise<RestaurantSummaryProjection> {
+  async findSummary(restaurantId: string): Promise<RestaurantQueryProjection> {
     const result = await this.em
       .createQueryBuilder()
       .select([
@@ -27,7 +27,7 @@ export class RestaurantQueryRepository implements IRestaurantQueryRepository {
   }
 
   // used
-  async findSummaries(): Promise<RestaurantSummaryProjection[]> {
+  async findSummaries(): Promise<RestaurantQueryProjection[]> {
     const result = await this.em
       .createQueryBuilder()
       .select([

@@ -1,6 +1,6 @@
 import { UserOrmEntity } from 'src/user/infrastructure/orm-entities/user.orm.entity';
 import { UserEntity } from '../../../domain/user.entity';
-import { UserProjection } from '../../command/projections/user.projection';
+import { UserCmdProjection } from 'src/user/infrastructure/repositories/command/user-command.repository.interface';
 
 export class UserMapper {
   // used
@@ -15,7 +15,7 @@ export class UserMapper {
   }
 
   // used
-  static toDomain(projection: UserProjection): UserEntity {
+  static toDomain(projection: UserCmdProjection): UserEntity {
     return UserEntity.fromPersistance(
       projection.id,
       projection.email,

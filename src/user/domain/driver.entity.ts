@@ -1,14 +1,15 @@
-import { DriverOrderSummaryProjection } from 'src/order/application/query/projections/order.projection';
+import { DriverOrderSummaryProjection } from 'src/order/infrastructure/repositories/query/projections/order.projection';
 import { OrderEntity } from 'src/order/domain/order.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 export class DriverEntity {
-  private _rejectedOrders?: OrderEntity[];
-  private _assignedOrders?: OrderEntity[];
+  // private _rejectedOrders?: OrderEntity[];
+  // private _assignedOrders?: OrderEntity[];
 
   constructor(
     private readonly _id: string,
     private readonly _userId: string,
+    // private _rejectedOrders: OrderEntity[] = [],
   ) {}
 
   // used
@@ -37,11 +38,11 @@ export class DriverEntity {
     return this._userId;
   }
 
-  get rejectedOrders() {
-    return this._rejectedOrders;
-  }
+  // get rejectedOrders() {
+  //   return this._rejectedOrders;
+  // }
 
-  get assignedOrders() {
-    return this._assignedOrders;
-  }
+  // get assignedOrders() {
+  //   return this._assignedOrders;
+  // }
 }

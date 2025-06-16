@@ -2,12 +2,13 @@ import { OrderEntity } from 'src/order/domain/order.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 export class CustomerEntity {
-  private _orders?: OrderEntity[];
+  // private _orders?: OrderEntity[];
 
   constructor(
     private readonly _id: string,
     private readonly _userId: string,
     private _deliveryAddress: string,
+    private _orders: OrderEntity[] = [],
   ) {}
 
   // used

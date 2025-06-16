@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
-import { RestaurantProjection } from 'src/restaurant/application/command/projections/restaurant.projection';
-import { IRestaurantCommandRepository } from 'src/restaurant/application/command/repositories/restaurant-command.repository.interface';
+import {
+  IRestaurantCommandRepository,
+  RestaurantCommandProjection,
+} from 'src/restaurant/infrastructure/repositories/command/restaurant-command.repository.interface';
 import { RestaurantOrmEntity } from '../../orm-entities/restaurant.orm.entity';
 
 @Injectable()
@@ -18,7 +20,7 @@ export class RestaurantCommandRepository
   // used
   async findOneById(
     restaurantId: string,
-  ): Promise<RestaurantProjection | null> {
+  ): Promise<RestaurantCommandProjection | null> {
     const result = await this.em
       .createQueryBuilder()
       .select([

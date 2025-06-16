@@ -1,8 +1,10 @@
 import { EntityManager } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { UserOrmEntity } from '../../orm-entities/user.orm.entity';
-import { IUserCommandRepository } from 'src/user/application/command/repositories/user-command.repository.interface';
-import { UserProjection } from 'src/user/application/command/projections/user.projection';
+import {
+  IUserCommandRepository,
+  UserCmdProjection,
+} from './user-command.repository.interface';
 
 @Injectable()
 export class UserCommandRepository implements IUserCommandRepository {
@@ -12,7 +14,7 @@ export class UserCommandRepository implements IUserCommandRepository {
     return await this.em.save(UserOrmEntity, user);
   }
 
-  async findByEmail(email: string): Promise<UserProjection | undefined> {
+  async findByEmail(email: string): Promise<UserCmdProjection | undefined> {
     const result = await this.em
       .createQueryBuilder()
       .select([
@@ -23,12 +25,12 @@ export class UserCommandRepository implements IUserCommandRepository {
       ])
       .from('user', 'user')
       .where('user.email = :email', { email })
-      .getRawOne<UserProjection>();
+      .getRawOne<UserCmdProjection>();
 
     return result;
   }
 
-  async findByUserId(userId: string): Promise<UserProjection | undefined> {
+  async findByUserId(userId: string): Promise<UserCmdProjection | undefined> {
     const result = await this.em
       .createQueryBuilder()
       .select([
@@ -39,7 +41,7 @@ export class UserCommandRepository implements IUserCommandRepository {
       ])
       .from('user', 'user')
       .where('user.id = :id', { id: userId })
-      .getRawOne<UserProjection>();
+      .getRawOne<UserCmdProjection>();
 
     return result;
   }

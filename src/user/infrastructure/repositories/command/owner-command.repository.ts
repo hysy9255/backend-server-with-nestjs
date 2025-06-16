@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { IOwnerCommandRepository } from '../../../application/command/repositories/owner-command.repository.interface';
 import { EntityManager } from 'typeorm';
-import { OwnerProjection } from 'src/user/application/command/projections/owner.projection';
 import { OwnerOrmEntity } from '../../orm-entities/owner.orm.entity';
+import {
+  IOwnerCommandRepository,
+  OwnerCmdProjection,
+} from './owner-command.repository.interface';
 
 @Injectable()
 export class OwnerCommandRepository implements IOwnerCommandRepository {
@@ -14,7 +16,7 @@ export class OwnerCommandRepository implements IOwnerCommandRepository {
   }
 
   // used
-  async findByUserId(userId: string): Promise<OwnerProjection | null> {
+  async findByUserId(userId: string): Promise<OwnerCmdProjection | null> {
     const result = await this.em
       .createQueryBuilder()
       .select([

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { OrderOrmEntity } from 'src/order/infrastructure/orm-entities/order.orm.entity';
-import { IOrderCommandRepository } from '../../../application/command/repositories/order-command.repository.interface';
+import { IOrderCommandRepository } from './order-command.repository.interface';
 import { OrderStatus } from 'src/constants/orderStatus';
 
 export class OrderProjection {

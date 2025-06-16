@@ -1,68 +1,68 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './application/auth.service';
+import { AuthService } from './auth.service';
 import { JwtService } from 'src/jwt/jwt.service';
-import { UserService } from 'src/user/application/service/user.service';
-import { ERROR_MESSAGES } from 'src/constants/errorMessages';
-
-jest.spyOn(console, 'error').mockImplementation(() => {});
-
-const mockJwtService = {
-  sign: jest.fn((id: string) => `token-${id}`),
-};
-const mockUserService = {
-  findUserByEmail: jest.fn(),
-};
-
-const id = '1';
-const email = 'hello@example.com';
-const password = 'password123';
+import { UserAuthService } from 'src/user/application/service/user-auth.service';
+import { NotFoundException } from '@nestjs/common';
+import { LoginInput } from '../interface/dtos/Login.dto';
 
 describe('AuthService', () => {
-  let module: TestingModule;
-  let service: AuthService;
+  let authService: AuthService;
+
+  const mockJwtService = {
+    sign: jest.fn(),
+  };
+
+  const mockUserAuthService = {
+    getUserForAuthByEmail: jest.fn(),
+  };
 
   beforeEach(async () => {
-    module = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        { provide: UserService, useValue: mockUserService },
         { provide: JwtService, useValue: mockJwtService },
+        { provide: UserAuthService, useValue: mockUserAuthService },
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    authService = module.get<AuthService>(AuthService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('login', () => {
-    it('should return token when login is successful', async () => {
-      // given
-      const mockUser = {
-        id,
-        email,
-        checkPassword: jest.fn().mockResolvedValue(undefined),
-      };
+    const loginInput: LoginInput = {
+      email: 'test@example.com',
+      password: 'securePassword',
+    };
 
-      mockUserService.findUserByEmail.mockResolvedValue(mockUser);
+    it('should throw NotFoundException if user not found', async () => {
+      mockUserAuthService.getUserForAuthByEmail.mockResolvedValue(null);
 
-      // when
-      const result = await service.login({ email, password });
-
-      // then
-      expect(result).toHaveProperty('token');
-      expect(result.token).toBe('token-1');
-      expect(mockUserService.findUserByEmail).toHaveBeenCalledWith(email);
-      expect(mockUser.checkPassword).toHaveBeenCalledWith(password);
-      expect(mockJwtService.sign).toHaveBeenCalledWith(id);
+      await expect(authService.login(loginInput)).rejects.toThrow(
+        new NotFoundException('User Not Found'),
+      );
     });
 
-    it('should throw if userService.findUserByEmail fails', async () => {
-      // given
-      mockUserService.findUserByEmail.mockRejectedValue(new Error('DB error'));
+    it('should return token if login succeeds', async () => {
+      const mockUser = {
+        id: 'user-id-123',
+        checkPassword: jest.fn().mockResolvedValue(true),
+      };
 
-      // when + then
-      await expect(service.login({ email, password })).rejects.toThrow(
-        ERROR_MESSAGES.LOG_IN_FAILED,
+      mockUserAuthService.getUserForAuthByEmail.mockResolvedValue(mockUser);
+      mockJwtService.sign.mockReturnValue('signed-token');
+
+      const result = await authService.login(loginInput);
+
+      expect(mockUserAuthService.getUserForAuthByEmail).toHaveBeenCalledWith(
+        loginInput.email,
       );
+      expect(mockUser.checkPassword).toHaveBeenCalledWith(loginInput.password);
+      expect(mockJwtService.sign).toHaveBeenCalledWith(mockUser.id);
+      expect(result).toEqual({ token: 'signed-token' });
     });
   });
 });

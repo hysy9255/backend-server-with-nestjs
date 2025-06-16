@@ -1,5 +1,14 @@
+import { OrderStatus } from 'src/constants/orderStatus';
 import { OrderOrmEntity } from 'src/order/infrastructure/orm-entities/order.orm.entity';
-import { OrderProjection } from '../projections/order.projection';
+
+export class OrderProjection {
+  id: string;
+  status: OrderStatus;
+  customerId: string;
+  driverId?: string | null;
+  restaurantId: string;
+  rejectedDriverIds: string[];
+}
 
 export interface IOrderCommandRepository {
   save(order: OrderOrmEntity): Promise<void>;

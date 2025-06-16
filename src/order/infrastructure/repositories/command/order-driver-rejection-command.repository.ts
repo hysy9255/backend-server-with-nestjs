@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IOrderDriverRejectionCommandRepository } from 'src/order/application/command/repositories/order-driver-rejection-command.repository.interface';
+import { IOrderDriverRejectionCommandRepository } from 'src/order/infrastructure/repositories/command/order-driver-rejection-command.repository.interface';
 import { EntityManager } from 'typeorm';
 import { OrderDriverRejectionOrmEntity } from '../../orm-entities/order-driver-rejection.orm';
 

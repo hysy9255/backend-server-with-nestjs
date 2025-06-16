@@ -1,4 +1,4 @@
-import { RestaurantProjection } from '../../command/projections/restaurant.projection';
+import { RestaurantCommandProjection } from 'src/restaurant/infrastructure/repositories/command/restaurant-command.repository.interface';
 import { RestaurantEntity } from '../../../domain/restaurant.entity';
 import { RestaurantOrmEntity } from '../../../infrastructure/orm-entities/restaurant.orm.entity';
 
@@ -14,7 +14,7 @@ export class RestaurantMapper {
     return record;
   }
 
-  static toDomain(projection: RestaurantProjection): RestaurantEntity {
+  static toDomain(projection: RestaurantCommandProjection): RestaurantEntity {
     return RestaurantEntity.fromPersistance(
       projection.id,
       projection.name,

@@ -5,7 +5,7 @@ import {
   ClientOrderSummaryProjection,
   DriverOrderSummaryProjection,
   OwnerOrderSummaryProjection,
-} from 'src/order/application/query/projections/order.projection';
+} from 'src/order/infrastructure/repositories/query/projections/order.projection';
 
 @ObjectType()
 export class BaseOrderDTO {
