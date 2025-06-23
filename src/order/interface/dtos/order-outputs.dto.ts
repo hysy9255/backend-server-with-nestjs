@@ -1,4 +1,5 @@
 import { Field, ObjectType, PickType } from '@nestjs/graphql';
+import { ApiProperty } from '@nestjs/swagger';
 import { OrderStatus } from 'src/constants/orderStatus';
 import {
   ClientOrderPreviewProjection,
@@ -9,24 +10,34 @@ import {
 
 @ObjectType()
 export class BaseOrderDTO {
+  @ApiProperty({ example: 'uuid', description: 'Order ID' })
   @Field(() => String)
   id: string;
 
+  @ApiProperty({ example: 'Pending', description: 'Order Status' })
   @Field(() => OrderStatus)
   status: OrderStatus;
 
+  @ApiProperty({
+    example: '123 Main St, Springfield, USA',
+    description: 'Delivery Address',
+  })
   @Field(() => String)
   deliveryAddress: string;
 
+  @ApiProperty({ example: 'uuid', description: 'Customer ID' })
   @Field(() => String)
   customerId: string;
 
+  @ApiProperty({ example: 'uuid', description: 'Driver ID', nullable: true })
   @Field(() => String, { nullable: true })
   driverId?: string | null;
 
+  @ApiProperty({ example: 'uuid', description: 'Restaurant ID' })
   @Field(() => String)
   restaurantId: string;
 
+  @ApiProperty({ example: 'Restaurant Name', description: 'Restaurant Name' })
   @Field(() => String)
   restaurantName: string;
 }

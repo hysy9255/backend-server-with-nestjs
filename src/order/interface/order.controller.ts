@@ -1,6 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
-import { AuthUser } from 'src/auth/auth-user.decorator';
-
+import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { Role } from 'src/auth/role.decorator';
 import {
@@ -9,18 +7,16 @@ import {
   ApiParam,
   ApiResponse,
   ApiSecurity,
+  ApiTags,
 } from '@nestjs/swagger';
-import { RestaurantService } from 'src/restaurant/application/service/restaurant.service';
 import { ClientOrderService } from '../application/service/clientOrder.service';
 import { AuthCustomer } from 'src/auth/auth-customer.decorator';
 import { CustomerEntity } from 'src/user/domain/customer.entity';
-import { create } from 'domain';
 import {
   CreateOrderInput,
   GetOrderInput,
   OrderActionInput,
 } from './dtos/order-inputs.dto';
-import { ClientOrderSummaryProjection } from '../infrastructure/repositories/query/projections/order.projection';
 import {
   ClientOrderPreviewDTO,
   ClientOrderSummaryDTO,
@@ -34,14 +30,11 @@ import { DriverOrderService } from '../application/service/driverOrder.service';
 import { AuthDriver } from 'src/auth/auth-driver.decorator';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 
+@ApiTags('Order - [Client]')
 @ApiSecurity('jwt-token')
-@Controller('api/order')
-export class OrderController {
-  constructor(
-    private readonly clientOrderService: ClientOrderService,
-    private readonly ownerOrderService: OwnerOrderService,
-    private readonly driverOrderService: DriverOrderService,
-  ) {}
+@Controller('api/client')
+export class ClientOrderController {
+  constructor(private readonly clientOrderService: ClientOrderService) {}
 
   @ApiOperation({ summary: '[Client] Create an order' })
   @ApiBody({ type: CreateOrderInput })
@@ -59,14 +52,16 @@ export class OrderController {
   @ApiResponse({
     status: 200,
     description: 'Successful response',
-    type: ClientOrderSummaryProjection,
+    type: ClientOrderSummaryDTO,
   })
   @Get('on-going-order')
   @Role(['Client'])
   async getOnGoingOrderForClient(
     @AuthCustomer() customer: CustomerEntity,
-  ): Promise<ClientOrderSummaryProjection> {
-    return await this.clientOrderService.getOnGoingOrder(customer);
+  ): Promise<ClientOrderSummaryDTO> {
+    return new ClientOrderSummaryDTO(
+      await this.clientOrderService.getOnGoingOrder(customer),
+    );
   }
 
   @ApiOperation({ summary: '[Client] Get order history' })
@@ -89,6 +84,7 @@ export class OrderController {
     description: 'Successful response',
     type: ClientOrderSummaryDTO,
   })
+  @Get('order/:id')
   @Role(['Client'])
   async getOrderForClient(
     @AuthCustomer() customer: CustomerEntity,
@@ -98,6 +94,13 @@ export class OrderController {
       await this.clientOrderService.getOrderSummaryForClient(customer, orderId),
     );
   }
+}
+
+@ApiTags('Order - [Owner]')
+@ApiSecurity('jwt-token')
+@Controller('api/owner')
+export class OwnerOrderController {
+  constructor(private readonly ownerOrderService: OwnerOrderService) {}
 
   @ApiOperation({ summary: '[Owner] Get orders for owner' })
   @ApiResponse({
@@ -105,6 +108,7 @@ export class OrderController {
     description: 'Successful response',
     type: [OwnerOrderSummaryDTO],
   })
+  @Get('orders')
   @Role(['Owner'])
   async getOrdersForOwner(
     @AuthOwner() owner: OwnerEntity,
@@ -120,6 +124,7 @@ export class OrderController {
     description: 'Successful response',
     type: OwnerOrderSummaryDTO,
   })
+  @Get('order/:id')
   @Role(['Owner'])
   async getOrderForOwner(
     @AuthOwner() owner: OwnerEntity,
@@ -130,52 +135,62 @@ export class OrderController {
   }
 
   @ApiOperation({ summary: '[Owner] Accept order' })
-  @ApiBody({ type: OrderActionInput })
+  @ApiParam({ name: 'id', type: String, description: 'Order Id' })
   @ApiResponse({
     status: 200,
     description: 'Successful response',
     type: Boolean,
   })
+  @Patch('order/:id/accept')
   @Role(['Owner'])
   async acceptOrderByOwner(
     @AuthOwner() owner: OwnerEntity,
-    @Body() { orderId }: OrderActionInput,
+    @Param('id') orderId: OrderActionInput['orderId'],
   ): Promise<boolean> {
     await this.ownerOrderService.acceptOrder(orderId, owner);
     return true;
   }
 
   @ApiOperation({ summary: '[Owner] Reject order' })
-  @ApiBody({ type: OrderActionInput })
+  @ApiParam({ name: 'id', type: String, description: 'Order Id' })
   @ApiResponse({
     status: 200,
     description: 'Successful response',
     type: Boolean,
   })
+  @Patch('order/:id/reject')
   @Role(['Owner'])
   async rejectOrderByOwner(
     @AuthOwner() owner: OwnerEntity,
-    @Body() { orderId }: OrderActionInput,
+    @Param('id') orderId: OrderActionInput['orderId'],
   ): Promise<boolean> {
     await this.ownerOrderService.rejectOrder(orderId, owner);
     return true;
   }
 
   @ApiOperation({ summary: '[Owner] Mark order as ready' })
-  @ApiBody({ type: OrderActionInput })
+  @ApiParam({ name: 'id', type: String, description: 'Order Id' })
   @ApiResponse({
     status: 200,
     description: 'Successful response',
     type: Boolean,
   })
+  @Patch('order/:id/mark-ready')
   @Role(['Owner'])
   async markOrderAsReadyByOwner(
     @AuthOwner() owner: OwnerEntity,
-    @Body() { orderId }: OrderActionInput,
+    @Param('id') orderId: OrderActionInput['orderId'],
   ): Promise<boolean> {
     await this.ownerOrderService.markOrderAsReady(orderId, owner);
     return true;
   }
+}
+
+@ApiTags('Order - [Driver]')
+@ApiSecurity('jwt-token')
+@Controller('api/driver')
+export class DriverOrderController {
+  constructor(private readonly driverOrderService: DriverOrderService) {}
 
   @ApiOperation({ summary: '[Driver] Get orders' })
   @ApiResponse({
@@ -183,6 +198,7 @@ export class OrderController {
     description: 'Successful response',
     type: [DriverOrderSummaryDTO],
   })
+  @Get('orders')
   @Role(['Delivery'])
   async getOrdersForDriver(
     @AuthDriver() driver: DriverEntity,
@@ -192,15 +208,17 @@ export class OrderController {
   }
 
   @ApiOperation({ summary: '[Driver] Get order' })
+  @ApiParam({ name: 'id', type: String, description: 'Order Id' })
   @ApiResponse({
     status: 200,
     description: 'Successful response',
     type: DriverOrderSummaryDTO,
   })
+  @Get('order/:id')
   @Role(['Delivery'])
   async getOrderForDriver(
     @AuthDriver() driver: DriverEntity,
-    @Body() { orderId }: GetOrderInput,
+    @Param('id') orderId: GetOrderInput['orderId'],
   ): Promise<DriverOrderSummaryDTO> {
     const order = await this.driverOrderService.getOrderForDriver(
       driver,
@@ -210,64 +228,68 @@ export class OrderController {
   }
 
   @ApiOperation({ summary: '[Driver] Accept order' })
-  @ApiBody({ type: OrderActionInput })
+  @ApiParam({ name: 'id', type: String, description: 'Order Id' })
   @ApiResponse({
     status: 200,
     description: 'Successful response',
     type: Boolean,
   })
+  @Post('order/:id/accept')
   @Role(['Delivery'])
   async acceptOrderByDriver(
     @AuthDriver() driver: DriverEntity,
-    @Body() { orderId }: OrderActionInput,
+    @Param('id') orderId: OrderActionInput['orderId'],
   ): Promise<boolean> {
     await this.driverOrderService.acceptOrder(orderId, driver);
     return true;
   }
 
   @ApiOperation({ summary: '[Driver] Reject order' })
-  @ApiBody({ type: OrderActionInput })
+  @ApiParam({ name: 'id', type: String, description: 'Order Id' })
   @ApiResponse({
     status: 200,
     description: 'Successful response',
     type: Boolean,
   })
+  @Post('order/:id/reject')
   @Role(['Delivery'])
   async rejectOrderByDriver(
     @AuthDriver() driver: DriverEntity,
-    @Body() { orderId }: OrderActionInput,
+    @Param('id') orderId: OrderActionInput['orderId'],
   ): Promise<boolean> {
     await this.driverOrderService.rejectOrder(orderId, driver);
     return true;
   }
 
   @ApiOperation({ summary: '[Driver] Pick up order' })
-  @ApiBody({ type: OrderActionInput })
+  @ApiParam({ name: 'id', type: String, description: 'Order Id' })
   @ApiResponse({
     status: 200,
     description: 'Successful response',
     type: Boolean,
   })
+  @Patch('order/:id/pickup')
   @Role(['Delivery'])
   async pickUpOrderByDriver(
     @AuthDriver() driver: DriverEntity,
-    @Body() { orderId }: OrderActionInput,
+    @Param('id') orderId: OrderActionInput['orderId'],
   ): Promise<boolean> {
     await this.driverOrderService.pickupOrder(orderId, driver);
     return true;
   }
 
   @ApiOperation({ summary: '[Driver] Complete delivery' })
-  @ApiBody({ type: OrderActionInput })
+  @ApiParam({ name: 'id', type: String, description: 'Order Id' })
   @ApiResponse({
     status: 200,
     description: 'Successful response',
     type: Boolean,
   })
+  @Patch('order/:id/complete')
   @Role(['Delivery'])
   async completeDelivery(
     @AuthDriver() driver: DriverEntity,
-    @Body() { orderId }: OrderActionInput,
+    @Param('id') orderId: OrderActionInput['orderId'],
   ): Promise<boolean> {
     await this.driverOrderService.completeDelivery(orderId, driver);
     return true;

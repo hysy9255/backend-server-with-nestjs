@@ -14,7 +14,7 @@ export class ClientOrderSummaryProjection extends BaseOrderProjection {
 }
 
 export class OwnerOrderSummaryProjection extends BaseOrderProjection {
-  restaurantId: string; // name 없음
+  restaurantId: string;
 }
 
 export class DriverOrderSummaryProjection extends BaseOrderProjection {
