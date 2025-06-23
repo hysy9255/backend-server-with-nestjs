@@ -97,8 +97,6 @@ export class OrderQueryRepository implements IOrderQueryRepository {
       })
       .getRawOne();
 
-    // return result ? new OrderSummaryDTOForClient(result) : null;
-
     return result;
   }
 

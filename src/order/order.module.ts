@@ -13,6 +13,7 @@ import { OwnerOrderService } from './application/service/ownerOrder.service';
 import { OrderCommandRepository } from './infrastructure/repositories/command/order-command.repository';
 import { OrderQueryRepository } from './infrastructure/repositories/query/order-query.repository';
 import { OrderDriverRejectionCommandRepository } from './infrastructure/repositories/command/order-driver-rejection-command.repository';
+import { OrderController } from './interface/order.controller';
 
 @Module({
   imports: [RestaurantModule],
@@ -45,5 +46,6 @@ import { OrderDriverRejectionCommandRepository } from './infrastructure/reposito
     OwnerOrderResolver,
     DriverOrderResolver,
   ],
+  controllers: [OrderController],
 })
 export class OrderModule {}

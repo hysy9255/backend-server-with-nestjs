@@ -42,8 +42,6 @@ export class ClientOrderResolver {
   async getOnGoingOrderForClient(
     @AuthCustomer() customer: CustomerEntity,
   ): Promise<ClientOrderSummaryDTO> {
-    // return await this.clientOrderService.getOnGoingOrder(customer);
-
     return new ClientOrderSummaryDTO(
       await this.clientOrderService.getOnGoingOrder(customer),
     );

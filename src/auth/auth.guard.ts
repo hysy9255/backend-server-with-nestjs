@@ -4,9 +4,44 @@ import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import { AllowedRoles } from './role.decorator';
 import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
 
+// @Injectable()
+// export class AuthGuard implements CanActivate {
+//   constructor(private readonly reflector: Reflector) {}
+//   async canActivate(context: ExecutionContext): Promise<boolean> {
+//     const roles = this.reflector.get<AllowedRoles>(
+//       'roles',
+//       context.getHandler(),
+//     );
+
+//     if (!roles) {
+//       return true;
+//     }
+
+//     // let req: any;
+
+//     // GraphQL 요청인지 확인
+//     if (context.getType<GqlContextType>() === 'graphql') {
+//       const gqlContext = GqlExecutionContext.create(context).getContext();
+//       const user: UserQueryProjection = gqlContext.req?.user;
+//       gqlContext['user'] = user;
+
+//       if (roles.includes('Any')) {
+//         return true;
+//       }
+//       return roles.includes(user.role);
+//     } else {
+//       // HTTP 요청 (REST)
+//       // req = context.switchToHttp().getRequest();
+//     }
+
+//     return false;
+//   }
+// }
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const roles = this.reflector.get<AllowedRoles>(
       'roles',
@@ -17,23 +52,23 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    // let req: any;
+    if (roles.includes('Any')) return true;
 
-    // GraphQL 요청인지 확인
+    let user: UserQueryProjection | undefined;
+
     if (context.getType<GqlContextType>() === 'graphql') {
       const gqlContext = GqlExecutionContext.create(context).getContext();
-      const user: UserQueryProjection = gqlContext.req?.user;
+      user = gqlContext.req?.user;
       gqlContext['user'] = user;
-
-      if (roles.includes('Any')) {
-        return true;
-      }
-      return roles.includes(user.role);
+      // console.log('GraphQL request user:', user);
     } else {
-      // HTTP 요청 (REST)
-      // req = context.switchToHttp().getRequest();
+      const req = context.switchToHttp().getRequest();
+      user = req.user;
+      // console.log('HTTP request user:', user);
     }
 
-    return false;
+    if (!user) return false;
+
+    return roles.includes(user.role);
   }
 }

@@ -9,6 +9,7 @@ import { UserQueryRepository } from './infrastructure/repositories/query/user-qu
 import { UserCommandRepository } from './infrastructure/repositories/command/user-command.repository';
 import { DriverCommandRepository } from './infrastructure/repositories/command/driver-command.repository';
 import { UserAuthService } from './application/service/user-auth.service';
+import { UserController } from './interface/user.controller';
 
 @Module({
   imports: [],
@@ -53,7 +54,7 @@ import { UserAuthService } from './application/service/user-auth.service';
     UserResolver,
     // UserFactory,
   ],
-  // controllers: [UserController],
+  controllers: [UserController],
   exports: [UserService, UserAuthService],
 })
 export class UserModule {}

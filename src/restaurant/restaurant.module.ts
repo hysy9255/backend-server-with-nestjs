@@ -6,6 +6,7 @@ import { RestaurantResolver } from './interface/restaurant.resolver';
 import { RestaurantCommandRepository } from './infrastructure/repositories/command/restaurant-command.repository';
 import { RestaurantQueryRepository } from './infrastructure/repositories/query/restaurant-query.repository';
 import { UserModule } from 'src/user/user.module';
+import { RestaurantController } from './interface/restaurant.controller';
 
 @Module({
   imports: [UserModule],
@@ -27,7 +28,7 @@ import { UserModule } from 'src/user/user.module';
     RestaurantService,
     RestaurantResolver,
   ],
-  // controllers: [RestaurantController],
+  controllers: [RestaurantController],
   exports: [RestaurantService],
 })
 export class RestaurantModule {}

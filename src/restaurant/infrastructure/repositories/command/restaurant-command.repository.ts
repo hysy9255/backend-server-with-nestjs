@@ -24,7 +24,7 @@ export class RestaurantCommandRepository
     const result = await this.em
       .createQueryBuilder()
       .select([
-        'restaurant.id. AS id',
+        'restaurant.id AS id',
         'restaurant.name AS name',
         'restaurant.address AS address',
         'restaurant.category AS category',
