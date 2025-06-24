@@ -1,9 +1,12 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 @InputType()
 export class GetRestaurantInput {
   @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
   id: string;
 }
 
@@ -11,6 +14,8 @@ export class GetRestaurantInput {
 export class CreateRestaurantInput {
   @ApiProperty({ example: 'Chinese Tuxedo', description: 'Restaurant Name' })
   @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
   name: string;
 
   @ApiProperty({
@@ -18,9 +23,13 @@ export class CreateRestaurantInput {
     description: 'Restaurant Address',
   })
   @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
   address: string;
 
   @ApiProperty({ example: 'Asian Cuisine', description: 'Restaurant Category' })
   @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
   category: string;
 }

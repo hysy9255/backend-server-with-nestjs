@@ -1,15 +1,20 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { UserRole } from 'src/constants/userRole';
 
 @InputType()
 export class CreateUserInput {
   @ApiProperty({ example: 'test@example.com', description: 'User email' })
   @Field(() => String)
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @ApiProperty({ example: 'testPassword', description: 'User password' })
   @Field(() => String)
+  @IsString()
+  @IsNotEmpty()
   password: string;
 }
 
@@ -17,6 +22,8 @@ export class CreateUserInput {
 export class CreateOwnerInput extends CreateUserInput {
   @ApiProperty({ example: 'Owner', description: 'User role' })
   @Field(() => UserRole)
+  @IsEnum(UserRole)
+  @IsNotEmpty()
   role: UserRole;
 }
 
@@ -24,6 +31,8 @@ export class CreateOwnerInput extends CreateUserInput {
 export class CreateCustomerInput extends CreateUserInput {
   @ApiProperty({ example: 'Client', description: 'User role' })
   @Field(() => UserRole)
+  @IsNotEmpty()
+  @IsEnum(UserRole)
   role: UserRole;
 
   @ApiProperty({
@@ -31,6 +40,8 @@ export class CreateCustomerInput extends CreateUserInput {
     description: 'Delivery address for the customer',
   })
   @Field(() => String)
+  @IsString()
+  @IsNotEmpty()
   deliveryAddress: string;
 }
 
@@ -38,17 +49,18 @@ export class CreateCustomerInput extends CreateUserInput {
 export class CreateDriverInput extends CreateUserInput {
   @ApiProperty({ example: 'Delivery', description: 'User role' })
   @Field(() => UserRole)
+  @IsNotEmpty()
   role: UserRole;
 }
 
-@ObjectType()
-export class CreateUserOutput {
-  @Field(() => String)
-  id: string;
+// @ObjectType()
+// export class CreateUserOutput {
+//   @Field(() => String)
+//   id: string;
 
-  @Field(() => String)
-  email: string;
+//   @Field(() => String)
+//   email: string;
 
-  @Field(() => UserRole)
-  role: UserRole;
-}
+//   @Field(() => UserRole)
+//   role: UserRole;
+// }
