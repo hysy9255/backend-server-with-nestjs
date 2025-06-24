@@ -6,6 +6,8 @@ import {
 } from './projections/order.projection';
 
 export interface IOrderQueryRepository {
+  findOneById(orderId: string);
+
   findSummaryForClient(
     orderId: string,
   ): Promise<ClientOrderSummaryProjection | null>;

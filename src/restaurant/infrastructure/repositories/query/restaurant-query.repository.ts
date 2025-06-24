@@ -9,6 +9,17 @@ import {
 export class RestaurantQueryRepository implements IRestaurantQueryRepository {
   constructor(private readonly em: EntityManager) {}
 
+  async findOneById(restaurantId: string) {
+    const result = await this.em
+      .createQueryBuilder()
+      .select(['restaurant.id AS id', 'restaurant.ownerId AS "ownerId"'])
+      .from('restaurant', 'restaurant')
+      .where('restaurant.id = :id', { id: restaurantId })
+      .getRawOne();
+
+    return result ? result : null;
+  }
+
   // used
   async findSummary(restaurantId: string): Promise<RestaurantQueryProjection> {
     const result = await this.em

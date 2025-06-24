@@ -12,6 +12,17 @@ import {
 export class OrderQueryRepository implements IOrderQueryRepository {
   constructor(private readonly em: EntityManager) {}
 
+  async findOneById(orderId: string) {
+    const result = await this.em
+      .createQueryBuilder()
+      .select(['order.id AS id', 'order.restaurantId AS "restaurantId"'])
+      .from('order', 'order')
+      .where('order.id = :id', { id: orderId })
+      .getRawOne();
+
+    return result ? result : null;
+  }
+
   // used
   async findSummaryForClient(
     orderId: string,
@@ -35,13 +46,66 @@ export class OrderQueryRepository implements IOrderQueryRepository {
         'restaurant.id = order.restaurantId',
       )
       .where('order.id = :id', { id: orderId })
+      .getRawOne<ClientOrderSummaryProjection>();
+
+    return result ? result : null;
+  }
+
+  // used
+  async findOrderSummaryForDriver(
+    orderId: string,
+  ): Promise<DriverOrderSummaryProjection | null> {
+    const result = await this.em
+      .createQueryBuilder()
+      .select([
+        'order.id AS id',
+        'order.status AS status',
+        'customer.deliveryAddress AS "deliveryAddress"',
+        'customer.id AS "customerId"',
+        'order.restaurantId AS "restaurantId"',
+        'restaurant.name AS "restaurantName"',
+        'order.driverId AS "driverId"',
+      ])
+      .from('order', 'order')
+      .leftJoin('customer', 'customer', 'customer.id = order.customerId')
+      .leftJoin(
+        'restaurant',
+        'restaurant',
+        'restaurant.id = order.restaurantId',
+      )
+      .where('order.id = :id', { id: orderId })
       .getRawOne();
 
-    // return result ? new OrderSummaryDTOForClient(result) : null;
+    // return result ? new OrderSummaryDTOForDriver(result) : result;
     return result;
   }
 
   // used
+  async findOrderSummaryForOwner(
+    id: string,
+  ): Promise<OwnerOrderSummaryProjection | null> {
+    const result = await this.em
+      .createQueryBuilder()
+      .select([
+        'order.id AS id',
+        'order.status AS status',
+        'customer.deliveryAddress AS "deliveryAddress"',
+        'order.customerId AS "customerId"',
+        'order.driverId AS "driverId"',
+        'order.restaurantId AS "restaurantId"',
+      ])
+      .from('order', 'order')
+      .leftJoin('customer', 'customer', 'customer.id = order.customerId')
+      .where('order.id = :id', { id })
+      .getRawOne();
+
+    return result;
+    // return result ? new OrderSummaryDTOForOwner(result) : null;
+    // return new OrderSummaryDTOForOwner(result);
+  }
+
+  // used
+  // getOrderHistoryForClient
   async findDeliveredOrdersForCustomer(
     customerId: string,
   ): Promise<ClientOrderPreviewProjection[]> {
@@ -70,6 +134,7 @@ export class OrderQueryRepository implements IOrderQueryRepository {
   }
 
   // used
+  // getCurrentOrderForClient
   async findOnGoingOrderForClient(
     customerId: string,
   ): Promise<ClientOrderSummaryProjection | null> {
@@ -101,6 +166,7 @@ export class OrderQueryRepository implements IOrderQueryRepository {
   }
 
   // used
+  //
   async findOrderSummariesForOwner(
     restaurantId: string,
   ): Promise<OwnerOrderSummaryProjection[]> {
@@ -121,30 +187,6 @@ export class OrderQueryRepository implements IOrderQueryRepository {
 
     // return result.map((order) => new OrderSummaryDTOForOwner(order));
     return result;
-  }
-
-  // used
-  async findOrderSummaryForOwner(
-    id: string,
-  ): Promise<OwnerOrderSummaryProjection | null> {
-    const result = await this.em
-      .createQueryBuilder()
-      .select([
-        'order.id AS id',
-        'order.status AS status',
-        'customer.deliveryAddress AS "deliveryAddress"',
-        'order.customerId AS "customerId"',
-        'order.driverId AS "driverId"',
-        'order.restaurantId AS "restaurantId"',
-      ])
-      .from('order', 'order')
-      .leftJoin('customer', 'customer', 'customer.id = order.customerId')
-      .where('order.id = :id', { id })
-      .getRawOne();
-
-    return result;
-    // return result ? new OrderSummaryDTOForOwner(result) : null;
-    // return new OrderSummaryDTOForOwner(result);
   }
 
   // used
@@ -181,35 +223,6 @@ export class OrderQueryRepository implements IOrderQueryRepository {
       .getRawMany();
 
     // return result.map((order) => new OrderSummaryDTOForDriver(order));
-    return result;
-  }
-
-  // used
-  async findOrderSummaryForDriver(
-    orderId: string,
-  ): Promise<DriverOrderSummaryProjection | null> {
-    const result = await this.em
-      .createQueryBuilder()
-      .select([
-        'order.id AS id',
-        'order.status AS status',
-        'customer.deliveryAddress AS "deliveryAddress"',
-        'customer.id AS "customerId"',
-        'order.restaurantId AS "restaurantId"',
-        'restaurant.name AS "restaurantName"',
-        'order.driverId AS "driverId"',
-      ])
-      .from('order', 'order')
-      .leftJoin('customer', 'customer', 'customer.id = order.customerId')
-      .leftJoin(
-        'restaurant',
-        'restaurant',
-        'restaurant.id = order.restaurantId',
-      )
-      .where('order.id = :id', { id: orderId })
-      .getRawOne();
-
-    // return result ? new OrderSummaryDTOForDriver(result) : result;
     return result;
   }
 }

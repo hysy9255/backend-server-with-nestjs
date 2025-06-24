@@ -18,6 +18,8 @@ import {
   DriverOrderController,
   OwnerOrderController,
 } from './interface/order.controller';
+import { OrderAccessPolicy } from './application/service/orderAccessPolicy';
+import { RestaurantQueryRepository } from 'src/restaurant/infrastructure/repositories/query/restaurant-query.repository';
 
 @Module({
   imports: [RestaurantModule],
@@ -43,6 +45,14 @@ import {
       },
       inject: [getDataSourceToken()],
     },
+    {
+      provide: 'IRestaurantQueryRepository',
+      useFactory: (dataSource: DataSource) => {
+        return new RestaurantQueryRepository(dataSource.manager);
+      },
+      inject: [getDataSourceToken()],
+    },
+    OrderAccessPolicy,
     ClientOrderService,
     OwnerOrderService,
     DriverOrderService,

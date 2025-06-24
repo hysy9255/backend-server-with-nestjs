@@ -35,9 +35,9 @@ export class JwtMiddleWare implements NestMiddleware {
         );
 
         if (!user) {
-          console.warn(
-            `[JWT Middleware] No user found for decoded ID: ${decoded['id']}`,
-          );
+          // console.warn(
+          //   `[JWT Middleware] No user found for decoded ID: ${decoded['id']}`,
+          // );
           throw new UnauthorizedException('Unauthorized');
         }
 

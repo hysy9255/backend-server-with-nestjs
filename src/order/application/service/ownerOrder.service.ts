@@ -11,6 +11,7 @@ import { OrderMapper } from './mapper/order.mapper';
 import { IOrderCommandRepository } from '../../infrastructure/repositories/command/order-command.repository.interface';
 import { IOrderQueryRepository } from '../../infrastructure/repositories/query/order-query.repository.interface';
 import { OwnerOrderSummaryProjection } from '../../infrastructure/repositories/query/projections/order.projection';
+import { OrderAccessPolicy } from './orderAccessPolicy';
 
 @Injectable()
 export class OwnerOrderService {
@@ -19,6 +20,7 @@ export class OwnerOrderService {
     private readonly orderCmdRepo: IOrderCommandRepository,
     @Inject('IOrderQueryRepository')
     private readonly orderQryRepo: IOrderQueryRepository,
+    private readonly orderAccessPolicy: OrderAccessPolicy,
   ) {}
 
   // used
@@ -44,16 +46,12 @@ export class OwnerOrderService {
       );
     }
 
+    await this.orderAccessPolicy.assertOwnerCanAccessOrder(owner.id, orderId);
+
     const order = await this.orderQryRepo.findOrderSummaryForOwner(orderId);
 
     if (!order) {
       throw new NotFoundException('Order Not Found');
-    }
-
-    if (!owner.ownsRestaurantOf(order.restaurantId)) {
-      throw new ForbiddenException(
-        'This order does not belong to your restaurant',
-      );
     }
 
     return order;

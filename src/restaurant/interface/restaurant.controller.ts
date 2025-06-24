@@ -13,11 +13,14 @@ import {
   ApiParam,
   ApiResponse,
   ApiSecurity,
+  ApiTags,
 } from '@nestjs/swagger';
 import { RestaurantSummaryDTO } from './dtos/restaurant-outputs.dto';
+import { AuthOwner } from 'src/auth/auth-owner.decorator';
 
+@ApiTags('Restaurant')
 @ApiSecurity('jwt-token')
-@Controller('api/restaurant')
+@Controller('api')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
@@ -25,10 +28,15 @@ export class RestaurantController {
     summary: '[Owner] Create a restaurant',
   })
   @ApiBody({ type: CreateRestaurantInput })
+  @ApiResponse({
+    status: 200,
+    description: 'Successful response',
+    type: Boolean,
+  })
   @Post('restaurant')
   @Role(['Owner'])
   async createRestaurant(
-    @AuthUser() owner: OwnerEntity,
+    @AuthOwner() owner: OwnerEntity,
     @Body() createRestaurantInput: CreateRestaurantInput,
   ): Promise<boolean> {
     await this.restaurantService.createRestaurant(owner, createRestaurantInput);
@@ -46,7 +54,7 @@ export class RestaurantController {
     description: 'Successful response',
     type: RestaurantSummaryDTO,
   })
-  @Get(':id')
+  @Get('restaurant/:id')
   @Role(['Any'])
   async restaurant(
     @Param('id') restaurantId: GetRestaurantInput['id'],
@@ -62,7 +70,7 @@ export class RestaurantController {
     description: 'Successful response',
     type: [RestaurantSummaryDTO],
   })
-  @Get()
+  @Get('restaurants')
   @Role(['Any'])
   async getAllRestaurants(): Promise<RestaurantSummaryDTO[]> {
     const restaurants = await this.restaurantService.getRestaurantSummaries();

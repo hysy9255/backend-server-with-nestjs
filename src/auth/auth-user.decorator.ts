@@ -34,7 +34,6 @@ export const AuthUser = createParamDecorator(
       userAuthService = gqlContext.req.userAuthService;
     } else {
       const req = context.switchToHttp().getRequest();
-      // console.log('req: ', req);
       userReadModel = req.user;
       userAuthService = req.userAuthService;
     }

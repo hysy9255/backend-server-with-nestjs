@@ -1,28 +1,22 @@
 import { OrderStatus } from 'src/constants/orderStatus';
 
-export class BaseOrderProjection {
+type BaseOrderProjection = {
   id: string;
   status: OrderStatus;
   deliveryAddress: string;
   customerId: string;
-  driverId?: string | null;
-}
-
-export class ClientOrderSummaryProjection extends BaseOrderProjection {
+  driverId: string | null;
   restaurantId: string;
   restaurantName: string;
-}
+};
 
-export class OwnerOrderSummaryProjection extends BaseOrderProjection {
-  restaurantId: string;
-}
+export type ClientOrderSummaryProjection = Required<BaseOrderProjection>;
 
-export class DriverOrderSummaryProjection extends BaseOrderProjection {
-  restaurantId: string;
-  restaurantName: string;
-}
+export type OwnerOrderSummaryProjection = Omit<
+  BaseOrderProjection,
+  'restaurantName'
+>;
 
-export class ClientOrderPreviewProjection extends BaseOrderProjection {
-  restaurantId: string;
-  restaurantName: string;
-}
+export type DriverOrderSummaryProjection = Required<BaseOrderProjection>;
+
+export type ClientOrderPreviewProjection = Required<BaseOrderProjection>;

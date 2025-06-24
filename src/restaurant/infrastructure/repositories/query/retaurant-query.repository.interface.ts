@@ -6,6 +6,7 @@ export class RestaurantQueryProjection {
 }
 
 export interface IRestaurantQueryRepository {
+  findOneById(restaurantId: string);
   findSummary(restaurantId: string): Promise<RestaurantQueryProjection>;
   findSummaries(): Promise<RestaurantQueryProjection[]>;
 }

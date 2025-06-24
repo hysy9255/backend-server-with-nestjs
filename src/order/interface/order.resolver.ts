@@ -1,11 +1,5 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ClientOrderService } from '../application/service/clientOrder.service';
-import {
-  ClientOrderPreviewDTO,
-  ClientOrderSummaryDTO,
-  DriverOrderSummaryDTO,
-  OwnerOrderSummaryDTO,
-} from './dtos/order-outputs.dto';
 import { CustomerEntity } from 'src/user/domain/customer.entity';
 import { AuthCustomer } from 'src/auth/auth-customer.decorator';
 import { AuthOwner } from 'src/auth/auth-owner.decorator';
@@ -20,6 +14,12 @@ import {
   GetOrderInput,
   OrderActionInput,
 } from './dtos/order-inputs.dto';
+import {
+  GqlClientOrderPreviewDTO,
+  GqlClientOrderSummaryDTO,
+  GqlDriverOrderSummaryDTO,
+  GqlOwnerOrderSummaryDTO,
+} from './dtos/order-output.gql.dto';
 
 @Resolver()
 export class ClientOrderResolver {
@@ -37,35 +37,35 @@ export class ClientOrderResolver {
   }
 
   // used
-  @Query(() => ClientOrderSummaryDTO)
+  @Query(() => GqlClientOrderSummaryDTO)
   @Role(['Client'])
   async getOnGoingOrderForClient(
     @AuthCustomer() customer: CustomerEntity,
-  ): Promise<ClientOrderSummaryDTO> {
-    return new ClientOrderSummaryDTO(
+  ): Promise<GqlClientOrderSummaryDTO> {
+    return new GqlClientOrderSummaryDTO(
       await this.clientOrderService.getOnGoingOrder(customer),
     );
   }
 
   // used
-  @Query(() => [ClientOrderPreviewDTO])
+  @Query(() => [GqlClientOrderPreviewDTO])
   @Role(['Client'])
   async getOrderHistoryForClient(
     @AuthCustomer() customer: CustomerEntity,
-  ): Promise<ClientOrderPreviewDTO[]> {
+  ): Promise<GqlClientOrderPreviewDTO[]> {
     // return await this.clientOrderService.getOrderHistory(customer);
     const orders = await this.clientOrderService.getOrderHistory(customer);
-    return orders.map((order) => new ClientOrderPreviewDTO(order));
+    return orders.map((order) => new GqlClientOrderPreviewDTO(order));
   }
 
   // used
-  @Query(() => ClientOrderSummaryDTO)
+  @Query(() => GqlClientOrderSummaryDTO)
   @Role(['Client'])
   async getOrderForClient(
     @AuthCustomer() customer: CustomerEntity,
     @Args('input') { orderId }: GetOrderInput,
-  ): Promise<ClientOrderSummaryDTO> {
-    return new ClientOrderSummaryDTO(
+  ): Promise<GqlClientOrderSummaryDTO> {
+    return new GqlClientOrderSummaryDTO(
       await this.clientOrderService.getOrderSummaryForClient(customer, orderId),
     );
   }
@@ -76,28 +76,28 @@ export class OwnerOrderResolver {
   constructor(private readonly ownerOrderService: OwnerOrderService) {}
 
   // used
-  @Query(() => [OwnerOrderSummaryDTO])
+  @Query(() => [GqlOwnerOrderSummaryDTO])
   @Role(['Owner'])
   async getOrdersForOwner(
     @AuthOwner() owner: OwnerEntity,
-  ): Promise<OwnerOrderSummaryDTO[]> {
+  ): Promise<GqlOwnerOrderSummaryDTO[]> {
     // return await this.ownerOrderService.getOrders(owner);
     const orders = await this.ownerOrderService.getOrders(owner);
-    return orders.map((order) => new OwnerOrderSummaryDTO(order));
+    return orders.map((order) => new GqlOwnerOrderSummaryDTO(order));
 
     // const orders = await this.ownerOrderService.getOrders(owner);
     // return orders.map((order) => new OrderSummaryDTOForOwner(order));
   }
 
   // used
-  @Query(() => OwnerOrderSummaryDTO)
+  @Query(() => GqlOwnerOrderSummaryDTO)
   @Role(['Owner'])
   async getOrderForOwner(
     @AuthOwner() owner: OwnerEntity,
     @Args('input') { orderId }: GetOrderInput,
-  ): Promise<OwnerOrderSummaryDTO> {
+  ): Promise<GqlOwnerOrderSummaryDTO> {
     const order = await this.ownerOrderService.getOrder(owner, orderId);
-    return new OwnerOrderSummaryDTO(order);
+    return new GqlOwnerOrderSummaryDTO(order);
   }
 
   // used
@@ -139,27 +139,27 @@ export class DriverOrderResolver {
   constructor(private readonly driverOrderService: DriverOrderService) {}
 
   // used
-  @Query(() => [DriverOrderSummaryDTO])
+  @Query(() => [GqlDriverOrderSummaryDTO])
   @Role(['Delivery'])
   async getOrdersForDriver(
     @AuthDriver() driver: DriverEntity,
-  ): Promise<DriverOrderSummaryDTO[]> {
+  ): Promise<GqlDriverOrderSummaryDTO[]> {
     const orders = await this.driverOrderService.getOrdersForDriver(driver);
-    return orders.map((order) => new DriverOrderSummaryDTO(order));
+    return orders.map((order) => new GqlDriverOrderSummaryDTO(order));
   }
 
   // used
-  @Query(() => DriverOrderSummaryDTO)
+  @Query(() => GqlDriverOrderSummaryDTO)
   @Role(['Delivery'])
   async getOrderForDriver(
     @AuthDriver() driver: DriverEntity,
     @Args('input') { orderId }: GetOrderInput,
-  ): Promise<DriverOrderSummaryDTO> {
+  ): Promise<GqlDriverOrderSummaryDTO> {
     const order = await this.driverOrderService.getOrderForDriver(
       driver,
       orderId,
     );
-    return new DriverOrderSummaryDTO(order);
+    return new GqlDriverOrderSummaryDTO(order);
   }
 
   // used

@@ -1,0 +1,130 @@
+// import { Field, ObjectType, PickType } from '@nestjs/graphql';
+// import { ApiProperty } from '@nestjs/swagger';
+// import { OrderStatus } from 'src/constants/orderStatus';
+// import {
+//   ClientOrderPreviewProjection,
+//   ClientOrderSummaryProjection,
+//   DriverOrderSummaryProjection,
+//   OwnerOrderSummaryProjection,
+// } from 'src/order/infrastructure/repositories/query/projections/order.projection';
+
+// @ObjectType()
+// export class BaseOrderDTO {
+//   @ApiProperty({ example: 'uuid', description: 'Order ID' })
+//   @Field(() => String)
+//   id: string;
+
+//   @ApiProperty({ example: 'Pending', description: 'Order Status' })
+//   @Field(() => OrderStatus)
+//   status: OrderStatus;
+
+//   @ApiProperty({
+//     example: '123 Main St, Springfield, USA',
+//     description: 'Delivery Address',
+//   })
+//   @Field(() => String)
+//   deliveryAddress: string;
+
+//   @ApiProperty({ example: 'uuid', description: 'Customer ID' })
+//   @Field(() => String)
+//   customerId: string;
+
+//   @ApiProperty({ example: 'uuid', description: 'Driver ID', nullable: true })
+//   @Field(() => String, { nullable: true })
+//   driverId?: string | null;
+
+//   @ApiProperty({ example: 'uuid', description: 'Restaurant ID' })
+//   @Field(() => String)
+//   restaurantId: string;
+
+//   @ApiProperty({ example: 'Restaurant Name', description: 'Restaurant Name' })
+//   @Field(() => String)
+//   restaurantName: string;
+// }
+
+// // used
+// @ObjectType()
+// export class ClientOrderSummaryDTO extends PickType(BaseOrderDTO, [
+//   'id',
+//   'status',
+//   'deliveryAddress',
+//   'customerId',
+//   'driverId',
+//   'restaurantId',
+//   'restaurantName',
+// ]) {
+//   constructor(projection: ClientOrderSummaryProjection) {
+//     super();
+//     this.id = projection.id;
+//     this.status = projection.status;
+//     this.deliveryAddress = projection.deliveryAddress;
+//     this.customerId = projection.customerId;
+//     this.driverId = projection.driverId ?? projection.driverId;
+//     this.restaurantId = projection.restaurantId;
+//     this.restaurantName = projection.restaurantName;
+//   }
+
+//   // @ApiProperty({ example: 'uuid', description: 'Order ID' })
+//   // id: string;
+// }
+
+// // used
+// @ObjectType()
+// export class ClientOrderPreviewDTO extends PickType(BaseOrderDTO, [
+//   'id',
+//   'status',
+//   'restaurantId',
+//   'restaurantName',
+// ]) {
+//   constructor(projection: ClientOrderPreviewProjection) {
+//     super();
+//     this.id = projection.id;
+//     this.status = projection.status;
+//     this.restaurantId = projection.restaurantId;
+//     this.restaurantName = projection.restaurantName;
+//   }
+// }
+
+// // used
+// @ObjectType()
+// export class OwnerOrderSummaryDTO extends PickType(BaseOrderDTO, [
+//   'id',
+//   'status',
+//   'deliveryAddress',
+//   'customerId',
+//   'driverId',
+//   'restaurantId',
+// ]) {
+//   constructor(projection: OwnerOrderSummaryProjection) {
+//     super();
+//     this.id = projection.id;
+//     this.status = projection.status;
+//     this.deliveryAddress = projection.deliveryAddress;
+//     this.customerId = projection.customerId;
+//     this.driverId = projection.driverId ?? projection.driverId;
+//     this.restaurantId = projection.restaurantId;
+//   }
+// }
+
+// // used
+// @ObjectType()
+// export class DriverOrderSummaryDTO extends PickType(BaseOrderDTO, [
+//   'id',
+//   'status',
+//   'deliveryAddress',
+//   'customerId',
+//   'restaurantId',
+//   'restaurantName',
+//   'driverId',
+// ]) {
+//   constructor(projection: DriverOrderSummaryProjection) {
+//     super();
+//     this.id = projection.id;
+//     this.status = projection.status;
+//     this.deliveryAddress = projection.deliveryAddress;
+//     this.customerId = projection.customerId;
+//     this.restaurantId = projection.restaurantId;
+//     this.restaurantName = projection.restaurantName;
+//     this.driverId = projection.driverId ?? projection.driverId;
+//   }
+// }

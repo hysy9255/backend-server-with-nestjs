@@ -17,18 +17,18 @@ import {
   GetOrderInput,
   OrderActionInput,
 } from './dtos/order-inputs.dto';
-import {
-  ClientOrderPreviewDTO,
-  ClientOrderSummaryDTO,
-  DriverOrderSummaryDTO,
-  OwnerOrderSummaryDTO,
-} from './dtos/order-outputs.dto';
 import { GetRestaurantInput } from 'src/restaurant/interface/dtos/restaurant-inputs.dto';
 import { AuthOwner } from 'src/auth/auth-owner.decorator';
 import { OwnerOrderService } from '../application/service/ownerOrder.service';
 import { DriverOrderService } from '../application/service/driverOrder.service';
 import { AuthDriver } from 'src/auth/auth-driver.decorator';
 import { DriverEntity } from 'src/user/domain/driver.entity';
+import {
+  RestClientOrderPreviewDTO,
+  RestClientOrderSummaryDTO,
+  RestDriverOrderSummaryDTO,
+  RestOwnerOrderSummaryDTO,
+} from './dtos/order-output.rest.dto';
 
 @ApiTags('Order - [Client]')
 @ApiSecurity('jwt-token')
@@ -38,6 +38,11 @@ export class ClientOrderController {
 
   @ApiOperation({ summary: '[Client] Create an order' })
   @ApiBody({ type: CreateOrderInput })
+  @ApiResponse({
+    status: 200,
+    description: 'Successful response',
+    type: Boolean,
+  })
   @Post('order')
   @Role(['Client'])
   async createOrder(
@@ -52,14 +57,14 @@ export class ClientOrderController {
   @ApiResponse({
     status: 200,
     description: 'Successful response',
-    type: ClientOrderSummaryDTO,
+    type: RestClientOrderSummaryDTO,
   })
   @Get('on-going-order')
   @Role(['Client'])
   async getOnGoingOrderForClient(
     @AuthCustomer() customer: CustomerEntity,
-  ): Promise<ClientOrderSummaryDTO> {
-    return new ClientOrderSummaryDTO(
+  ): Promise<RestClientOrderSummaryDTO> {
+    return new RestClientOrderSummaryDTO(
       await this.clientOrderService.getOnGoingOrder(customer),
     );
   }
@@ -68,13 +73,13 @@ export class ClientOrderController {
   @ApiResponse({
     status: 200,
     description: 'Successful response',
-    type: [ClientOrderPreviewDTO],
+    type: [RestClientOrderPreviewDTO],
   })
   @Get('order-history')
   @Role(['Client'])
   async getOrderHistoryForClient(@AuthCustomer() customer: CustomerEntity) {
     const orders = await this.clientOrderService.getOrderHistory(customer);
-    return orders.map((order) => new ClientOrderPreviewDTO(order));
+    return orders.map((order) => new RestClientOrderPreviewDTO(order));
   }
 
   @ApiOperation({ summary: '[Client] Get order by id' })
@@ -82,15 +87,15 @@ export class ClientOrderController {
   @ApiResponse({
     status: 200,
     description: 'Successful response',
-    type: ClientOrderSummaryDTO,
+    type: RestClientOrderSummaryDTO,
   })
   @Get('order/:id')
   @Role(['Client'])
   async getOrderForClient(
     @AuthCustomer() customer: CustomerEntity,
     @Param('id') orderId: GetRestaurantInput['id'],
-  ): Promise<ClientOrderSummaryDTO> {
-    return new ClientOrderSummaryDTO(
+  ): Promise<RestClientOrderSummaryDTO> {
+    return new RestClientOrderSummaryDTO(
       await this.clientOrderService.getOrderSummaryForClient(customer, orderId),
     );
   }
@@ -106,15 +111,15 @@ export class OwnerOrderController {
   @ApiResponse({
     status: 200,
     description: 'Successful response',
-    type: [OwnerOrderSummaryDTO],
+    type: [RestOwnerOrderSummaryDTO],
   })
   @Get('orders')
   @Role(['Owner'])
   async getOrdersForOwner(
     @AuthOwner() owner: OwnerEntity,
-  ): Promise<OwnerOrderSummaryDTO[]> {
+  ): Promise<RestOwnerOrderSummaryDTO[]> {
     const orders = await this.ownerOrderService.getOrders(owner);
-    return orders.map((order) => new OwnerOrderSummaryDTO(order));
+    return orders.map((order) => new RestOwnerOrderSummaryDTO(order));
   }
 
   @ApiOperation({ summary: '[Owner] Get order by id' })
@@ -122,16 +127,16 @@ export class OwnerOrderController {
   @ApiResponse({
     status: 200,
     description: 'Successful response',
-    type: OwnerOrderSummaryDTO,
+    type: RestOwnerOrderSummaryDTO,
   })
   @Get('order/:id')
   @Role(['Owner'])
   async getOrderForOwner(
     @AuthOwner() owner: OwnerEntity,
     @Param('id') orderId: GetOrderInput['orderId'],
-  ): Promise<OwnerOrderSummaryDTO> {
+  ): Promise<RestOwnerOrderSummaryDTO> {
     const order = await this.ownerOrderService.getOrder(owner, orderId);
-    return new OwnerOrderSummaryDTO(order);
+    return new RestOwnerOrderSummaryDTO(order);
   }
 
   @ApiOperation({ summary: '[Owner] Accept order' })
@@ -196,15 +201,15 @@ export class DriverOrderController {
   @ApiResponse({
     status: 200,
     description: 'Successful response',
-    type: [DriverOrderSummaryDTO],
+    type: [RestDriverOrderSummaryDTO],
   })
   @Get('orders')
   @Role(['Delivery'])
   async getOrdersForDriver(
     @AuthDriver() driver: DriverEntity,
-  ): Promise<DriverOrderSummaryDTO[]> {
+  ): Promise<RestDriverOrderSummaryDTO[]> {
     const orders = await this.driverOrderService.getOrdersForDriver(driver);
-    return orders.map((order) => new DriverOrderSummaryDTO(order));
+    return orders.map((order) => new RestDriverOrderSummaryDTO(order));
   }
 
   @ApiOperation({ summary: '[Driver] Get order' })
@@ -212,19 +217,19 @@ export class DriverOrderController {
   @ApiResponse({
     status: 200,
     description: 'Successful response',
-    type: DriverOrderSummaryDTO,
+    type: RestDriverOrderSummaryDTO,
   })
   @Get('order/:id')
   @Role(['Delivery'])
   async getOrderForDriver(
     @AuthDriver() driver: DriverEntity,
     @Param('id') orderId: GetOrderInput['orderId'],
-  ): Promise<DriverOrderSummaryDTO> {
+  ): Promise<RestDriverOrderSummaryDTO> {
     const order = await this.driverOrderService.getOrderForDriver(
       driver,
       orderId,
     );
-    return new DriverOrderSummaryDTO(order);
+    return new RestDriverOrderSummaryDTO(order);
   }
 
   @ApiOperation({ summary: '[Driver] Accept order' })

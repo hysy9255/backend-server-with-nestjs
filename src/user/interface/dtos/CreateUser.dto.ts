@@ -26,6 +26,10 @@ export class CreateCustomerInput extends CreateUserInput {
   @Field(() => UserRole)
   role: UserRole;
 
+  @ApiProperty({
+    example: '123 Main St, City, Country',
+    description: 'Delivery address for the customer',
+  })
   @Field(() => String)
   deliveryAddress: string;
 }
