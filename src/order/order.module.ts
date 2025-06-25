@@ -20,9 +20,10 @@ import {
 } from './interface/order.controller';
 import { OrderAccessPolicy } from './application/service/orderAccessPolicy';
 import { RestaurantQueryRepository } from 'src/restaurant/infrastructure/repositories/query/restaurant-query.repository';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [RestaurantModule],
+  imports: [RestaurantModule, UserModule],
   providers: [
     {
       provide: 'IOrderCommandRepository',

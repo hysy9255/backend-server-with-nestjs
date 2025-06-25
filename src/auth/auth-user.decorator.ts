@@ -24,18 +24,19 @@ import { ContextType } from '@nestjs/common';
 // );
 
 export const AuthUser = createParamDecorator(
-  async (_, context: ExecutionContext): Promise<UserEntity> => {
+  async (_, context: ExecutionContext): Promise<UserQueryProjection> => {
     let userReadModel: UserQueryProjection;
-    let userAuthService: UserAuthService;
+    // let userAuthService: UserAuthService;
 
     if (context.getType() === ('graphql' as ContextType)) {
       const gqlContext = GqlExecutionContext.create(context).getContext();
       userReadModel = gqlContext.req['user'];
-      userAuthService = gqlContext.req.userAuthService;
+      // userAuthService = gqlContext.req.userAuthService;
     } else {
       const req = context.switchToHttp().getRequest();
+
       userReadModel = req.user;
-      userAuthService = req.userAuthService;
+      // userAuthService = req.userAuthService;
     }
 
     // console.log('userReadModel', userReadModel);
@@ -44,9 +45,10 @@ export const AuthUser = createParamDecorator(
       throw new ForbiddenException('User not authenticated');
     }
 
-    const user = await userAuthService.getUserForAuth(userReadModel.id);
-    if (!user) throw new ForbiddenException('User not found');
+    return userReadModel;
+    // const user = await userAuthService.getUserForAuth(userReadModel.id);
+    // if (!user) throw new ForbiddenException('User not found');
 
-    return user;
+    // return user;
   },
 );

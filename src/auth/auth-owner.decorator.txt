@@ -24,27 +24,29 @@ import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/
 // );
 
 export const AuthOwner = createParamDecorator(
-  async (_, context: ExecutionContext): Promise<OwnerEntity> => {
+  async (_, context: ExecutionContext): Promise<any> => {
     let userReadModel: UserQueryProjection;
-    let userAuthService: UserAuthService;
+    // let userAuthService: UserAuthService;
 
     if (context.getType() === ('graphql' as ContextType)) {
       const gqlContext = GqlExecutionContext.create(context).getContext();
       userReadModel = gqlContext.req['user'];
-      userAuthService = gqlContext.req.userAuthService;
+      // userAuthService = gqlContext.req.userAuthService;
     } else {
       const req = context.switchToHttp().getRequest();
       userReadModel = req.user;
-      userAuthService = req.userAuthService;
+      // userAuthService = req.userAuthService;
     }
 
     if (!userReadModel || !userReadModel.id) {
       throw new ForbiddenException('User not authenticated');
     }
 
-    const owner = await userAuthService.getOwnerForAuth(userReadModel.id);
-    if (!owner) throw new ForbiddenException('Owner Not Found');
+    return userReadModel;
 
-    return owner;
+    // const owner = await userAuthService.getOwnerForAuth(userReadModel.id);
+    // if (!owner) throw new ForbiddenException('Owner Not Found');
+
+    // return owner;
   },
 );

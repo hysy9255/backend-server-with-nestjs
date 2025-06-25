@@ -15,6 +15,9 @@ import {
   ClientOrderSummaryProjection,
 } from '../../infrastructure/repositories/query/projections/order.projection';
 import { CreateOrderInput } from 'src/order/interface/dtos/order-inputs.dto';
+import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
+import { UserRole } from 'src/constants/userRole';
+import { UserAuthService } from 'src/user/application/service/user-auth.service';
 
 @Injectable()
 export class ClientOrderService {
@@ -24,13 +27,23 @@ export class ClientOrderService {
     private readonly orderCmdRepo: IOrderCommandRepository,
     @Inject('IOrderQueryRepository')
     private readonly orderQryRepo: IOrderQueryRepository,
+    private readonly userAuthService: UserAuthService,
   ) {}
 
   // used
   async createOrder(
-    customer: CustomerEntity,
+    user: UserQueryProjection,
     createOrderInput: CreateOrderInput,
   ): Promise<void> {
+    if (user.role !== UserRole.Client) {
+      throw new ForbiddenException(
+        'Only clients can create orders. Please login as a client.',
+      );
+    }
+
+    const customer = await this.userAuthService.getCustomerForAuth(user.id);
+    if (!customer) throw new NotFoundException('Customer Not Found');
+
     await this.restaurantService._validateRestaurantExistsOrThrow(
       createOrderInput.restaurantId,
     );
@@ -45,9 +58,18 @@ export class ClientOrderService {
 
   // used
   async getOrderSummaryForClient(
-    customer: CustomerEntity,
+    user: UserQueryProjection,
     orderId: string,
   ): Promise<ClientOrderSummaryProjection> {
+    if (user.role !== UserRole.Client) {
+      throw new ForbiddenException(
+        'Only clients can create orders. Please login as a client.',
+      );
+    }
+
+    const customer = await this.userAuthService.getCustomerForAuth(user.id);
+    if (!customer) throw new NotFoundException('Customer Not Found');
+
     const order = await this.orderQryRepo.findSummaryForClient(orderId);
 
     if (!order) throw new NotFoundException('Order Not Found');
@@ -61,15 +83,35 @@ export class ClientOrderService {
 
   // used
   async getOrderHistory(
-    customer: CustomerEntity,
+    // customer: CustomerEntity,
+    user: UserQueryProjection,
   ): Promise<ClientOrderPreviewProjection[]> {
+    if (user.role !== UserRole.Client) {
+      throw new ForbiddenException(
+        'Only clients can create orders. Please login as a client.',
+      );
+    }
+
+    const customer = await this.userAuthService.getCustomerForAuth(user.id);
+    if (!customer) throw new NotFoundException('Customer Not Found');
+
     return await this.orderQryRepo.findDeliveredOrdersForCustomer(customer.id);
   }
 
   // used
   async getOnGoingOrder(
-    customer: CustomerEntity,
+    // customer: CustomerEntity,
+    user: UserQueryProjection,
   ): Promise<ClientOrderSummaryProjection> {
+    if (user.role !== UserRole.Client) {
+      throw new ForbiddenException(
+        'Only clients can create orders. Please login as a client.',
+      );
+    }
+
+    const customer = await this.userAuthService.getCustomerForAuth(user.id);
+    if (!customer) throw new NotFoundException('Customer Not Found');
+
     const order = await this.orderQryRepo.findOnGoingOrderForClient(
       customer.id,
     );

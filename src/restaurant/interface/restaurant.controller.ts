@@ -16,7 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { RestaurantSummaryDTO } from './dtos/restaurant-outputs.dto';
-import { AuthOwner } from 'src/auth/auth-owner.decorator';
+import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
 
 @ApiTags('Restaurant')
 @ApiSecurity('jwt-token')
@@ -36,11 +36,11 @@ export class RestaurantController {
   @Post('restaurant')
   @Role(['Owner'])
   async createRestaurant(
-    @AuthOwner() owner: OwnerEntity,
+    // @AuthOwner() owner: OwnerEntity,
+    @AuthUser() user: UserQueryProjection,
     @Body() createRestaurantInput: CreateRestaurantInput,
   ): Promise<boolean> {
-    console.log('owner from controller: ', owner);
-    await this.restaurantService.createRestaurant(owner, createRestaurantInput);
+    await this.restaurantService.createRestaurant(user, createRestaurantInput);
     return true;
   }
 

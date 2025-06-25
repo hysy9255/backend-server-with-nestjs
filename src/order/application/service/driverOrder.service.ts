@@ -12,6 +12,9 @@ import { IOrderCommandRepository } from '../../infrastructure/repositories/comma
 import { IOrderQueryRepository } from '../../infrastructure/repositories/query/order-query.repository.interface';
 import { OrderDriverRejectionCommandRepository } from '../../infrastructure/repositories/command/order-driver-rejection-command.repository';
 import { DriverOrderSummaryProjection } from '../../infrastructure/repositories/query/projections/order.projection';
+import { UserAuthService } from 'src/user/application/service/user-auth.service';
+import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
+import { UserRole } from 'src/constants/userRole';
 
 @Injectable()
 export class DriverOrderService {
@@ -22,12 +25,21 @@ export class DriverOrderService {
     private readonly orderCmdRepo: IOrderCommandRepository,
     @Inject('IOrderQueryRepository')
     private readonly orderQryRepo: IOrderQueryRepository,
+    private readonly userAuthService: UserAuthService,
   ) {}
 
   // used
   async getOrdersForDriver(
-    driver: DriverEntity,
+    // driver: DriverEntity,
+    user: UserQueryProjection,
   ): Promise<DriverOrderSummaryProjection[]> {
+    if (user.role !== UserRole.Delivery) {
+      throw new ForbiddenException('Invalid request');
+    }
+
+    const driver = await this.userAuthService.getDriverForAuth(user.id);
+    if (!driver) throw new NotFoundException('Driver Not Found');
+
     return await this.orderQryRepo.findAvailableOrdersForDriver(driver.id);
   }
 
@@ -35,9 +47,17 @@ export class DriverOrderService {
 
   // used
   async getOrderForDriver(
-    driver: DriverEntity,
+    // driver: DriverEntity,
+    user: UserQueryProjection,
     orderId: string,
   ): Promise<DriverOrderSummaryProjection> {
+    if (user.role !== UserRole.Delivery) {
+      throw new ForbiddenException('Invalid request');
+    }
+
+    const driver = await this.userAuthService.getDriverForAuth(user.id);
+    if (!driver) throw new NotFoundException('Driver Not Found');
+
     const order = await this.orderQryRepo.findOrderSummaryForDriver(orderId);
     if (!order) throw new NotFoundException('Order Not Found');
 
@@ -48,7 +68,18 @@ export class DriverOrderService {
   }
 
   // used
-  async acceptOrder(orderId: string, driver: DriverEntity): Promise<void> {
+  async acceptOrder(
+    orderId: string,
+    // driver: DriverEntity,
+    user: UserQueryProjection,
+  ): Promise<void> {
+    if (user.role !== UserRole.Delivery) {
+      throw new ForbiddenException('Invalid request');
+    }
+
+    const driver = await this.userAuthService.getDriverForAuth(user.id);
+    if (!driver) throw new NotFoundException('Driver Not Found');
+
     const order = await this._getOrderOrThrow(orderId);
     order.assignDriver(driver);
     const orderRecord = OrderMapper.toOrmEntity(order);
@@ -56,7 +87,14 @@ export class DriverOrderService {
   }
 
   // used
-  async rejectOrder(orderId: string, driver: DriverEntity): Promise<void> {
+  async rejectOrder(orderId: string, user: UserQueryProjection): Promise<void> {
+    if (user.role !== UserRole.Delivery) {
+      throw new ForbiddenException('Invalid request');
+    }
+
+    const driver = await this.userAuthService.getDriverForAuth(user.id);
+    if (!driver) throw new NotFoundException('Driver Not Found');
+
     const order = await this._getOrderOrThrow(orderId);
     order.markRejectedByDriver(driver);
     const orderRecord = OrderMapper.toOrmEntity(order);
@@ -67,7 +105,14 @@ export class DriverOrderService {
   }
 
   // used
-  async pickupOrder(orderId: string, driver: DriverEntity): Promise<void> {
+  async pickupOrder(orderId: string, user: UserQueryProjection): Promise<void> {
+    if (user.role !== UserRole.Delivery) {
+      throw new ForbiddenException('Invalid request');
+    }
+
+    const driver = await this.userAuthService.getDriverForAuth(user.id);
+    if (!driver) throw new NotFoundException('Driver Not Found');
+
     const order = await this._getOrderOrThrow(orderId);
     order.markPickedUp(driver);
     const orderRecord = OrderMapper.toOrmEntity(order);
@@ -75,7 +120,17 @@ export class DriverOrderService {
   }
 
   // used
-  async completeDelivery(orderId: string, driver: DriverEntity): Promise<void> {
+  async completeDelivery(
+    orderId: string,
+    user: UserQueryProjection,
+  ): Promise<void> {
+    if (user.role !== UserRole.Delivery) {
+      throw new ForbiddenException('Invalid request');
+    }
+
+    const driver = await this.userAuthService.getDriverForAuth(user.id);
+    if (!driver) throw new NotFoundException('Driver Not Found');
+
     const order = await this._getOrderOrThrow(orderId);
     order.markDelivered(driver);
     const orderRecord = OrderMapper.toOrmEntity(order);

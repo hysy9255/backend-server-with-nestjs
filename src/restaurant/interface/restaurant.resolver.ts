@@ -3,13 +3,14 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { RestaurantService } from '../application/service/restaurant.service';
 import { OwnerEntity } from 'src/user/domain/owner.entity';
-import { AuthOwner } from 'src/auth/auth-owner.decorator';
 import { Role } from 'src/auth/role.decorator';
 import {
   CreateRestaurantInput,
   GetRestaurantInput,
 } from './dtos/restaurant-inputs.dto';
 import { RestaurantSummaryDTO } from './dtos/restaurant-outputs.dto';
+import { AuthUser } from 'src/auth/auth-user.decorator';
+import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
 
 @Resolver()
 export class RestaurantResolver {
@@ -19,10 +20,11 @@ export class RestaurantResolver {
   @Mutation(() => Boolean)
   @Role(['Owner'])
   async createRestaurant(
-    @AuthOwner() owner: OwnerEntity,
+    // @AuthOwner() owner: OwnerEntity,
+    @AuthUser() user: UserQueryProjection,
     @Args('input') createRestaurantInput: CreateRestaurantInput,
   ): Promise<boolean> {
-    await this.restaurantService.createRestaurant(owner, createRestaurantInput);
+    await this.restaurantService.createRestaurant(user, createRestaurantInput);
     return true;
   }
 

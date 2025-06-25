@@ -89,7 +89,7 @@ import { DriverOrmEntity } from './user/infrastructure/orm-entities/driver.orm.e
     OrderModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [JwtMiddleWare],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

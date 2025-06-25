@@ -17,10 +17,10 @@ async function bootstrap() {
 
   const userAuthService = app.get(UserAuthService);
 
-  app.use((req, res, next) => {
-    req['userAuthService'] = userAuthService;
-    next();
-  });
+  // app.use((req, res, next) => {
+  //   req['userAuthService'] = userAuthService;
+  //   next();
+  // });
 
   if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()

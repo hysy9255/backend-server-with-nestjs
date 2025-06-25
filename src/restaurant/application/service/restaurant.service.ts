@@ -10,6 +10,8 @@ import {
 } from '../../infrastructure/repositories/query/retaurant-query.repository.interface';
 import { CreateRestaurantInput } from 'src/restaurant/interface/dtos/restaurant-inputs.dto';
 import { UserService } from 'src/user/application/service/user.service';
+import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
+import { UserAuthService } from 'src/user/application/service/user-auth.service';
 
 @Injectable()
 export class RestaurantService {
@@ -19,13 +21,24 @@ export class RestaurantService {
     @Inject('IRestaurantQueryRepository')
     private readonly restaurantQryRepo: IRestaurantQueryRepository,
     private readonly userService: UserService,
+    private readonly userAuthService: UserAuthService,
   ) {}
 
   // used
   async createRestaurant(
-    owner: OwnerEntity,
+    user: UserQueryProjection,
     { name, address, category }: CreateRestaurantInput,
   ) {
+    if (user.role !== 'Owner') {
+      throw new BadRequestException('Invalid requeset');
+    }
+
+    const owner = await this.userAuthService.getOwnerForAuth(user.id);
+
+    if (!owner) {
+      throw new BadRequestException('Owner not found');
+    }
+
     const restaurant = RestaurantRegistrationService.register(
       owner,
       name,
