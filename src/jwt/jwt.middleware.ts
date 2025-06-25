@@ -41,6 +41,8 @@ export class JwtMiddleWare implements NestMiddleware {
           throw new UnauthorizedException('Unauthorized');
         }
 
+        // console.log('user from middleware:', user);
+
         req['user'] = user;
       }
     } catch (e) {

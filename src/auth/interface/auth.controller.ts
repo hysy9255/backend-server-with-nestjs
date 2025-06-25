@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 
 import { AuthService } from '../application/auth.service';
 import { LoginInput, LoginOutput } from './dtos/Login.dto';
@@ -13,6 +13,7 @@ export class AuthController {
   @ApiBody({ type: LoginInput })
   @ApiResponse({ type: LoginOutput })
   @Post('login')
+  @HttpCode(200)
   @Role(['Any'])
   login(@Body() loginInput: LoginInput): Promise<LoginOutput> {
     return this.authService.login(loginInput);

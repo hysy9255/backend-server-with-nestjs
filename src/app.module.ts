@@ -28,10 +28,20 @@ import { DriverOrmEntity } from './user/infrastructure/orm-entities/driver.orm.e
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV === 'development.local'
-          ? '.env.development.local'
-          : '.env.production.local',
+      envFilePath: (() => {
+        switch (process.env.NODE_ENV) {
+          case 'development.local':
+            return '.env.development.local';
+          case 'test.local':
+            return '.env.test.local';
+          case 'production.local':
+          default:
+            return '.env.production.local';
+        }
+      })(),
+      // process.env.NODE_ENV === 'development.local'
+      //   ? '.env.development.local'
+      //   : '.env.production.local',
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -69,7 +79,7 @@ import { DriverOrmEntity } from './user/infrastructure/orm-entities/driver.orm.e
         OrderDriverRejectionOrmEntity,
         // OrderOwnerRejectionOrmEntity,
       ],
-      synchronize: true,
+      synchronize: false,
     }),
     UserModule,
     JwtModule,

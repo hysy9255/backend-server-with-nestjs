@@ -5,7 +5,7 @@ import {
   CreateOwnerInput,
 } from '../../interface/dtos/CreateUser.dto';
 import { ChangePasswordInput } from '../../interface/dtos/ChangePassword.dto';
-import { ERROR_MESSAGES } from 'src/constants/errorMessages';
+// import { ERROR_MESSAGES } from 'src/constants/errorMessages';
 import { UserEntity } from '../../domain/user.entity';
 import { UserMapper } from './mapper/user.mapper';
 import { DriverEntity } from '../../domain/driver.entity';
@@ -19,6 +19,7 @@ import { IUserCommandRepository } from 'src/user/infrastructure/repositories/com
 import { IDriverCommandRepository } from 'src/user/infrastructure/repositories/command/driver-command.repository.interface';
 import { ICustomerCommandRepository } from 'src/user/infrastructure/repositories/command/customer-command.repository.interface';
 import { IOwnerCommandRepository } from 'src/user/infrastructure/repositories/command/owner-command.repository.interface';
+import { ERROR_MESSAGES } from 'src/constants/errorMessages';
 
 @Injectable()
 export class UserService {

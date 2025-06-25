@@ -39,6 +39,7 @@ export class RestaurantController {
     @AuthOwner() owner: OwnerEntity,
     @Body() createRestaurantInput: CreateRestaurantInput,
   ): Promise<boolean> {
+    console.log('owner from controller: ', owner);
     await this.restaurantService.createRestaurant(owner, createRestaurantInput);
     return true;
   }
