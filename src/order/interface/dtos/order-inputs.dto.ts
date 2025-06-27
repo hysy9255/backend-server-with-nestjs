@@ -5,12 +5,16 @@ import { IsNotEmpty, IsString } from 'class-validator';
 @InputType()
 export class OrderActionInput {
   @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
   orderId: string;
 }
 
 @InputType()
 export class GetOrderInput {
   @Field(() => String)
+  @IsNotEmpty()
+  @IsString()
   orderId: string;
 }
 

@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OrderMapper } from './mapper/order.mapper';
-import { DriverEntity } from 'src/user/domain/driver.entity';
 import { OrderEntity } from '../../domain/order.entity';
 import { OrderDriverRejectionOrmEntity } from '../../infrastructure/orm-entities/order-driver-rejection.orm';
 import { IOrderCommandRepository } from '../../infrastructure/repositories/command/order-command.repository.interface';
@@ -30,7 +29,6 @@ export class DriverOrderService {
 
   // used
   async getOrdersForDriver(
-    // driver: DriverEntity,
     user: UserQueryProjection,
   ): Promise<DriverOrderSummaryProjection[]> {
     if (user.role !== UserRole.Delivery) {
@@ -47,7 +45,6 @@ export class DriverOrderService {
 
   // used
   async getOrderForDriver(
-    // driver: DriverEntity,
     user: UserQueryProjection,
     orderId: string,
   ): Promise<DriverOrderSummaryProjection> {
@@ -70,7 +67,7 @@ export class DriverOrderService {
   // used
   async acceptOrder(
     orderId: string,
-    // driver: DriverEntity,
+
     user: UserQueryProjection,
   ): Promise<void> {
     if (user.role !== UserRole.Delivery) {

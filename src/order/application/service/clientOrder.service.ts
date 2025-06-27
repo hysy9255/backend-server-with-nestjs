@@ -7,7 +7,6 @@ import {
 import { RestaurantService } from 'src/restaurant/application/service/restaurant.service';
 import { OrderEntity } from '../../domain/order.entity';
 import { OrderMapper } from './mapper/order.mapper';
-import { CustomerEntity } from 'src/user/domain/customer.entity';
 import { IOrderCommandRepository } from '../../infrastructure/repositories/command/order-command.repository.interface';
 import { IOrderQueryRepository } from '../../infrastructure/repositories/query/order-query.repository.interface';
 import {
@@ -83,7 +82,6 @@ export class ClientOrderService {
 
   // used
   async getOrderHistory(
-    // customer: CustomerEntity,
     user: UserQueryProjection,
   ): Promise<ClientOrderPreviewProjection[]> {
     if (user.role !== UserRole.Client) {
@@ -100,7 +98,6 @@ export class ClientOrderService {
 
   // used
   async getOnGoingOrder(
-    // customer: CustomerEntity,
     user: UserQueryProjection,
   ): Promise<ClientOrderSummaryProjection> {
     if (user.role !== UserRole.Client) {

@@ -1,0 +1,195 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import * as request from 'supertest';
+import { App } from 'supertest/types';
+import { AppModule } from '../src/app.module';
+import { DataSource } from 'typeorm';
+
+describe('AppController (e2e)', () => {
+  let app: INestApplication<App>;
+  const password = 'password123';
+
+  afterAll(async () => {
+    const dataSource = app.get(DataSource);
+    await dataSource.destroy();
+    await app.close();
+  });
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true, // dto에 없는 값 제거
+        forbidNonWhitelisted: true, // dto에 정의되지 않은 값이 있으면 에러
+        transform: true, // payload 자동 변환
+      }),
+    );
+
+    await app.init();
+  });
+
+  afterEach(async () => {
+    const dataSource = app.get(DataSource);
+    await dataSource.query(`DELETE FROM "driver"`);
+    await dataSource.query(`DELETE FROM "owner"`);
+    await dataSource.query(`DELETE FROM "customer"`);
+    await dataSource.query(`DELETE FROM "user"`); //
+  });
+
+  describe('User sign up', () => {
+    it('should sign up a new owner', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/user/owner')
+        .send({
+          email: 'owner@example.com',
+          password,
+          role: 'Owner',
+        })
+        .expect(201);
+
+      expect(res.text).toBe('true'); // ✅ correct way
+    });
+
+    it('should sign up a new customer', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/user/customer')
+        .send({
+          email: 'client@example.com',
+          password,
+          role: 'Client',
+          deliveryAddress: '123 Main St, City, Country',
+        })
+        .expect(201);
+
+      // expect(res.text).toBe('true'); // ✅ correct way
+    });
+
+    it('should sign up a new driver', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/api/user/driver')
+        .send({
+          email: 'driver@example.com',
+          password,
+          role: 'Delivery',
+        })
+        .expect(201);
+
+      expect(res.text).toBe('true'); // ✅ correct way
+    });
+  });
+
+  describe('User login', () => {
+    it('should log in the owner and return access token', async () => {
+      await request(app.getHttpServer()).post('/api/user/owner').send({
+        email: 'owner@example.com',
+        password,
+        role: 'Owner',
+      });
+
+      const res = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({
+          email: 'owner@example.com',
+          password,
+        })
+        .expect(200);
+
+      expect(res.body).toHaveProperty('token');
+    });
+
+    it('should log in the customer and return access token', async () => {
+      await request(app.getHttpServer()).post('/api/user/customer').send({
+        email: 'client@example.com',
+        password,
+        deliveryAddress: '123 Main St, City, Country',
+        role: 'Client',
+      });
+
+      const res = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({
+          email: 'client@example.com',
+          password,
+        })
+        .expect(200);
+
+      expect(res.body).toHaveProperty('token');
+    });
+
+    it('should log in the driver and return access token', async () => {
+      await request(app.getHttpServer()).post('/api/user/driver').send({
+        email: 'driver@example.com',
+        password,
+        role: 'Delivery',
+      });
+
+      const res = await request(app.getHttpServer())
+        .post('/api/auth/login')
+        .send({
+          email: 'driver@example.com',
+          password,
+        })
+        .expect(200);
+
+      expect(res.body).toHaveProperty('token');
+    });
+  });
+
+  // it('should log in the owner and return access token', async () => {
+  //   const res = await request(app.getHttpServer())
+  //     .post('/api/auth/login')
+  //     .send({
+  //       email: 'owner@example.com',
+  //       password,
+  //     })
+  //     .expect(200);
+
+  //   expect(res.body).toHaveProperty('token');
+  //   ownerToken = res.body.token; // Store the token for further tests
+  // });
+
+  // it('should log in the customer and return access token', async () => {
+  //   const res = await request(app.getHttpServer())
+  //     .post('/api/auth/login')
+  //     .send({
+  //       email: 'client@example.com',
+  //       password,
+  //     })
+  //     .expect(200);
+
+  //   expect(res.body).toHaveProperty('token');
+  //   customerToken = res.body.token; // Store the token for further tests
+  // });
+
+  // it('should log in the driver and return access token', async () => {
+  //   const res = await request(app.getHttpServer())
+  //     .post('/api/auth/login')
+  //     .send({
+  //       email: 'driver@example.com',
+  //       password,
+  //     })
+  //     .expect(200);
+
+  //   expect(res.body).toHaveProperty('token');
+  //   driverToken = res.body.token; // Store the token for further tests
+  // });
+
+  // it('should create restaurant with owner token', async () => {
+  //   const res = await request(app.getHttpServer())
+  //     .post('/api/restaurant')
+  //     .set('jwt-token', ownerToken) // 💡 토큰 추가
+  //     .send({
+  //       name: 'Test Restaurant',
+  //       address: '456 Elm St, City, Country',
+  //       category: 'Italian',
+  //     })
+  //     .expect(201);
+  //   // expect(res.body).toHaveProperty('token');
+  //   // driverToken = res.body.token; // Store the token for further tests
+  // });
+});

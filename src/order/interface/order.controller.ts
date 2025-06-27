@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Param, Patch, Post, Req } from '@nestjs/common';
-import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { Role } from 'src/auth/role.decorator';
 import {
   ApiBody,
@@ -10,8 +9,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ClientOrderService } from '../application/service/clientOrder.service';
-
-import { CustomerEntity } from 'src/user/domain/customer.entity';
 import {
   CreateOrderInput,
   GetOrderInput,
@@ -20,13 +17,12 @@ import {
 import { GetRestaurantInput } from 'src/restaurant/interface/dtos/restaurant-inputs.dto';
 import { OwnerOrderService } from '../application/service/ownerOrder.service';
 import { DriverOrderService } from '../application/service/driverOrder.service';
-import { DriverEntity } from 'src/user/domain/driver.entity';
 import {
   RestClientOrderPreviewDTO,
   RestClientOrderSummaryDTO,
   RestDriverOrderSummaryDTO,
   RestOwnerOrderSummaryDTO,
-} from './dtos/order-output.rest.dto';
+} from './dtos/rest/order-output.rest.dto';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
 
@@ -46,7 +42,6 @@ export class ClientOrderController {
   @Post('order')
   @Role(['Client'])
   async createOrder(
-    // @AuthCustomer() customer: CustomerEntity,
     @AuthUser() user: UserQueryProjection,
     @Body() createOrderInput: CreateOrderInput,
   ): Promise<boolean> {
@@ -63,7 +58,6 @@ export class ClientOrderController {
   @Get('on-going-order')
   @Role(['Client'])
   async getOnGoingOrderForClient(
-    // @AuthCustomer() customer: CustomerEntity,
     @AuthUser() user: UserQueryProjection,
   ): Promise<RestClientOrderSummaryDTO> {
     return new RestClientOrderSummaryDTO(
@@ -94,7 +88,6 @@ export class ClientOrderController {
   @Get('order/:id')
   @Role(['Client'])
   async getOrderForClient(
-    // @AuthCustomer() customer: CustomerEntity,
     @AuthUser() user: UserQueryProjection,
     @Param('id') orderId: GetRestaurantInput['id'],
   ): Promise<RestClientOrderSummaryDTO> {
@@ -119,7 +112,6 @@ export class OwnerOrderController {
   @Get('orders')
   @Role(['Owner'])
   async getOrdersForOwner(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
   ): Promise<RestOwnerOrderSummaryDTO[]> {
     const orders = await this.ownerOrderService.getOrders(user);
@@ -136,7 +128,6 @@ export class OwnerOrderController {
   @Get('order/:id')
   @Role(['Owner'])
   async getOrderForOwner(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
     @Param('id') orderId: GetOrderInput['orderId'],
   ): Promise<RestOwnerOrderSummaryDTO> {
@@ -154,9 +145,8 @@ export class OwnerOrderController {
   @Patch('order/:id/accept')
   @Role(['Owner'])
   async acceptOrderByOwner(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
-    @Param('id') orderId: OrderActionInput['orderId'],
+    @Param('id') { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.ownerOrderService.acceptOrder(orderId, user);
     return true;
@@ -172,9 +162,8 @@ export class OwnerOrderController {
   @Patch('order/:id/reject')
   @Role(['Owner'])
   async rejectOrderByOwner(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
-    @Param('id') orderId: OrderActionInput['orderId'],
+    @Param('id') { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.ownerOrderService.rejectOrder(orderId, user);
     return true;
@@ -190,9 +179,8 @@ export class OwnerOrderController {
   @Patch('order/:id/mark-ready')
   @Role(['Owner'])
   async markOrderAsReadyByOwner(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
-    @Param('id') orderId: OrderActionInput['orderId'],
+    @Param('id') { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.ownerOrderService.markOrderAsReady(orderId, user);
     return true;
@@ -214,7 +202,6 @@ export class DriverOrderController {
   @Get('orders')
   @Role(['Delivery'])
   async getOrdersForDriver(
-    // @AuthDriver() driver: DriverEntity,
     @AuthUser() user: UserQueryProjection,
   ): Promise<RestDriverOrderSummaryDTO[]> {
     const orders = await this.driverOrderService.getOrdersForDriver(user);
@@ -231,7 +218,6 @@ export class DriverOrderController {
   @Get('order/:id')
   @Role(['Delivery'])
   async getOrderForDriver(
-    // @AuthDriver() driver: DriverEntity,
     @AuthUser() user: UserQueryProjection,
     @Param('id') orderId: GetOrderInput['orderId'],
   ): Promise<RestDriverOrderSummaryDTO> {
@@ -252,9 +238,8 @@ export class DriverOrderController {
   @Post('order/:id/accept')
   @Role(['Delivery'])
   async acceptOrderByDriver(
-    // @AuthDriver() driver: DriverEntity,
     @AuthUser() user: UserQueryProjection,
-    @Param('id') orderId: OrderActionInput['orderId'],
+    @Param('id') { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.acceptOrder(orderId, user);
     return true;
@@ -271,7 +256,7 @@ export class DriverOrderController {
   @Role(['Delivery'])
   async rejectOrderByDriver(
     @AuthUser() user: UserQueryProjection,
-    @Param('id') orderId: OrderActionInput['orderId'],
+    @Param('id') { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.rejectOrder(orderId, user);
     return true;
@@ -288,7 +273,7 @@ export class DriverOrderController {
   @Role(['Delivery'])
   async pickUpOrderByDriver(
     @AuthUser() user: UserQueryProjection,
-    @Param('id') orderId: OrderActionInput['orderId'],
+    @Param('id') { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.pickupOrder(orderId, user);
     return true;
@@ -305,7 +290,7 @@ export class DriverOrderController {
   @Role(['Delivery'])
   async completeDelivery(
     @AuthUser() user: UserQueryProjection,
-    @Param('id') orderId: OrderActionInput['orderId'],
+    @Param('id') { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.completeDelivery(orderId, user);
     return true;

@@ -5,7 +5,7 @@ import {
   IClientOrderSummaryDTO,
   IDriverOrderSummaryDTO,
   IOwnerOrderSummaryDTO,
-} from './order-output.dto.interface';
+} from '../order-output.dto.interface';
 import {
   ClientOrderPreviewProjection,
   ClientOrderSummaryProjection,

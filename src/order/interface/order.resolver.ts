@@ -1,11 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ClientOrderService } from '../application/service/clientOrder.service';
-import { CustomerEntity } from 'src/user/domain/customer.entity';
-
-import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { OwnerOrderService } from '../application/service/ownerOrder.service';
 import { DriverOrderService } from '../application/service/driverOrder.service';
-import { DriverEntity } from 'src/user/domain/driver.entity';
 import { Role } from 'src/auth/role.decorator';
 import {
   CreateOrderInput,
@@ -17,7 +13,7 @@ import {
   GqlClientOrderSummaryDTO,
   GqlDriverOrderSummaryDTO,
   GqlOwnerOrderSummaryDTO,
-} from './dtos/order-output.gql.dto';
+} from './dtos/graphql/order-output.gql.dto';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
 
@@ -29,7 +25,6 @@ export class ClientOrderResolver {
   @Mutation(() => Boolean)
   @Role(['Client'])
   async createOrder(
-    // @AuthCustomer() customer: CustomerEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') createOrderInput: CreateOrderInput,
   ): Promise<boolean> {
@@ -41,7 +36,6 @@ export class ClientOrderResolver {
   @Query(() => GqlClientOrderSummaryDTO)
   @Role(['Client'])
   async getOnGoingOrderForClient(
-    // @AuthCustomer() customer: CustomerEntity,
     @AuthUser() user: UserQueryProjection,
   ): Promise<GqlClientOrderSummaryDTO> {
     return new GqlClientOrderSummaryDTO(
@@ -53,10 +47,8 @@ export class ClientOrderResolver {
   @Query(() => [GqlClientOrderPreviewDTO])
   @Role(['Client'])
   async getOrderHistoryForClient(
-    // @AuthCustomer() customer: CustomerEntity,
     @AuthUser() user: UserQueryProjection,
   ): Promise<GqlClientOrderPreviewDTO[]> {
-    // return await this.clientOrderService.getOrderHistory(customer);
     const orders = await this.clientOrderService.getOrderHistory(user);
     return orders.map((order) => new GqlClientOrderPreviewDTO(order));
   }
@@ -65,7 +57,6 @@ export class ClientOrderResolver {
   @Query(() => GqlClientOrderSummaryDTO)
   @Role(['Client'])
   async getOrderForClient(
-    // @AuthCustomer() customer: CustomerEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') { orderId }: GetOrderInput,
   ): Promise<GqlClientOrderSummaryDTO> {
@@ -83,22 +74,16 @@ export class OwnerOrderResolver {
   @Query(() => [GqlOwnerOrderSummaryDTO])
   @Role(['Owner'])
   async getOrdersForOwner(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
   ): Promise<GqlOwnerOrderSummaryDTO[]> {
-    // return await this.ownerOrderService.getOrders(owner);
     const orders = await this.ownerOrderService.getOrders(user);
     return orders.map((order) => new GqlOwnerOrderSummaryDTO(order));
-
-    // const orders = await this.ownerOrderService.getOrders(owner);
-    // return orders.map((order) => new OrderSummaryDTOForOwner(order));
   }
 
   // used
   @Query(() => GqlOwnerOrderSummaryDTO)
   @Role(['Owner'])
   async getOrderForOwner(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') { orderId }: GetOrderInput,
   ): Promise<GqlOwnerOrderSummaryDTO> {
@@ -110,7 +95,6 @@ export class OwnerOrderResolver {
   @Mutation(() => Boolean)
   @Role(['Owner'])
   async acceptOrderByOwner(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
@@ -122,7 +106,6 @@ export class OwnerOrderResolver {
   @Mutation(() => Boolean)
   @Role(['Owner'])
   async rejectOrderByOwner(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
@@ -134,7 +117,6 @@ export class OwnerOrderResolver {
   @Mutation(() => Boolean)
   @Role(['Owner'])
   async markOrderAsReadyByOwner(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
@@ -151,7 +133,6 @@ export class DriverOrderResolver {
   @Query(() => [GqlDriverOrderSummaryDTO])
   @Role(['Delivery'])
   async getOrdersForDriver(
-    // @AuthDriver() driver: DriverEntity,
     @AuthUser() user: UserQueryProjection,
   ): Promise<GqlDriverOrderSummaryDTO[]> {
     const orders = await this.driverOrderService.getOrdersForDriver(user);
@@ -162,7 +143,6 @@ export class DriverOrderResolver {
   @Query(() => GqlDriverOrderSummaryDTO)
   @Role(['Delivery'])
   async getOrderForDriver(
-    // @AuthDriver() driver: DriverEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') { orderId }: GetOrderInput,
   ): Promise<GqlDriverOrderSummaryDTO> {
@@ -177,7 +157,6 @@ export class DriverOrderResolver {
   @Mutation(() => Boolean)
   @Role(['Delivery'])
   async acceptOrderByDriver(
-    // @AuthDriver() driver: DriverEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
@@ -189,7 +168,6 @@ export class DriverOrderResolver {
   @Mutation(() => Boolean)
   @Role(['Delivery'])
   async rejectOrderByDriver(
-    // @AuthDriver() driver: DriverEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
@@ -201,7 +179,6 @@ export class DriverOrderResolver {
   @Mutation(() => Boolean)
   @Role(['Delivery'])
   async pickUpOrderByDriver(
-    // @AuthDriver() driver: DriverEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
@@ -213,7 +190,6 @@ export class DriverOrderResolver {
   @Mutation(() => Boolean)
   @Role(['Delivery'])
   async completeDelivery(
-    // @AuthDriver() driver: DriverEntity,
     @AuthUser() user: UserQueryProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {

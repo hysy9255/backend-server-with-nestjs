@@ -36,7 +36,6 @@ export class RestaurantController {
   @Post('restaurant')
   @Role(['Owner'])
   async createRestaurant(
-    // @AuthOwner() owner: OwnerEntity,
     @AuthUser() user: UserQueryProjection,
     @Body() createRestaurantInput: CreateRestaurantInput,
   ): Promise<boolean> {

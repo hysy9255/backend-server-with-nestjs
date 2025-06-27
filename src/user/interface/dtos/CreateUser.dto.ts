@@ -50,17 +50,6 @@ export class CreateDriverInput extends CreateUserInput {
   @ApiProperty({ example: 'Delivery', description: 'User role' })
   @Field(() => UserRole)
   @IsNotEmpty()
+  @IsEnum(UserRole)
   role: UserRole;
 }
-
-// @ObjectType()
-// export class CreateUserOutput {
-//   @Field(() => String)
-//   id: string;
-
-//   @Field(() => String)
-//   email: string;
-
-//   @Field(() => UserRole)
-//   role: UserRole;
-// }

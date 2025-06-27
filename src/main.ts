@@ -15,7 +15,7 @@ async function bootstrap() {
     }),
   );
 
-  const userAuthService = app.get(UserAuthService);
+  // const userAuthService = app.get(UserAuthService);
 
   // app.use((req, res, next) => {
   //   req['userAuthService'] = userAuthService;

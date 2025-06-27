@@ -18,7 +18,7 @@
     "test:watchAll": "NODE_ENV=test.local jest --watchAll",
     "test:cov": "NODE_ENV=test.local jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "NODE_ENV=test.local jest --config ./test/jest-e2e.json",
+    "test:e2e": "NODE_ENV=test.local jest --config ./test/jest-e2e.json --detectOpenHandles --runInBand",
     "test:verbose-cov-watchAll": "NODE_ENV=test.local jest --verbose --coverage --detectOpenHandles --watchAll"
   },
   "dependencies": {

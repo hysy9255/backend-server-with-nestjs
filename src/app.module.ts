@@ -93,13 +93,11 @@ import { DriverOrmEntity } from './user/infrastructure/orm-entities/driver.orm.e
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleWare).forRoutes(
-      { path: 'graphql', method: RequestMethod.POST },
-      { path: '/api/*path', method: RequestMethod.ALL },
-      // { path: '*', method: RequestMethod.ALL },
-      // { path: '*', method: RequestMethod.ALL },
-      // { path: '/graphql', method: RequestMethod.POST },
-      // { path: 'api/(.*)', method: RequestMethod.ALL }, // use regex-style matching
-    );
+    consumer
+      .apply(JwtMiddleWare)
+      .forRoutes(
+        { path: 'graphql', method: RequestMethod.POST },
+        { path: '/api/*path', method: RequestMethod.ALL },
+      );
   }
 }

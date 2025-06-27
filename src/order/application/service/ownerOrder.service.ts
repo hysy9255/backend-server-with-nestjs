@@ -29,7 +29,6 @@ export class OwnerOrderService {
 
   // used
   async getOrders(
-    // owner: OwnerEntity,
     user: UserQueryProjection,
   ): Promise<OwnerOrderSummaryProjection[]> {
     if (user.role !== UserRole.Owner) {
@@ -51,7 +50,6 @@ export class OwnerOrderService {
 
   // used
   async getOrder(
-    // owner: OwnerEntity,
     user: UserQueryProjection,
     orderId: string,
   ): Promise<OwnerOrderSummaryProjection> {
@@ -82,7 +80,7 @@ export class OwnerOrderService {
   // used
   async acceptOrder(
     orderId: string,
-    // owner: OwnerEntity,
+
     user: UserQueryProjection,
   ): Promise<void> {
     if (user.role !== UserRole.Owner) {
@@ -101,7 +99,7 @@ export class OwnerOrderService {
   // used
   async rejectOrder(
     orderId: string,
-    // owner: OwnerEntity,
+
     user: UserQueryProjection,
   ): Promise<void> {
     if (user.role !== UserRole.Owner) {
@@ -121,7 +119,7 @@ export class OwnerOrderService {
   // used
   async markOrderAsReady(
     orderId: string,
-    // owner: OwnerEntity,
+
     user: UserQueryProjection,
   ): Promise<void> {
     if (user.role !== UserRole.Owner) {
