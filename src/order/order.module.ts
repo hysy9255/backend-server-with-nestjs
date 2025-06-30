@@ -7,6 +7,7 @@ import { RestaurantModule } from 'src/restaurant/restaurant.module';
 import {
   ClientOrderResolver,
   DriverOrderResolver,
+  OrderSubscriptionResolver,
   OwnerOrderResolver,
 } from './interface/order.resolver';
 import { OwnerOrderService } from './application/service/ownerOrder.service';
@@ -21,6 +22,8 @@ import {
 import { OrderAccessPolicy } from './application/service/orderAccessPolicy';
 import { RestaurantQueryRepository } from 'src/restaurant/infrastructure/repositories/query/restaurant-query.repository';
 import { UserModule } from 'src/user/user.module';
+import { PubSub } from 'graphql-subscriptions';
+import { OrderEventPublisher } from './application/orderEventPublisher';
 
 @Module({
   imports: [RestaurantModule, UserModule],
@@ -53,6 +56,12 @@ import { UserModule } from 'src/user/user.module';
       },
       inject: [getDataSourceToken()],
     },
+    {
+      provide: 'PUB_SUB',
+      useValue: new PubSub(),
+    },
+    OrderSubscriptionResolver,
+    OrderEventPublisher,
     OrderAccessPolicy,
     ClientOrderService,
     OwnerOrderService,

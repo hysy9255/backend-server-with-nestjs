@@ -1,4 +1,4 @@
-import { OrderProjection } from '../../../infrastructure/repositories/command/order-command.repository';
+import { OrderRecord } from '../../../infrastructure/repositories/command/order-command.repository';
 import { OrderEntity } from '../../../domain/order.entity';
 import { OrderOrmEntity } from '../../../infrastructure/orm-entities/order.orm.entity';
 
@@ -14,7 +14,7 @@ export class OrderMapper {
     return record;
   }
 
-  static toDomain(projection: OrderProjection): OrderEntity {
+  static toDomain(projection: OrderRecord): OrderEntity {
     return OrderEntity.fromPersistance(
       projection.id,
       projection.status,

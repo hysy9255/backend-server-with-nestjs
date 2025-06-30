@@ -23,6 +23,12 @@ import { UserOrmEntity } from './user/infrastructure/orm-entities/user.orm.entit
 import { OwnerOrmEntity } from './user/infrastructure/orm-entities/owner.orm.entity';
 import { CustomerOrmEntity } from './user/infrastructure/orm-entities/customer.orm.entity';
 import { DriverOrmEntity } from './user/infrastructure/orm-entities/driver.orm.entity';
+import { GlobalApp } from './global-app';
+import { JwtService } from './jwt/jwt.service';
+import { UserService } from './user/application/service/user.service';
+import { UserAuthService } from './user/application/service/user-auth.service';
+import { Context } from 'graphql-ws';
+import { UserRole } from './constants/userRole';
 
 @Module({
   imports: [
@@ -39,28 +45,60 @@ import { DriverOrmEntity } from './user/infrastructure/orm-entities/driver.orm.e
             return '.env.production.local';
         }
       })(),
-      // process.env.NODE_ENV === 'development.local'
-      //   ? '.env.development.local'
-      //   : '.env.production.local',
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      context: ({ req }) => ({ req }),
-      // debug: false,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      // formatError: (error: GraphQLError): GraphQLFormattedError => {
-      //   const { message, locations, path, extensions } = error;
+      subscriptions: {
+        'graphql-ws': {
+          path: '/graphql',
+          onConnect: async (ctx: Context<any>) => {
+            const { connectionParams, extra } = ctx;
+            const token = connectionParams?.['jwt-token'] as string;
 
-      //   return {
-      //     message,
-      //     locations,
-      //     path,
-      //     extensions: {
-      //       ...extensions,
-      //       stacktrace: undefined, // ✂️ Remove stacktrace
-      //     },
-      //   };
-      // },
+            const jwtService = GlobalApp.get(JwtService) as JwtService;
+            const userAuthService = GlobalApp.get(
+              UserAuthService,
+            ) as UserAuthService;
+            const decoded = jwtService.verify(token);
+
+            const user = await userAuthService.findUserForMiddlewareById(
+              decoded['id'],
+            );
+
+            // let owner;
+            // let client;
+            // let driver;
+            // if (user?.role === UserRole.Owner) {
+            //   owner = await userSerivce.findOwnerById(user.id);
+            //   (ctx.extra as any).owner = owner;
+            // } else if (user?.role === UserRole.Client) {
+            //   client = await userService.findClientById(user.id);
+            //   (ctx.extra as any).client = client;
+            // } else if (user?.role === UserRole.Delivery) {
+            //   driver = await userSerivce.findDriverById(user.id);
+            //   (ctx.extra as any).driver = driver;
+            // }
+
+            console.log('user', user);
+            if (!user) throw new Error('Unauthorized');
+
+            (ctx.extra as any).user = user;
+          },
+        },
+      },
+      // context: ({ req }) => ({ req }),
+      context: ({ req, extra }) => {
+        if (extra) {
+          return extra;
+        }
+        // if (req) {
+        //   // ✅ for queries/mutations
+        //   return {
+        //     token: req.headers['jwt-token'],
+        //   };
+        // }
+      },
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',

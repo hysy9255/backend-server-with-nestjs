@@ -4,7 +4,7 @@ import { OrderOrmEntity } from 'src/order/infrastructure/orm-entities/order.orm.
 import { IOrderCommandRepository } from './order-command.repository.interface';
 import { OrderStatus } from 'src/constants/orderStatus';
 
-export class OrderProjection {
+export class OrderRecord {
   id: string;
   status: OrderStatus;
   customerId: string;
@@ -18,10 +18,10 @@ export class OrderCommandRepository implements IOrderCommandRepository {
   constructor(private readonly em: EntityManager) {}
 
   async save(order: OrderOrmEntity): Promise<void> {
-    this.em.save(order);
+    await this.em.save(order);
   }
 
-  async findOneById(orderId: string): Promise<OrderProjection | null> {
+  async findOneById(orderId: string): Promise<OrderRecord | null> {
     const result = this.em
       .createQueryBuilder()
       .select([

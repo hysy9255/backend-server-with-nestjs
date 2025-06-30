@@ -6,6 +6,7 @@ type BaseOrderProjection = {
   deliveryAddress: string;
   customerId: string;
   driverId: string | null;
+  ownerId: string;
   restaurantId: string;
   restaurantName: string;
 };

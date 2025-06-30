@@ -17,6 +17,8 @@ import { CreateOrderInput } from 'src/order/interface/dtos/order-inputs.dto';
 import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
 import { UserRole } from 'src/constants/userRole';
 import { UserAuthService } from 'src/user/application/service/user-auth.service';
+import { PubSub } from 'graphql-subscriptions';
+import { OrderEventPublisher } from '../orderEventPublisher';
 
 @Injectable()
 export class ClientOrderService {
@@ -27,6 +29,8 @@ export class ClientOrderService {
     @Inject('IOrderQueryRepository')
     private readonly orderQryRepo: IOrderQueryRepository,
     private readonly userAuthService: UserAuthService,
+    @Inject('PUB_SUB') private readonly pubSub: PubSub,
+    private readonly orderEventPublisher: OrderEventPublisher,
   ) {}
 
   // used
@@ -53,6 +57,8 @@ export class ClientOrderService {
     );
 
     await this.orderCmdRepo.save(OrderMapper.toOrmEntity(order));
+    // await this.pubSub.publish('NEW_ORDER', { hello: ' hihihi' });
+    await this.orderEventPublisher.broadcastNewOrder(order.id);
   }
 
   // used

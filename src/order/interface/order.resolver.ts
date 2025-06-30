@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { ClientOrderService } from '../application/service/clientOrder.service';
 import { OwnerOrderService } from '../application/service/ownerOrder.service';
 import { DriverOrderService } from '../application/service/driverOrder.service';
@@ -16,6 +16,84 @@ import {
 } from './dtos/graphql/order-output.gql.dto';
 import { AuthUser } from 'src/auth/auth-user.decorator';
 import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
+import { Inject } from '@nestjs/common';
+import { PubSub } from 'graphql-subscriptions';
+import {
+  ClientOrderSummaryProjection,
+  DriverOrderSummaryProjection,
+  OwnerOrderSummaryProjection,
+} from '../infrastructure/repositories/query/projections/order.projection';
+import { UserRole } from 'src/constants/userRole';
+import { shouldNotifySubscriber } from '../application/util/order-noti-filter';
+
+@Resolver()
+export class OrderSubscriptionResolver {
+  constructor(@Inject('PUB_SUB') private readonly pubSub: PubSub) {}
+
+  @Subscription((returns) => GqlOwnerOrderSummaryDTO, {
+    filter: (payload, variables, context) => {
+      // if (payload.order.ownerId === context.ownerId) {
+      //   return true;
+      // }
+
+      return true;
+    },
+    resolve: (data) => {
+      return new GqlOwnerOrderSummaryDTO(data.ownerOrderSummaryProjection);
+    },
+  })
+  newOrder() {
+    return this.pubSub.asyncIterableIterator('NEW_ORDER');
+  }
+
+  @Subscription(() => Boolean, {
+    filter: (payload, variables, context) => {
+      // if (payload.order.ownerId === context.ownerId) {
+      //   return true
+      // }
+      return true;
+    },
+    resolve: (data) => {
+      return data;
+    },
+  })
+  @Role(['Owner'])
+  orderUpdateForOwner() {
+    return this.pubSub.asyncIterableIterator('ORDER_UPDATE_FOR_OWNER');
+  }
+
+  @Subscription(() => Boolean, {
+    filter: (payload, variables, context) => {
+      // if (payload.order.customerId === context.customerId) {
+      //   return true
+      // }
+      return true;
+    },
+    resolve: (data) => {
+      return data;
+    },
+  })
+  @Role(['Client'])
+  orderUpdateForClient(@Args('orderId') orderId: string) {
+    return this.pubSub.asyncIterableIterator('ORDER_UPDATE_FOR_CLIENT');
+  }
+
+  @Subscription(() => Boolean, {
+    filter: (payload, variables, context) => {
+      // if (payload.order.driverId === context.driverId) {
+      //   return true
+      // }
+      return true;
+    },
+    resolve: (data) => {
+      return data;
+    },
+  })
+  @Role(['Delivery'])
+  orderUpdateForDriver(@Args('orderId') orderId: string) {
+    return this.pubSub.asyncIterableIterator('ORDER_UPDATE_FOR_DRIVER');
+  }
+}
 
 @Resolver()
 export class ClientOrderResolver {

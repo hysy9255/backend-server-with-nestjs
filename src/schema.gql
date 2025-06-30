@@ -143,3 +143,10 @@ input CreateOrderInput {
 input OrderActionInput {
   orderId: String!
 }
+
+type Subscription {
+  newOrder: GqlOwnerOrderSummaryDTO!
+  orderUpdateForOwner: Boolean!
+  orderUpdateForClient(orderId: String!): Boolean!
+  orderUpdateForDriver(orderId: String!): Boolean!
+}

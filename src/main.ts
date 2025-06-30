@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { UserAuthService } from './user/application/service/user-auth.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { GlobalApp } from './global-app';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -38,6 +39,13 @@ async function bootstrap() {
     SwaggerModule.setup('api-docs', app, document);
   }
 
+  app.enableCors({
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    credentials: true,
+  });
+
   await app.listen(process.env.PORT ?? 3002);
+
+  GlobalApp.setApp(app);
 }
 bootstrap();

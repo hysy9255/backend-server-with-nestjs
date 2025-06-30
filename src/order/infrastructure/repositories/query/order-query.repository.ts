@@ -93,9 +93,15 @@ export class OrderQueryRepository implements IOrderQueryRepository {
         'order.customerId AS "customerId"',
         'order.driverId AS "driverId"',
         'order.restaurantId AS "restaurantId"',
+        'restaurant.ownerId AS "ownerId"',
       ])
       .from('order', 'order')
       .leftJoin('customer', 'customer', 'customer.id = order.customerId')
+      .leftJoin(
+        'restaurant',
+        'restaurant',
+        'restaurant.id = order.restaurantId',
+      )
       .where('order.id = :id', { id })
       .getRawOne();
 
