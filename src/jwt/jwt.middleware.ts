@@ -8,7 +8,8 @@ import {
 import { NextFunction, Request, Response } from 'express';
 import { JWT_HEADER } from 'src/constants/header';
 import { JwtService } from './jwt.service';
-import { UserAuthService } from 'src/user/application/service/user-auth.service';
+import { UserAuthService } from 'src/user/application/service/user.auth.service';
+import { UserRole } from 'src/constants/userRole';
 
 @Injectable()
 export class JwtMiddleWare implements NestMiddleware {
@@ -34,14 +35,13 @@ export class JwtMiddleWare implements NestMiddleware {
           decoded['id'],
         );
 
-        if (!user) {
-          // console.warn(
-          //   `[JWT Middleware] No user found for decoded ID: ${decoded['id']}`,
-          // );
-          throw new UnauthorizedException('Unauthorized');
+        if (user.role === UserRole.Owner) {
+          req['userInfo'] = await this.userAuthService._getOwnerInfo(user.id);
+        } else if (user.role === UserRole.Client) {
+          req['userInfo'] = await this.userAuthService._getClientInfo(user.id);
+        } else if (user.role === UserRole.Driver) {
+          req['userInfo'] = await this.userAuthService._getDriverInfo(user.id);
         }
-
-        req['user'] = user;
       }
     } catch (e) {
       if (e instanceof HttpException) {

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { RestaurantService } from './application/service/restaurant.service';
+import { RestaurantService } from './application/service/restaurant.external.service';
 import { DataSource } from 'typeorm';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { RestaurantResolver } from './interface/restaurant.resolver';
@@ -7,6 +7,7 @@ import { RestaurantCommandRepository } from './infrastructure/repositories/comma
 import { RestaurantQueryRepository } from './infrastructure/repositories/query/restaurant-query.repository';
 import { UserModule } from 'src/user/user.module';
 import { RestaurantController } from './interface/restaurant.controller';
+import { RestaurantInternalService } from './application/service/restaurant.internal.service';
 
 @Module({
   imports: [UserModule],
@@ -26,9 +27,10 @@ import { RestaurantController } from './interface/restaurant.controller';
       inject: [getDataSourceToken()],
     },
     RestaurantService,
+    RestaurantInternalService,
     RestaurantResolver,
   ],
   controllers: [RestaurantController],
-  exports: [RestaurantService],
+  exports: [RestaurantInternalService],
 })
 export class RestaurantModule {}

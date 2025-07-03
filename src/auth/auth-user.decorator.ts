@@ -4,51 +4,25 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { UserAuthService } from 'src/user/application/service/user-auth.service';
-import { UserEntity } from 'src/user/domain/user.entity';
-import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
 import { ContextType } from '@nestjs/common';
-
-// export const AuthUser = createParamDecorator(
-//   async (_, context: ExecutionContext): Promise<UserEntity> => {
-//     const gqlContext = GqlExecutionContext.create(context).getContext();
-
-//     const userReadModel: UserQueryProjection = gqlContext['user'];
-//     const userAuthService: UserAuthService = gqlContext.req.userAuthService;
-
-//     const user = await userAuthService.getUserForAuth(userReadModel.id);
-//     if (!user) throw new ForbiddenException('User Not Found');
-
-//     return user;
-//   },
-// );
+import { UserInfoProjection } from 'src/user/infrastructure/repositories/query/user.info.projection';
 
 export const AuthUser = createParamDecorator(
-  async (_, context: ExecutionContext): Promise<UserQueryProjection> => {
-    let userReadModel: UserQueryProjection;
-    // let userAuthService: UserAuthService;
+  async (_, context: ExecutionContext): Promise<UserInfoProjection> => {
+    let userInfo: UserInfoProjection;
 
     if (context.getType() === ('graphql' as ContextType)) {
       const gqlContext = GqlExecutionContext.create(context).getContext();
-      userReadModel = gqlContext.req['user'];
-      // userAuthService = gqlContext.req.userAuthService;
+      userInfo = gqlContext.req['userInfo'];
     } else {
       const req = context.switchToHttp().getRequest();
-
-      userReadModel = req.user;
-      // userAuthService = req.userAuthService;
+      userInfo = req.userInfo;
     }
 
-    // console.log('userReadModel', userReadModel);
-
-    if (!userReadModel || !userReadModel.id) {
+    if (!userInfo) {
       throw new ForbiddenException('User not authenticated');
     }
 
-    return userReadModel;
-    // const user = await userAuthService.getUserForAuth(userReadModel.id);
-    // if (!user) throw new ForbiddenException('User not found');
-
-    // return user;
+    return userInfo;
   },
 );

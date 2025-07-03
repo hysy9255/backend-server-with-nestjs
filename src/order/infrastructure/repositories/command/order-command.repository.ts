@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { OrderOrmEntity } from 'src/order/infrastructure/orm-entities/order.orm.entity';
 import { IOrderCommandRepository } from './order-command.repository.interface';
@@ -7,7 +7,7 @@ import { OrderStatus } from 'src/constants/orderStatus';
 export class OrderRecord {
   id: string;
   status: OrderStatus;
-  customerId: string;
+  clientId: string;
   driverId?: string | null;
   restaurantId: string;
   rejectedDriverIds: string[];
@@ -21,13 +21,13 @@ export class OrderCommandRepository implements IOrderCommandRepository {
     await this.em.save(order);
   }
 
-  async findOneById(orderId: string): Promise<OrderRecord | null> {
+  async findOneById(orderId: string): Promise<OrderRecord> {
     const result = this.em
       .createQueryBuilder()
       .select([
         'order.id AS id',
         'order.status AS status',
-        'order.customerId AS "customerId"',
+        'order.clientId AS "clientId"',
         'order.driverId AS "driverId"',
         'order.restaurantId AS "restaurantId"',
         'array_remove(array_agg(ord.driverId), NULL) AS "rejectedDriverIds"',
@@ -38,6 +38,9 @@ export class OrderCommandRepository implements IOrderCommandRepository {
       .groupBy('order.id')
       .getRawOne();
 
+    if (!result) {
+      throw new NotFoundException('Order Not Found');
+    }
     return result;
   }
 }

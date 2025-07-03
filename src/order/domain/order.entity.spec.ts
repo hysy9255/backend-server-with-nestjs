@@ -1,6 +1,6 @@
 import { OrderEntity } from './order.entity';
 import { OrderStatus } from 'src/constants/orderStatus';
-import { CustomerEntity } from 'src/user/domain/customer.entity';
+import { CustomerEntity } from 'src/user/domain/client.entity';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { ConflictException, BadRequestException } from '@nestjs/common';
 

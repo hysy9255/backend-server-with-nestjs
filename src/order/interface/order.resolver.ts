@@ -1,145 +1,62 @@
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
-import { ClientOrderService } from '../application/service/clientOrder.service';
-import { OwnerOrderService } from '../application/service/ownerOrder.service';
-import { DriverOrderService } from '../application/service/driverOrder.service';
+import { ClientOrderService } from '../application/service/order.external.client.service';
+import { OwnerOrderService } from '../application/service/order.external.owner.service';
+import { DriverOrderService } from '../application/service/order.external.driver.service';
 import { Role } from 'src/auth/role.decorator';
 import {
   CreateOrderInput,
   GetOrderInput,
   OrderActionInput,
-} from './dtos/order-inputs.dto';
+} from './dtos/inputs/order-inputs.dto';
 import {
   GqlClientOrderPreviewDTO,
-  GqlClientOrderSummaryDTO,
-  GqlDriverOrderSummaryDTO,
-  GqlOwnerOrderSummaryDTO,
-} from './dtos/graphql/order-output.gql.dto';
+  GqlClientOrderDTO,
+  GqlDriverOrderDTO,
+  GqlOwnerOrderDTO,
+} from './dtos/outputs/graphql/order-output.dtos';
 import { AuthUser } from 'src/auth/auth-user.decorator';
-import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
-import { Inject } from '@nestjs/common';
-import { PubSub } from 'graphql-subscriptions';
-import {
-  ClientOrderSummaryProjection,
-  DriverOrderSummaryProjection,
-  OwnerOrderSummaryProjection,
-} from '../infrastructure/repositories/query/projections/order.projection';
-import { UserRole } from 'src/constants/userRole';
-import { shouldNotifySubscriber } from '../application/util/order-noti-filter';
-
-@Resolver()
-export class OrderSubscriptionResolver {
-  constructor(@Inject('PUB_SUB') private readonly pubSub: PubSub) {}
-
-  @Subscription((returns) => GqlOwnerOrderSummaryDTO, {
-    filter: (payload, variables, context) => {
-      // if (payload.order.ownerId === context.ownerId) {
-      //   return true;
-      // }
-
-      return true;
-    },
-    resolve: (data) => {
-      return new GqlOwnerOrderSummaryDTO(data.ownerOrderSummaryProjection);
-    },
-  })
-  newOrder() {
-    return this.pubSub.asyncIterableIterator('NEW_ORDER');
-  }
-
-  @Subscription(() => Boolean, {
-    filter: (payload, variables, context) => {
-      // if (payload.order.ownerId === context.ownerId) {
-      //   return true
-      // }
-      return true;
-    },
-    resolve: (data) => {
-      return data;
-    },
-  })
-  @Role(['Owner'])
-  orderUpdateForOwner() {
-    return this.pubSub.asyncIterableIterator('ORDER_UPDATE_FOR_OWNER');
-  }
-
-  @Subscription(() => Boolean, {
-    filter: (payload, variables, context) => {
-      // if (payload.order.customerId === context.customerId) {
-      //   return true
-      // }
-      return true;
-    },
-    resolve: (data) => {
-      return data;
-    },
-  })
-  @Role(['Client'])
-  orderUpdateForClient(@Args('orderId') orderId: string) {
-    return this.pubSub.asyncIterableIterator('ORDER_UPDATE_FOR_CLIENT');
-  }
-
-  @Subscription(() => Boolean, {
-    filter: (payload, variables, context) => {
-      // if (payload.order.driverId === context.driverId) {
-      //   return true
-      // }
-      return true;
-    },
-    resolve: (data) => {
-      return data;
-    },
-  })
-  @Role(['Delivery'])
-  orderUpdateForDriver(@Args('orderId') orderId: string) {
-    return this.pubSub.asyncIterableIterator('ORDER_UPDATE_FOR_DRIVER');
-  }
-}
+import { UserInfoProjection } from 'src/user/infrastructure/repositories/query/user.info.projection';
 
 @Resolver()
 export class ClientOrderResolver {
   constructor(private readonly clientOrderService: ClientOrderService) {}
 
-  // used
   @Mutation(() => Boolean)
   @Role(['Client'])
   async createOrder(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') createOrderInput: CreateOrderInput,
   ): Promise<boolean> {
-    await this.clientOrderService.createOrder(user, createOrderInput);
+    await this.clientOrderService.createOrder(userInfo, createOrderInput);
     return true;
   }
 
-  // used
-  @Query(() => GqlClientOrderSummaryDTO)
+  @Query(() => GqlClientOrderDTO)
   @Role(['Client'])
   async getOnGoingOrderForClient(
-    @AuthUser() user: UserQueryProjection,
-  ): Promise<GqlClientOrderSummaryDTO> {
-    return new GqlClientOrderSummaryDTO(
-      await this.clientOrderService.getOnGoingOrder(user),
-    );
+    @AuthUser() userInfo: UserInfoProjection,
+  ): Promise<GqlClientOrderDTO | null> {
+    const result = await this.clientOrderService.getOnGoing(userInfo);
+    return result ? new GqlClientOrderDTO(result) : null;
   }
 
-  // used
   @Query(() => [GqlClientOrderPreviewDTO])
   @Role(['Client'])
   async getOrderHistoryForClient(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
   ): Promise<GqlClientOrderPreviewDTO[]> {
-    const orders = await this.clientOrderService.getOrderHistory(user);
+    const orders = await this.clientOrderService.getHistory(userInfo);
     return orders.map((order) => new GqlClientOrderPreviewDTO(order));
   }
 
-  // used
-  @Query(() => GqlClientOrderSummaryDTO)
+  @Query(() => GqlClientOrderDTO)
   @Role(['Client'])
   async getOrderForClient(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') { orderId }: GetOrderInput,
-  ): Promise<GqlClientOrderSummaryDTO> {
-    return new GqlClientOrderSummaryDTO(
-      await this.clientOrderService.getOrderSummaryForClient(user, orderId),
+  ): Promise<GqlClientOrderDTO> {
+    return new GqlClientOrderDTO(
+      await this.clientOrderService.getOrder(userInfo, orderId),
     );
   }
 }
@@ -148,57 +65,52 @@ export class ClientOrderResolver {
 export class OwnerOrderResolver {
   constructor(private readonly ownerOrderService: OwnerOrderService) {}
 
-  // used
-  @Query(() => [GqlOwnerOrderSummaryDTO])
+  @Query(() => [GqlOwnerOrderDTO])
   @Role(['Owner'])
   async getOrdersForOwner(
-    @AuthUser() user: UserQueryProjection,
-  ): Promise<GqlOwnerOrderSummaryDTO[]> {
-    const orders = await this.ownerOrderService.getOrders(user);
-    return orders.map((order) => new GqlOwnerOrderSummaryDTO(order));
+    @AuthUser() userInfo: UserInfoProjection,
+  ): Promise<GqlOwnerOrderDTO[]> {
+    const orders = await this.ownerOrderService.getOrders(userInfo);
+    return orders.map((order) => new GqlOwnerOrderDTO(order));
   }
 
-  // used
-  @Query(() => GqlOwnerOrderSummaryDTO)
+  @Query(() => GqlOwnerOrderDTO)
   @Role(['Owner'])
   async getOrderForOwner(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') { orderId }: GetOrderInput,
-  ): Promise<GqlOwnerOrderSummaryDTO> {
-    const order = await this.ownerOrderService.getOrder(user, orderId);
-    return new GqlOwnerOrderSummaryDTO(order);
+  ): Promise<GqlOwnerOrderDTO> {
+    const order = await this.ownerOrderService.getOrder(userInfo, orderId);
+    return new GqlOwnerOrderDTO(order);
   }
 
-  // used
   @Mutation(() => Boolean)
   @Role(['Owner'])
   async acceptOrderByOwner(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
-    await this.ownerOrderService.acceptOrder(orderId, user);
+    await this.ownerOrderService.accept(orderId, userInfo);
     return true;
   }
 
-  // used
   @Mutation(() => Boolean)
   @Role(['Owner'])
   async rejectOrderByOwner(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
-    await this.ownerOrderService.rejectOrder(orderId, user);
+    await this.ownerOrderService.reject(orderId, userInfo);
     return true;
   }
 
-  // used
   @Mutation(() => Boolean)
   @Role(['Owner'])
   async markOrderAsReadyByOwner(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
-    await this.ownerOrderService.markOrderAsReady(orderId, user);
+    await this.ownerOrderService.markReady(orderId, userInfo);
     return true;
   }
 }
@@ -207,71 +119,66 @@ export class OwnerOrderResolver {
 export class DriverOrderResolver {
   constructor(private readonly driverOrderService: DriverOrderService) {}
 
-  // used
-  @Query(() => [GqlDriverOrderSummaryDTO])
-  @Role(['Delivery'])
+  @Query(() => [GqlDriverOrderDTO])
+  @Role(['Driver'])
   async getOrdersForDriver(
-    @AuthUser() user: UserQueryProjection,
-  ): Promise<GqlDriverOrderSummaryDTO[]> {
-    const orders = await this.driverOrderService.getOrdersForDriver(user);
-    return orders.map((order) => new GqlDriverOrderSummaryDTO(order));
+    @AuthUser() userInfo: UserInfoProjection,
+  ): Promise<GqlDriverOrderDTO[]> {
+    const orders = await this.driverOrderService.getOrders(userInfo);
+    return orders.map((order) => new GqlDriverOrderDTO(order));
   }
 
-  // used
-  @Query(() => GqlDriverOrderSummaryDTO)
-  @Role(['Delivery'])
+  @Query(() => GqlDriverOrderDTO)
+  @Role(['Driver'])
   async getOrderForDriver(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') { orderId }: GetOrderInput,
-  ): Promise<GqlDriverOrderSummaryDTO> {
-    const order = await this.driverOrderService.getOrderForDriver(
-      user,
-      orderId,
-    );
-    return new GqlDriverOrderSummaryDTO(order);
+  ): Promise<GqlDriverOrderDTO> {
+    const order = await this.driverOrderService.getOrder(userInfo, orderId);
+    return new GqlDriverOrderDTO(order);
   }
 
   // used
   @Mutation(() => Boolean)
-  @Role(['Delivery'])
+  @Role(['Driver'])
   async acceptOrderByDriver(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
-    await this.driverOrderService.acceptOrder(orderId, user);
+    await this.driverOrderService.accept(orderId, userInfo);
     return true;
   }
 
   // used
   @Mutation(() => Boolean)
-  @Role(['Delivery'])
+  @Role(['Driver'])
   async rejectOrderByDriver(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
-    await this.driverOrderService.rejectOrder(orderId, user);
+    await this.driverOrderService.reject(orderId, userInfo);
     return true;
   }
 
   // used
   @Mutation(() => Boolean)
-  @Role(['Delivery'])
+  @Role(['Driver'])
   async pickUpOrderByDriver(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
-    await this.driverOrderService.pickupOrder(orderId, user);
+    await this.driverOrderService.pickup(orderId, userInfo);
     return true;
   }
 
   // used
   @Mutation(() => Boolean)
-  @Role(['Delivery'])
+  @Role(['Driver'])
   async completeDelivery(
-    @AuthUser() user: UserQueryProjection,
+    @AuthUser() userInfo: UserInfoProjection,
     @Args('input') { orderId }: OrderActionInput,
   ): Promise<boolean> {
-    await this.driverOrderService.completeDelivery(orderId, user);
+    await this.driverOrderService.completeDelivery(orderId, userInfo);
     return true;
   }
 }

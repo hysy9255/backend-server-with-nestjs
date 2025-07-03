@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { UserAuthService } from './user/application/service/user-auth.service';
+import { UserAuthService } from './user/application/service/user.auth.service';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalApp } from './global-app';

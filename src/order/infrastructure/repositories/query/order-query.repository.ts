@@ -1,12 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { IOrderQueryRepository } from './order-query.repository.interface';
 import {
-  ClientOrderPreviewProjection,
-  ClientOrderSummaryProjection,
-  DriverOrderSummaryProjection,
-  OwnerOrderSummaryProjection,
-} from 'src/order/infrastructure/repositories/query/projections/order.projection';
+  OrderForClient,
+  OrderForDriver,
+  OrderForOwner,
+} from './projections/order.projection';
 
 @Injectable()
 export class OrderQueryRepository implements IOrderQueryRepository {
@@ -23,51 +22,20 @@ export class OrderQueryRepository implements IOrderQueryRepository {
     return result ? result : null;
   }
 
-  // used
-  async findSummaryForClient(
-    orderId: string,
-  ): Promise<ClientOrderSummaryProjection | null> {
+  async findOneForDriver(orderId: string): Promise<OrderForDriver> {
     const result = await this.em
       .createQueryBuilder()
       .select([
         'order.id AS id',
         'order.status AS status',
-        'customer.deliveryAddress AS "deliveryAddress"',
-        'order.customerId AS "customerId"',
+        'client.deliveryAddress AS "deliveryAddress"',
+        'client.id AS "clientId"',
         'order.driverId AS "driverId"',
         'order.restaurantId AS "restaurantId"',
         'restaurant.name AS "restaurantName"',
       ])
       .from('order', 'order')
-      .leftJoin('customer', 'customer', 'customer.id = order.customerId')
-      .leftJoin(
-        'restaurant',
-        'restaurant',
-        'restaurant.id = order.restaurantId',
-      )
-      .where('order.id = :id', { id: orderId })
-      .getRawOne<ClientOrderSummaryProjection>();
-
-    return result ? result : null;
-  }
-
-  // used
-  async findOrderSummaryForDriver(
-    orderId: string,
-  ): Promise<DriverOrderSummaryProjection | null> {
-    const result = await this.em
-      .createQueryBuilder()
-      .select([
-        'order.id AS id',
-        'order.status AS status',
-        'customer.deliveryAddress AS "deliveryAddress"',
-        'customer.id AS "customerId"',
-        'order.restaurantId AS "restaurantId"',
-        'restaurant.name AS "restaurantName"',
-        'order.driverId AS "driverId"',
-      ])
-      .from('order', 'order')
-      .leftJoin('customer', 'customer', 'customer.id = order.customerId')
+      .leftJoin('client', 'client', 'client.id = order.clientId')
       .leftJoin(
         'restaurant',
         'restaurant',
@@ -76,141 +44,24 @@ export class OrderQueryRepository implements IOrderQueryRepository {
       .where('order.id = :id', { id: orderId })
       .getRawOne();
 
-    // return result ? new OrderSummaryDTOForDriver(result) : result;
-    return result;
-  }
-
-  // used
-  async findOrderSummaryForOwner(
-    id: string,
-  ): Promise<OwnerOrderSummaryProjection | null> {
-    const result = await this.em
-      .createQueryBuilder()
-      .select([
-        'order.id AS id',
-        'order.status AS status',
-        'customer.deliveryAddress AS "deliveryAddress"',
-        'order.customerId AS "customerId"',
-        'order.driverId AS "driverId"',
-        'order.restaurantId AS "restaurantId"',
-        'restaurant.ownerId AS "ownerId"',
-      ])
-      .from('order', 'order')
-      .leftJoin('customer', 'customer', 'customer.id = order.customerId')
-      .leftJoin(
-        'restaurant',
-        'restaurant',
-        'restaurant.id = order.restaurantId',
-      )
-      .where('order.id = :id', { id })
-      .getRawOne();
-
-    return result;
-    // return result ? new OrderSummaryDTOForOwner(result) : null;
-    // return new OrderSummaryDTOForOwner(result);
-  }
-
-  // used
-  // getOrderHistoryForClient
-  async findDeliveredOrdersForCustomer(
-    customerId: string,
-  ): Promise<ClientOrderPreviewProjection[]> {
-    const result = await this.em
-      .createQueryBuilder()
-      .select([
-        'order.id AS id',
-        'order.status AS status',
-        'order.restaurantId AS "restaurantId"',
-        'restaurant.name AS "restaurantName"',
-      ])
-      .from('order', 'order')
-      .leftJoin(
-        'restaurant',
-        'restaurant',
-        'restaurant.id = order.restaurantId',
-      )
-      .where('order.customerId = :customerId AND order.status = :status', {
-        customerId,
-        status: 'Delivered',
-      })
-      .getRawMany();
-
-    // return result.map((order) => new OrderPreviewDTOForClient(order));
-    return result;
-  }
-
-  // used
-  // getCurrentOrderForClient
-  async findOnGoingOrderForClient(
-    customerId: string,
-  ): Promise<ClientOrderSummaryProjection | null> {
-    const result = await this.em
-      .createQueryBuilder()
-      .select([
-        'order.id AS id',
-        'order.status AS status',
-        'customer.deliveryAddress AS "deliveryAddress"',
-        'order.customerId AS "customerId"',
-        'order.driverId AS "driverId"',
-        'order.restaurantId AS "restaurantId"',
-        'restaurant.name AS "restaurantName"',
-      ])
-      .from('order', 'order')
-      .leftJoin('customer', 'customer', 'customer.id = order.customerId')
-      .leftJoin(
-        'restaurant',
-        'restaurant',
-        'restaurant.id = order.restaurantId',
-      )
-      .where('order.customerId = :customerId', { customerId })
-      .andWhere('order.status IN (:...statuses)', {
-        statuses: ['Pending', 'Accepted', 'Ready', 'PickedUp'],
-      })
-      .getRawOne();
+    if (!result) throw new NotFoundException('Order Not Found');
 
     return result;
   }
 
-  // used
-  //
-  async findOrderSummariesForOwner(
-    restaurantId: string,
-  ): Promise<OwnerOrderSummaryProjection[]> {
-    const result = await this.em
-      .createQueryBuilder()
-      .select([
-        'order.id AS id',
-        'order.status AS status',
-        'customer.deliveryAddress AS "deliveryAddress"',
-        'order.customerId AS "customerId"',
-        'order.driverId AS "driverId"',
-        'order.restaurantId AS "restaurantId"',
-      ])
-      .from('order', 'order')
-      .leftJoin('customer', 'customer', 'customer.id = order.customerId')
-      .where('order.restaurantId = :restaurantId', { restaurantId })
-      .getRawMany();
-
-    // return result.map((order) => new OrderSummaryDTOForOwner(order));
-    return result;
-  }
-
-  // used
-  async findAvailableOrdersForDriver(
-    driverId: string,
-  ): Promise<DriverOrderSummaryProjection[]> {
+  async findAvailableForDriver(driverId: string): Promise<OrderForDriver[]> {
     const result = await this.em
       .createQueryBuilder()
       .select([
         'order.id AS "id"',
         'order.status AS status',
-        'customer.deliveryAddress AS "deliveryAddress"',
-        'order.customerId AS "customerId"',
+        'client.deliveryAddress AS "deliveryAddress"',
+        'order.clientId AS "clientId"',
         'order.restaurantId AS "restaurantId"',
         'restaurant.name AS "restaurantName"',
       ])
       .from('order', 'order')
-      .leftJoin('customer', 'customer', 'customer.id = order.customerId')
+      .leftJoin('client', 'client', 'client.id = order.clientId')
       .leftJoin(
         'restaurant',
         'restaurant',
@@ -228,7 +79,135 @@ export class OrderQueryRepository implements IOrderQueryRepository {
       .andWhere('odr.id IS NULL')
       .getRawMany();
 
-    // return result.map((order) => new OrderSummaryDTOForDriver(order));
+    return result;
+  }
+
+  async findOneForOwner(id: string): Promise<OrderForOwner> {
+    const result = await this.em
+      .createQueryBuilder()
+      .select([
+        'order.id AS id',
+        'order.status AS status',
+        'client.deliveryAddress AS "deliveryAddress"',
+        'order.clientId AS "clientId"',
+        'order.driverId AS "driverId"',
+        'order.restaurantId AS "restaurantId"',
+        'restaurant.ownerId AS "ownerId"',
+      ])
+      .from('order', 'order')
+      .leftJoin('client', 'client', 'client.id = order.clientId')
+      .leftJoin(
+        'restaurant',
+        'restaurant',
+        'restaurant.id = order.restaurantId',
+      )
+      .where('order.id = :id', { id })
+      .getRawOne();
+
+    if (!result) {
+      throw new NotFoundException('Order Not Found');
+    }
+
+    return result;
+  }
+
+  async findManyForOwner(restaurantId: string): Promise<OrderForOwner[]> {
+    const result = await this.em
+      .createQueryBuilder()
+      .select([
+        'order.id AS id',
+        'order.status AS status',
+        'client.deliveryAddress AS "deliveryAddress"',
+        'order.clientId AS "clientId"',
+        'order.driverId AS "driverId"',
+        'order.restaurantId AS "restaurantId"',
+      ])
+      .from('order', 'order')
+      .leftJoin('client', 'client', 'client.id = order.clientId')
+      .where('order.restaurantId = :restaurantId', { restaurantId })
+      .getRawMany();
+
+    return result;
+  }
+
+  async findOneForClient(orderId: string): Promise<OrderForClient> {
+    const result = await this.em
+      .createQueryBuilder()
+      .select([
+        'order.id AS id',
+        'order.status AS status',
+        'client.deliveryAddress AS "deliveryAddress"',
+        'order.clientId AS "clientId"',
+        'order.driverId AS "driverId"',
+        'order.restaurantId AS "restaurantId"',
+        'restaurant.name AS "restaurantName"',
+      ])
+      .from('order', 'order')
+      .leftJoin('client', 'client', 'client.id = order.clientId')
+      .leftJoin(
+        'restaurant',
+        'restaurant',
+        'restaurant.id = order.restaurantId',
+      )
+      .where('order.id = :id', { id: orderId })
+      .getRawOne();
+
+    if (!result) throw new NotFoundException('Order Not Found');
+
+    return result;
+  }
+
+  async findDeliveredForClient(
+    clientId: string,
+  ): Promise<Partial<OrderForClient>[]> {
+    const result = await this.em
+      .createQueryBuilder()
+      .select([
+        'order.id AS id',
+        'order.status AS status',
+        'order.restaurantId AS "restaurantId"',
+        'restaurant.name AS "restaurantName"',
+      ])
+      .from('order', 'order')
+      .leftJoin(
+        'restaurant',
+        'restaurant',
+        'restaurant.id = order.restaurantId',
+      )
+      .where('order.clientId = :clientId AND order.status = :status', {
+        clientId: clientId,
+        status: 'Delivered',
+      })
+      .getRawMany();
+
+    return result;
+  }
+
+  async findOnGoingForClient(clientId: string): Promise<OrderForClient | null> {
+    const result = await this.em
+      .createQueryBuilder()
+      .select([
+        'order.id AS id',
+        'order.status AS status',
+        'client.deliveryAddress AS "deliveryAddress"',
+        'order.clientId AS "clientId"',
+        'order.driverId AS "driverId"',
+        'order.restaurantId AS "restaurantId"',
+        'restaurant.name AS "restaurantName"',
+      ])
+      .from('order', 'order')
+      .leftJoin('client', 'client', 'client.id = order.clientId')
+      .leftJoin(
+        'restaurant',
+        'restaurant',
+        'restaurant.id = order.restaurantId',
+      )
+      .where('order.clientId = :clientId', { clientId })
+      .andWhere('order.status IN (:...statuses)', {
+        statuses: ['Pending', 'Accepted', 'Ready', 'PickedUp'],
+      })
+      .getRawOne();
+
     return result;
   }
 }

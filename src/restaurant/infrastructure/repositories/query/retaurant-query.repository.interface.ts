@@ -1,12 +1,7 @@
-export class RestaurantQueryProjection {
-  id: string;
-  name: string;
-  address: string;
-  category: string;
-}
+import { Restaurant } from './projections/restaurant.projection';
 
 export interface IRestaurantQueryRepository {
   findOneById(restaurantId: string);
-  findSummary(restaurantId: string): Promise<RestaurantQueryProjection>;
-  findSummaries(): Promise<RestaurantQueryProjection[]>;
+  findOne(restaurantId: string): Promise<Restaurant | null>;
+  findMany(): Promise<Restaurant[]>;
 }

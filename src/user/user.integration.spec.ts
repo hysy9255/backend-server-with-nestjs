@@ -2,22 +2,22 @@
 import { Test } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { UserService } from './application/service/user.service';
+import { UserService } from './application/service/user.external.service';
 import { UserOrmEntity } from './infrastructure/orm-entities/user.orm.entity';
 import { OwnerOrmEntity } from './infrastructure/orm-entities/owner.orm.entity';
 import { UserModule } from './user.module';
-import { CreateOwnerInput } from './interface/dtos/CreateUser.dto';
+import { CreateOwnerInput } from './interface/dtos/create-user.dto';
 import { UserRole } from 'src/constants/userRole';
 import { ConfigModule } from '@nestjs/config';
 import { RestaurantOrmEntity } from 'src/restaurant/infrastructure/orm-entities/restaurant.orm.entity';
 import { OrderOrmEntity } from 'src/order/infrastructure/orm-entities/order.orm.entity';
-import { CustomerOrmEntity } from './infrastructure/orm-entities/customer.orm.entity';
+import { CustomerOrmEntity } from './infrastructure/orm-entities/client.orm.entity';
 import { DriverOrmEntity } from './infrastructure/orm-entities/driver.orm.entity';
 import { OrderDriverRejectionOrmEntity } from 'src/order/infrastructure/orm-entities/order-driver-rejection.orm';
-import { UserQueryRepository } from './infrastructure/repositories/query/user-query.repository';
-import { UserCommandRepository } from './infrastructure/repositories/command/user-command.repository';
+import { UserQueryRepository } from './infrastructure/repositories/query/user/user-query.repository';
+import { UserCommandRepository } from './infrastructure/repositories/command/user/user-command.repository';
 import { DriverCommandRepository } from './infrastructure/repositories/command/driver-command.repository';
-import { CustomerCommandRepository } from './infrastructure/repositories/command/customer-command.repository';
+import { CustomerCommandRepository } from './infrastructure/repositories/command/client-command.repository';
 import { OwnerCommandRepository } from './infrastructure/repositories/command/owner-command.repository';
 
 describe('UserModule Integration', () => {

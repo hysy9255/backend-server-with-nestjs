@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { AuthUser } from 'src/auth/auth-user.decorator';
-import { RestaurantService } from '../application/service/restaurant.service';
+import { RestaurantService } from '../application/service/restaurant.external.service';
 import {
   CreateRestaurantInput,
   GetRestaurantInput,
@@ -16,7 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { RestaurantSummaryDTO } from './dtos/restaurant-outputs.dto';
-import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
+import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user/user-query.repository.interface';
 
 @ApiTags('Restaurant')
 @ApiSecurity('jwt-token')
@@ -60,7 +60,7 @@ export class RestaurantController {
     @Param('id') restaurantId: GetRestaurantInput['id'],
   ): Promise<RestaurantSummaryDTO> {
     return new RestaurantSummaryDTO(
-      await this.restaurantService.getRestaurantSummaryById(restaurantId),
+      await this.restaurantService.getRestaurant(restaurantId),
     );
   }
 
@@ -73,7 +73,7 @@ export class RestaurantController {
   @Get('restaurants')
   @Role(['Any'])
   async getAllRestaurants(): Promise<RestaurantSummaryDTO[]> {
-    const restaurants = await this.restaurantService.getRestaurantSummaries();
+    const restaurants = await this.restaurantService.getRestaurants();
     return restaurants.map(
       (restaurant) => new RestaurantSummaryDTO(restaurant),
     );

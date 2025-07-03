@@ -1,6 +1,6 @@
 import { OrderStatus } from 'src/constants/orderStatus';
 import { RestaurantOrmEntity } from 'src/restaurant/infrastructure/orm-entities/restaurant.orm.entity';
-import { CustomerOrmEntity } from 'src/user/infrastructure/orm-entities/customer.orm.entity';
+import { ClientOrmEntity } from 'src/user/infrastructure/orm-entities/client.orm.entity';
 import { DriverOrmEntity } from 'src/user/infrastructure/orm-entities/driver.orm.entity';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
@@ -13,7 +13,7 @@ export class OrderOrmEntity {
   status: OrderStatus;
 
   @Column()
-  customerId: string;
+  clientId: string;
 
   @Column({ nullable: true })
   driverId?: string;
@@ -21,11 +21,11 @@ export class OrderOrmEntity {
   @Column()
   restaurantId: string;
 
-  @ManyToOne(() => CustomerOrmEntity, (customer) => customer.orders, {
+  @ManyToOne(() => ClientOrmEntity, (client) => client.orders, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'customerId' })
-  customer: CustomerOrmEntity;
+  @JoinColumn({ name: 'clientId' })
+  client: ClientOrmEntity;
 
   @ManyToOne(() => RestaurantOrmEntity, (restaurant) => restaurant.orders, {
     onDelete: 'CASCADE',

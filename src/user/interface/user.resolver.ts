@@ -1,11 +1,11 @@
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import {
-  CreateCustomerInput,
+  CreateClientInput,
   CreateDriverInput,
   CreateOwnerInput,
-} from './dtos/CreateUser.dto';
-import { UserService } from '../application/service/user.service';
-import { ChangePasswordInput } from './dtos/ChangePassword.dto';
+} from './dtos/create-user.dto';
+import { UserService } from '../application/service/user.external.service';
+import { ChangePasswordInput } from './dtos/change-password.dto';
 import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UserEntity } from '../domain/user.entity';
@@ -27,10 +27,10 @@ export class UserResolver {
 
   @Mutation(() => Boolean)
   @Role(['Any'])
-  async createCustomer(
-    @Args('input') createCustomerInput: CreateCustomerInput,
+  async createClient(
+    @Args('input') createClientInput: CreateClientInput,
   ): Promise<boolean> {
-    await this.userService.createCustomer(createCustomerInput);
+    await this.userService.createClient(createClientInput);
     return true;
   }
 

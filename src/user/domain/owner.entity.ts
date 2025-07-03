@@ -1,3 +1,4 @@
+import { ForbiddenException } from '@nestjs/common';
 import { OrderEntity } from 'src/order/domain/order.entity';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -20,6 +21,18 @@ export class OwnerEntity {
     restaurantId?: string,
   ): OwnerEntity {
     return new OwnerEntity(id, userId, restaurantId);
+  }
+
+  ensureHasRestaurant() {
+    if (!this._restaurantId) throw new Error('Does Not Own Restaurant Yet!');
+  }
+
+  ensureCanAccessOrderOf(order: OrderEntity) {
+    if (!this.canAccessOrderOf(order)) {
+      throw new ForbiddenException(
+        'This order does not belong to your restaurant',
+      );
+    }
   }
 
   // used

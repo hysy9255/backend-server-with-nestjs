@@ -1,44 +1,17 @@
 import {
-  ClientOrderPreviewProjection,
-  ClientOrderSummaryProjection,
-  DriverOrderSummaryProjection,
-  OwnerOrderSummaryProjection,
+  OrderForClient,
+  OrderForDriver,
+  OrderForOwner,
 } from './projections/order.projection';
 
+// prettier-ignore
 export interface IOrderQueryRepository {
   findOneById(orderId: string);
-
-  findSummaryForClient(
-    orderId: string,
-  ): Promise<ClientOrderSummaryProjection | null>;
-
-  // used
-  findDeliveredOrdersForCustomer(
-    customerId: string,
-  ): Promise<ClientOrderPreviewProjection[]>;
-
-  // used
-  findOnGoingOrderForClient(
-    customerId: string,
-  ): Promise<ClientOrderSummaryProjection | null>;
-
-  // used
-  findOrderSummariesForOwner(
-    restaurantId: string,
-  ): Promise<OwnerOrderSummaryProjection[]>;
-
-  // used
-  findOrderSummaryForOwner(
-    orderId: string,
-  ): Promise<OwnerOrderSummaryProjection | null>;
-
-  // used
-  findAvailableOrdersForDriver(
-    driverId: string,
-  ): Promise<DriverOrderSummaryProjection[]>;
-
-  // used
-  findOrderSummaryForDriver(
-    orderId: string,
-  ): Promise<DriverOrderSummaryProjection | null>;
+  findOneForClient(orderId: string): Promise<OrderForClient>;
+  findDeliveredForClient(clientId: string): Promise<Partial<OrderForClient>[]>;
+  findOnGoingForClient(clientId: string): Promise<OrderForClient | null>;
+  findManyForOwner(restaurantId: string): Promise<OrderForOwner[]>;
+  findOneForOwner(orderId: string): Promise<OrderForOwner>;
+  findAvailableForDriver(driverId: string): Promise<OrderForDriver[]>;
+  findOneForDriver(orderId: string): Promise<OrderForDriver>;
 }

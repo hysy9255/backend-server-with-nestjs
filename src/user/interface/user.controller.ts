@@ -1,11 +1,11 @@
 import { Body, Controller, Post, UseGuards, Req, Patch } from '@nestjs/common';
-import { UserService } from '../application/service/user.service';
+import { UserService } from '../application/service/user.external.service';
 import {
-  CreateCustomerInput,
+  CreateClientInput,
   CreateDriverInput,
   CreateOwnerInput,
-} from './dtos/CreateUser.dto';
-import { ChangePasswordInput } from './dtos/ChangePassword.dto';
+} from './dtos/create-user.dto';
+import { ChangePasswordInput } from './dtos/change-password.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { Role } from 'src/auth/role.decorator';
 import { AuthUser } from 'src/auth/auth-user.decorator';
@@ -29,14 +29,14 @@ export class UserController {
     return true;
   }
 
-  @ApiOperation({ summary: '[Any] Create a new customer' })
-  @ApiBody({ type: CreateCustomerInput })
-  @Post('customer')
+  @ApiOperation({ summary: '[Any] Create a new client' })
+  @ApiBody({ type: CreateClientInput })
+  @Post('client')
   @Role(['Any'])
-  async createCustomer(
-    @Body() createCustomerInput: CreateCustomerInput,
+  async createClient(
+    @Body() createClientInput: CreateClientInput,
   ): Promise<boolean> {
-    await this.userService.createCustomer(createCustomerInput);
+    await this.userService.createClient(createClientInput);
     return true;
   }
 

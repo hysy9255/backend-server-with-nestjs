@@ -1,16 +1,15 @@
 import { Module } from '@nestjs/common';
-import { ClientOrderService } from './application/service/clientOrder.service';
-import { DriverOrderService } from './application/service/driverOrder.service';
+import { ClientOrderService } from './application/service/order.external.client.service';
+import { DriverOrderService } from './application/service/order.external.driver.service';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
 import {
   ClientOrderResolver,
   DriverOrderResolver,
-  OrderSubscriptionResolver,
   OwnerOrderResolver,
 } from './interface/order.resolver';
-import { OwnerOrderService } from './application/service/ownerOrder.service';
+import { OwnerOrderService } from './application/service/order.external.owner.service';
 import { OrderCommandRepository } from './infrastructure/repositories/command/order-command.repository';
 import { OrderQueryRepository } from './infrastructure/repositories/query/order-query.repository';
 import { OrderDriverRejectionCommandRepository } from './infrastructure/repositories/command/order-driver-rejection-command.repository';
@@ -19,11 +18,13 @@ import {
   DriverOrderController,
   OwnerOrderController,
 } from './interface/order.controller';
-import { OrderAccessPolicy } from './application/service/orderAccessPolicy';
+import { OrderAccessPolicy } from './application/service/order.access.policy';
 import { RestaurantQueryRepository } from 'src/restaurant/infrastructure/repositories/query/restaurant-query.repository';
 import { UserModule } from 'src/user/user.module';
 import { PubSub } from 'graphql-subscriptions';
-import { OrderEventPublisher } from './application/orderEventPublisher';
+import { OrderEventPublisher } from './application/order.event.publisher';
+import { OrderInternalService } from './application/service/order.internal.service';
+import { OrderSubscriptionResolver } from './interface/order.subscription.resolver';
 
 @Module({
   imports: [RestaurantModule, UserModule],
@@ -69,6 +70,7 @@ import { OrderEventPublisher } from './application/orderEventPublisher';
     ClientOrderResolver,
     OwnerOrderResolver,
     DriverOrderResolver,
+    OrderInternalService,
   ],
   controllers: [
     ClientOrderController,

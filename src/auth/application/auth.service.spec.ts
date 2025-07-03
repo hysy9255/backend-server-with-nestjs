@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { JwtService } from 'src/jwt/jwt.service';
-import { UserAuthService } from 'src/user/application/service/user-auth.service';
+import { UserAuthService } from 'src/user/application/service/user.auth.service';
 import { NotFoundException } from '@nestjs/common';
 import { LoginInput } from '../interface/dtos/Login.dto';
 

@@ -1,6 +1,6 @@
-import { DriverOrderSummaryProjection } from 'src/order/infrastructure/repositories/query/projections/order.projection';
-import { OrderEntity } from 'src/order/domain/order.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { ForbiddenException } from '@nestjs/common';
+import { OrderForDriver } from 'src/order/infrastructure/repositories/query/projections/order.projection';
 
 export class DriverEntity {
   // private _rejectedOrders?: OrderEntity[];
@@ -22,8 +22,17 @@ export class DriverEntity {
     return new DriverEntity(id, userId);
   }
 
+  ensureCanAccessOrderOf(order: OrderForDriver) {
+    const noDriverAssigned = !order.driverId;
+    const isAssignedToThisDriver = order.driverId === this.id;
+
+    if (!noDriverAssigned || !isAssignedToThisDriver) {
+      throw new ForbiddenException('You are not allowed to access this order.');
+    }
+  }
+
   // used
-  canAccessOrderOf(order: DriverOrderSummaryProjection) {
+  canAccessOrderOf(order: OrderForDriver) {
     const noDriverAssigned = !order.driverId;
     const isAssignedToThisDriver = order.driverId === this.id;
 

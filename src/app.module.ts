@@ -21,14 +21,14 @@ import { OrderDriverRejectionOrmEntity } from './order/infrastructure/orm-entiti
 import { RestaurantOrmEntity } from './restaurant/infrastructure/orm-entities/restaurant.orm.entity';
 import { UserOrmEntity } from './user/infrastructure/orm-entities/user.orm.entity';
 import { OwnerOrmEntity } from './user/infrastructure/orm-entities/owner.orm.entity';
-import { CustomerOrmEntity } from './user/infrastructure/orm-entities/customer.orm.entity';
 import { DriverOrmEntity } from './user/infrastructure/orm-entities/driver.orm.entity';
 import { GlobalApp } from './global-app';
 import { JwtService } from './jwt/jwt.service';
-import { UserService } from './user/application/service/user.service';
-import { UserAuthService } from './user/application/service/user-auth.service';
+import { UserAuthService } from './user/application/service/user.auth.service';
 import { Context } from 'graphql-ws';
 import { UserRole } from './constants/userRole';
+import { ClientOrmEntity } from './user/infrastructure/orm-entities/client.orm.entity';
+import { UserInfoProjection } from './user/infrastructure/repositories/query/user.info.projection';
 
 @Module({
   imports: [
@@ -61,36 +61,77 @@ import { UserRole } from './constants/userRole';
             ) as UserAuthService;
             const decoded = jwtService.verify(token);
 
-            const user = await userAuthService.findUserForMiddlewareById(
+            const subscriber = await userAuthService.findUserForMiddlewareById(
               decoded['id'],
             );
 
-            // let owner;
-            // let client;
-            // let driver;
-            // if (user?.role === UserRole.Owner) {
-            //   owner = await userSerivce.findOwnerById(user.id);
-            //   (ctx.extra as any).owner = owner;
-            // } else if (user?.role === UserRole.Client) {
-            //   client = await userService.findClientById(user.id);
-            //   (ctx.extra as any).client = client;
-            // } else if (user?.role === UserRole.Delivery) {
-            //   driver = await userSerivce.findDriverById(user.id);
-            //   (ctx.extra as any).driver = driver;
-            // }
+            let subscriberInfo: UserInfoProjection;
 
-            console.log('user', user);
-            if (!user) throw new Error('Unauthorized');
+            switch (subscriber.role) {
+              case UserRole.Owner:
+                subscriberInfo = await userAuthService._getOwnerInfo(
+                  subscriber.id,
+                );
+                break;
+              case UserRole.Client:
+                subscriberInfo = await userAuthService._getClientInfo(
+                  subscriber.id,
+                );
+                break;
+              case UserRole.Driver:
+                subscriberInfo = await userAuthService._getDriverInfo(
+                  subscriber.id,
+                );
+                break;
+              default:
+                throw new Error('Unsupported subscriber role');
+            }
 
-            (ctx.extra as any).user = user;
+            const printPhrase =
+              `🔌 Subscription Connection Info:\n` +
+              `  - Email: ${subscriber?.email}\n` +
+              `  - Role: ${subscriberInfo.role}\n` +
+              `  - UserId: ${subscriberInfo.userId}\n`;
+
+            if (subscriberInfo.role === UserRole.Owner) {
+              console.log(
+                printPhrase + `  - OwnerId: ${subscriberInfo.ownerId}\n`,
+              );
+            } else if (subscriberInfo.role === UserRole.Client) {
+              console.log(
+                printPhrase + `  - OwnerId: ${subscriberInfo.clientId}\n`,
+              );
+            } else if (subscriberInfo.role === UserRole.Driver) {
+              console.log(
+                printPhrase + `  - OwnerId: ${subscriberInfo.driverId}\n`,
+              );
+            }
+
+            (ctx.extra as any).subscriberInfo = subscriberInfo;
           },
         },
       },
       // context: ({ req }) => ({ req }),
       context: ({ req, extra }) => {
+        if (req) {
+          // console.log('🟢 Query/Mutation');
+          return { req };
+        }
+
         if (extra) {
+          // console.log('🔌 Subscription');
           return extra;
         }
+
+        return {};
+        // if (extra) {
+        //   // console.log('sdfkjksdjfk');
+        //   return extra;
+        // }
+        // if (req) {
+        //   console.log('hihihihihihihi');
+        //   return req;
+        // }
         // if (req) {
         //   // ✅ for queries/mutations
         //   return {
@@ -110,14 +151,15 @@ import { UserRole } from './constants/userRole';
       entities: [
         UserOrmEntity,
         OwnerOrmEntity,
-        CustomerOrmEntity,
+        ClientOrmEntity,
         DriverOrmEntity,
         RestaurantOrmEntity,
         OrderOrmEntity,
         OrderDriverRejectionOrmEntity,
         // OrderOwnerRejectionOrmEntity,
       ],
-      synchronize: false,
+      // synchronize: false,
+      synchronize: true,
     }),
     UserModule,
     JwtModule,

@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import {
-  IRestaurantQueryRepository,
-  RestaurantQueryProjection,
-} from 'src/restaurant/infrastructure/repositories/query/retaurant-query.repository.interface';
+import { IRestaurantQueryRepository } from 'src/restaurant/infrastructure/repositories/query/retaurant-query.repository.interface';
+import { Restaurant } from './projections/restaurant.projection';
 
 @Injectable()
 export class RestaurantQueryRepository implements IRestaurantQueryRepository {
@@ -21,7 +19,7 @@ export class RestaurantQueryRepository implements IRestaurantQueryRepository {
   }
 
   // used
-  async findSummary(restaurantId: string): Promise<RestaurantQueryProjection> {
+  async findOne(restaurantId: string): Promise<Restaurant | null> {
     const result = await this.em
       .createQueryBuilder()
       .select([
@@ -34,12 +32,12 @@ export class RestaurantQueryRepository implements IRestaurantQueryRepository {
       .where('restaurant.id = :id', { id: restaurantId })
       .getRawOne();
 
-    return result;
+    return result ? result : null;
   }
 
   // used
-  async findSummaries(): Promise<RestaurantQueryProjection[]> {
-    const result = await this.em
+  async findMany(): Promise<Restaurant[]> {
+    return await this.em
       .createQueryBuilder()
       .select([
         'restaurant.id AS id',
@@ -49,7 +47,5 @@ export class RestaurantQueryRepository implements IRestaurantQueryRepository {
       ])
       .from('restaurant', 'restaurant')
       .getRawMany();
-
-    return result;
   }
 }

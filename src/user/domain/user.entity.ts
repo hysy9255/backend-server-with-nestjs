@@ -57,13 +57,13 @@ export class UserEntity {
   }
 
   // used
-  isCustomer(): boolean {
+  isClient(): boolean {
     return this._role === UserRole.Client;
   }
 
   // used
   isDriver(): boolean {
-    return this._role === UserRole.Delivery;
+    return this._role === UserRole.Driver;
   }
 
   // used

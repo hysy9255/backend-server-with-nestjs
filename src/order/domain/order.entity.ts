@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { OrderStatus } from 'src/constants/orderStatus';
-import { CustomerEntity } from 'src/user/domain/customer.entity';
+import { ClientEntity } from 'src/user/domain/client.entity';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -9,17 +9,17 @@ export class OrderEntity {
     private readonly _id: string,
     private _status: OrderStatus,
     private readonly _restaurantId: string,
-    private readonly _customerId: string,
+    private readonly _clientId: string,
     private _driverId?: string,
     private _rejectedDriverIds: string[] = [],
   ) {}
 
-  static createNew(restaurantId: string, customerId: string): OrderEntity {
+  static createNew(restaurantId: string, clientId: string): OrderEntity {
     return new OrderEntity(
       uuidv4(),
       OrderStatus.Pending,
       restaurantId,
-      customerId,
+      clientId,
     );
   }
 
@@ -27,11 +27,11 @@ export class OrderEntity {
     id: string,
     status: OrderStatus,
     restaurantId: string,
-    customerId: string,
+    clientId: string,
     driverId?: string,
     rejectedDriverIds?: string[],
   ): OrderEntity {
-    const orderEntity = new OrderEntity(id, status, restaurantId, customerId);
+    const orderEntity = new OrderEntity(id, status, restaurantId, clientId);
 
     if (driverId) {
       orderEntity._driverId = driverId;
@@ -44,8 +44,8 @@ export class OrderEntity {
     return orderEntity;
   }
 
-  isOwnedBy(customer: CustomerEntity): boolean {
-    return this._customerId === customer.id;
+  isOwnedBy(client: ClientEntity): boolean {
+    return this._clientId === client.id;
   }
 
   markAccepted() {
@@ -165,8 +165,8 @@ export class OrderEntity {
     return this._restaurantId;
   }
 
-  get customerId(): string {
-    return this._customerId;
+  get clientId(): string {
+    return this._clientId;
   }
 
   get driverId(): string | undefined {

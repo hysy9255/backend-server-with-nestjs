@@ -2,7 +2,8 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import { AllowedRoles } from './role.decorator';
-import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user-query.repository.interface';
+import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user/user-query.repository.interface';
+import { UserInfoProjection } from 'src/user/infrastructure/repositories/query/user.info.projection';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -20,18 +21,24 @@ export class AuthGuard implements CanActivate {
 
     if (roles.includes('Any')) return true;
 
-    let user: UserQueryProjection | undefined;
+    // let user: UserQueryProjection | undefined;
+    let userInfo: UserInfoProjection | undefined;
 
     if (context.getType<GqlContextType>() === 'graphql') {
       const gqlContext = GqlExecutionContext.create(context).getContext();
-      user = gqlContext.req?.user;
+      // user = gqlContext.req?.user;
+      userInfo = gqlContext.req?.userInfo;
+      console.log('this is from auth guard:', userInfo);
     } else {
       const req = context.switchToHttp().getRequest();
-      user = req.user;
+      // user = req.user;
+      userInfo = req.userInfo;
     }
 
-    if (!user) return false;
+    // if (!user) return false;
+    if (!userInfo) return false;
 
-    return roles.includes(user.role);
+    // return roles.includes(user.role);
+    return roles.includes(userInfo.role);
   }
 }

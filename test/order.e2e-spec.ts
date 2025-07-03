@@ -17,7 +17,7 @@ describe('AppController (e2e)', () => {
     const dataSource = app.get(DataSource);
     await dataSource.query(`DELETE FROM "driver"`);
     await dataSource.query(`DELETE FROM "owner"`);
-    await dataSource.query(`DELETE FROM "customer"`);
+    await dataSource.query(`DELETE FROM "client"`);
     await dataSource.query(`DELETE FROM "user"`); //
     await dataSource.destroy();
     await app.close();
@@ -60,9 +60,9 @@ describe('AppController (e2e)', () => {
 
     ownerToken = ownerSignUpResponse.body.token;
 
-    // sign up a new customer & login
+    // sign up a new client & login
     await request(app.getHttpServer())
-      .post('/api/user/customer')
+      .post('/api/user/client')
       .send({
         email: 'client@example.com',
         password,
@@ -119,7 +119,7 @@ describe('AppController (e2e)', () => {
 
     const restaurant = restaurantsRes.body[0];
 
-    // customer places an order
+    // client places an order
     await request(app.getHttpServer())
       .post('/api/client/order')
       .set('jwt-token', clientToken) // 💡 토큰 추가
