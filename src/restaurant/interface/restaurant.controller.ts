@@ -5,7 +5,6 @@ import {
   CreateRestaurantInput,
   GetRestaurantInput,
 } from './dtos/restaurant-inputs.dto';
-import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { Role } from 'src/auth/role.decorator';
 import {
   ApiBody,
@@ -57,7 +56,7 @@ export class RestaurantController {
   @Get('restaurant/:id')
   @Role(['Any'])
   async restaurant(
-    @Param('id') restaurantId: GetRestaurantInput['id'],
+    @Param() { id: restaurantId }: GetRestaurantInput,
   ): Promise<RestaurantSummaryDTO> {
     return new RestaurantSummaryDTO(
       await this.restaurantService.getRestaurant(restaurantId),

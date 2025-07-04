@@ -4,6 +4,21 @@ import { ClientEntity } from 'src/user/domain/client.entity';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { v4 as uuidv4 } from 'uuid';
 
+const StatusErrMsg = {
+  notPending: 'Order must be pending',
+  notAccepted: 'Order must be accepted',
+  notReady: 'Order must be ready',
+  notAcceptedNorReady: 'Order must be accepted or ready',
+  notPickedUp: 'Order must be picked up',
+};
+
+const DriverErrMsg = {
+  alreadyRejected: 'This driver already rejected the order',
+  alreadyAssigned: 'This driver is already assigned to the order',
+  alreadyAssignedToAnother: 'Another driver is already assigned to this order',
+  notYetAssignedToAny: 'No driver is assigned to this order yet',
+};
+
 export class OrderEntity {
   constructor(
     private readonly _id: string,
@@ -32,15 +47,12 @@ export class OrderEntity {
     rejectedDriverIds?: string[],
   ): OrderEntity {
     const orderEntity = new OrderEntity(id, status, restaurantId, clientId);
-
     if (driverId) {
       orderEntity._driverId = driverId;
     }
-
     if (rejectedDriverIds) {
       orderEntity._rejectedDriverIds = rejectedDriverIds;
     }
-
     return orderEntity;
   }
 
@@ -48,108 +60,90 @@ export class OrderEntity {
     return this._clientId === client.id;
   }
 
+  private ensureStatus(expected: OrderStatus[], errorMessage: string) {
+    if (!expected.includes(this._status)) {
+      throw new BadRequestException(errorMessage);
+    }
+  }
+  private ensureNotRejectedBy(driver: DriverEntity) {
+    if (this._rejectedDriverIds.includes(driver.id))
+      throw new ConflictException(DriverErrMsg.alreadyRejected);
+  }
+  private ensureNotTakenBy(driver: DriverEntity) {
+    if (this._driverId === driver.id)
+      throw new ConflictException(DriverErrMsg.alreadyAssigned);
+  }
+  private ensureNotTakenByAnother(driver: DriverEntity) {
+    if (this._driverId && this._driverId !== driver.id)
+      throw new ConflictException(DriverErrMsg.alreadyAssignedToAnother);
+  }
+  private ensureNotTakenByAny() {
+    if (!this._driverId)
+      throw new BadRequestException(DriverErrMsg.notYetAssignedToAny);
+  }
+
+  private ensureDriverCanAcceptOrReject(driver: DriverEntity) {
+    // 오더가 해당 드라이버에 의해 이미 거절 되었으면 안됨
+    this.ensureNotRejectedBy(driver);
+    // 오더에 해당 드라이버가 이미 할당 되어있으면 안됨
+    this.ensureNotTakenBy(driver);
+    // 오더에 다른 드라이버가 이미 할당 되어있으면 안됨
+    this.ensureNotTakenByAnother(driver);
+  }
+
+  private ensureDriverCanProceed(driver: DriverEntity) {
+    // 오더가 해당 드라이버에 의해 이미 거절 되었있으면 안됨
+    this.ensureNotRejectedBy(driver);
+    // 오더에 어떤 드라이버도 할당 되어있지 않으면 안됨
+    this.ensureNotTakenByAny();
+    // 오더에 다른 드라이버가 할당 되어있으면 안됨
+    this.ensureNotTakenByAnother(driver);
+  }
+
+  // ==== OWNER ACTIONS ====
   markAccepted() {
-    if (this._status === OrderStatus.Accepted)
-      throw new ConflictException('You have already accepted this order');
-
-    if (this._status !== OrderStatus.Pending)
-      throw new BadRequestException('Order is not in a state to be accepted');
-
+    this.ensureStatus([OrderStatus.Pending], StatusErrMsg.notPending);
     this._status = OrderStatus.Accepted;
   }
 
   markRejected() {
-    if (this._status === OrderStatus.Rejected)
-      throw new ConflictException('You have already rejected this order');
-
-    if (this._status !== OrderStatus.Pending)
-      throw new BadRequestException('Order is not in a state to be rejected');
-
+    this.ensureStatus([OrderStatus.Pending], StatusErrMsg.notPending);
     this._status = OrderStatus.Rejected;
   }
 
   markReady() {
-    if (this._status === OrderStatus.Ready)
-      throw new ConflictException('You have already marked this order ready');
-
-    if (this._status !== OrderStatus.Accepted)
-      throw new BadRequestException(
-        'Order is not in a state to be marked ready',
-      );
-
+    this.ensureStatus([OrderStatus.Accepted], StatusErrMsg.notAccepted);
     this._status = OrderStatus.Ready;
   }
 
+  // ==== DRIVER ACTIONS ====
   assignDriver(driver: DriverEntity) {
-    if (
-      this._status !== OrderStatus.Accepted &&
-      this._status !== OrderStatus.Ready
-    ) {
-      throw new BadRequestException(
-        'Driver can only be assigned to an accepted or ready order',
-      );
-    }
-    if (this._rejectedDriverIds.includes(driver.id)) {
-      throw new ConflictException(
-        'You cannot assign this order to a driver who has already rejected it',
-      );
-    }
-    if (this._driverId) {
-      if (this._driverId === driver.id) {
-        throw new ConflictException('You already have accepted this order');
-      }
-
-      throw new ConflictException(
-        'Antoher driver is already assigned to this order',
-      );
-    }
+    this.ensureStatus(
+      [OrderStatus.Accepted, OrderStatus.Ready],
+      StatusErrMsg.notAcceptedNorReady,
+    );
+    this.ensureDriverCanAcceptOrReject(driver);
     this._driverId = driver.id;
   }
 
   markRejectedByDriver(driver: DriverEntity) {
-    if (
-      this._status !== OrderStatus.Accepted &&
-      this._status !== OrderStatus.Ready
-    ) {
-      throw new BadRequestException(
-        'Order is not in a state to be rejected by driver',
-      );
-    }
-    if (this._rejectedDriverIds.includes(driver.id)) {
-      throw new ConflictException('You have already rejected this order');
-    }
-    if (this._driverId) {
-      throw new ConflictException(
-        'You cannot reject this order because it has already been assigned to another driver.',
-      );
-    }
-
+    this.ensureStatus(
+      [OrderStatus.Accepted, OrderStatus.Ready],
+      StatusErrMsg.notAcceptedNorReady,
+    );
+    this.ensureDriverCanAcceptOrReject(driver);
     this._rejectedDriverIds.push(driver.id);
   }
 
   markPickedUp(driver: DriverEntity) {
-    if (this._status !== OrderStatus.Ready) {
-      throw new BadRequestException('Order is not in a state to be picked up');
-    }
-    if (!this._driverId || this._driverId !== driver.id) {
-      throw new BadRequestException(
-        'Only the assigned driver can pick up this order',
-      );
-    }
-
+    this.ensureStatus([OrderStatus.Ready], StatusErrMsg.notReady);
+    this.ensureDriverCanProceed(driver);
     this._status = OrderStatus.PickedUp;
   }
 
   markDelivered(driver: DriverEntity) {
-    if (this._status !== OrderStatus.PickedUp) {
-      throw new BadRequestException('Order is not in a state to be delivered');
-    }
-    if (!this._driverId || this._driverId !== driver.id) {
-      throw new BadRequestException(
-        'Only the assigned driver can deliver this order',
-      );
-    }
-
+    this.ensureStatus([OrderStatus.PickedUp], StatusErrMsg.notPickedUp);
+    this.ensureDriverCanProceed(driver);
     this._status = OrderStatus.Delivered;
   }
 

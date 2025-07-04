@@ -89,7 +89,7 @@ export class ClientOrderController {
   @Role(['Client'])
   async getOrderForClient(
     @AuthUser() userInfo: UserInfoProjection,
-    @Param('id') orderId: GetRestaurantInput['id'],
+    @Param() { orderId }: GetOrderInput,
   ): Promise<RestClientOrderDTO> {
     return new RestClientOrderDTO(
       await this.clientOrderService.getOrder(userInfo, orderId),
@@ -129,7 +129,7 @@ export class OwnerOrderController {
   @Role(['Owner'])
   async getOrderForOwner(
     @AuthUser() userInfo: UserInfoProjection,
-    @Param('id') orderId: GetOrderInput['orderId'],
+    @Param() { orderId }: GetOrderInput,
   ): Promise<RestOwnerOrderDTO> {
     const order = await this.ownerOrderService.getOrder(userInfo, orderId);
     return new RestOwnerOrderDTO(order);
@@ -146,7 +146,7 @@ export class OwnerOrderController {
   @Role(['Owner'])
   async acceptOrderByOwner(
     @AuthUser() userInfo: UserInfoProjection,
-    @Param('id') orderId: string,
+    @Param() { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.ownerOrderService.accept(orderId, userInfo);
     return true;
@@ -163,7 +163,7 @@ export class OwnerOrderController {
   @Role(['Owner'])
   async rejectOrderByOwner(
     @AuthUser() userInfo: UserInfoProjection,
-    @Param('id') orderId: string,
+    @Param() { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.ownerOrderService.reject(orderId, userInfo);
     return true;
@@ -180,7 +180,7 @@ export class OwnerOrderController {
   @Role(['Owner'])
   async markOrderAsReadyByOwner(
     @AuthUser() userInfo: UserInfoProjection,
-    @Param('id') orderId: string,
+    @Param() { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.ownerOrderService.markReady(orderId, userInfo);
     return true;
@@ -219,7 +219,7 @@ export class DriverOrderController {
   @Role(['Driver'])
   async getOrderForDriver(
     @AuthUser() userInfo: UserInfoProjection,
-    @Param('id') orderId: string,
+    @Param() { orderId }: OrderActionInput,
   ): Promise<RestDriverOrderDTO> {
     const order = await this.driverOrderService.getOrder(userInfo, orderId);
     return new RestDriverOrderDTO(order);
@@ -236,7 +236,7 @@ export class DriverOrderController {
   @Role(['Driver'])
   async acceptOrderByDriver(
     @AuthUser() userInfo: UserInfoProjection,
-    @Param('id') orderId: string,
+    @Param() { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.accept(orderId, userInfo);
     return true;
@@ -253,7 +253,7 @@ export class DriverOrderController {
   @Role(['Driver'])
   async rejectOrderByDriver(
     @AuthUser() userInfo: UserInfoProjection,
-    @Param('id') orderId: string,
+    @Param() { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.reject(orderId, userInfo);
     return true;
@@ -270,7 +270,7 @@ export class DriverOrderController {
   @Role(['Driver'])
   async pickUpOrderByDriver(
     @AuthUser() userInfo: UserInfoProjection,
-    @Param('id') orderId: string,
+    @Param() { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.pickup(orderId, userInfo);
     return true;
@@ -287,7 +287,7 @@ export class DriverOrderController {
   @Role(['Driver'])
   async completeDelivery(
     @AuthUser() userInfo: UserInfoProjection,
-    @Param('id') orderId: string,
+    @Param() { orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.completeDelivery(orderId, userInfo);
     return true;
