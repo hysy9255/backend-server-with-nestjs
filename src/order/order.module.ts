@@ -25,6 +25,7 @@ import { PubSub } from 'graphql-subscriptions';
 import { OrderEventPublisher } from './application/order.event.publisher';
 import { OrderInternalService } from './application/service/order.internal.service';
 import { OrderSubscriptionResolver } from './interface/order.subscription.resolver';
+import { DriverCommandRepository } from 'src/user/infrastructure/repositories/command/driver/driver-command.repository';
 
 @Module({
   imports: [RestaurantModule, UserModule],
@@ -54,6 +55,13 @@ import { OrderSubscriptionResolver } from './interface/order.subscription.resolv
       provide: 'IRestaurantQueryRepository',
       useFactory: (dataSource: DataSource) => {
         return new RestaurantQueryRepository(dataSource.manager);
+      },
+      inject: [getDataSourceToken()],
+    },
+    {
+      provide: 'IDriverCommandRepository',
+      useFactory: (dataSource: DataSource) => {
+        return new DriverCommandRepository(dataSource.manager);
       },
       inject: [getDataSourceToken()],
     },

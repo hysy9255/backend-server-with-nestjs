@@ -7,11 +7,15 @@ export class DriverMapper {
     const record = new DriverOrmEntity();
     record.id = entity.id;
     record.userId = entity.userId;
-
+    record.hasActiveOrder = entity.hasActiveOrder;
     return record;
   }
 
   static toDomain(projection: DriverCmdProjection): DriverEntity {
-    return DriverEntity.fromPersistance(projection.id, projection.userId);
+    return DriverEntity.fromPersistance(
+      projection.id,
+      projection.userId,
+      projection.hasActiveOrder,
+    );
   }
 }

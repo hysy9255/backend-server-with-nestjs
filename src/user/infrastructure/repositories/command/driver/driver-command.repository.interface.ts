@@ -3,6 +3,7 @@ import { DriverOrmEntity } from 'src/user/infrastructure/orm-entities/driver.orm
 export class DriverCmdProjection {
   id: string;
   userId: string;
+  hasActiveOrder: boolean;
 }
 
 export interface IDriverCommandRepository {

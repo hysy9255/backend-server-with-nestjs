@@ -17,6 +17,9 @@ export class DriverOrmEntity {
   @Column()
   userId: string;
 
+  @Column({ default: false })
+  hasActiveOrder: boolean;
+
   @OneToOne(() => UserOrmEntity, (user) => user.driver, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: UserOrmEntity;

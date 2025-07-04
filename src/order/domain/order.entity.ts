@@ -77,7 +77,7 @@ export class OrderEntity {
     if (this._driverId && this._driverId !== driver.id)
       throw new ConflictException(DriverErrMsg.alreadyAssignedToAnother);
   }
-  private ensureNotTakenByAny() {
+  private ensureTakenBySomeDriver() {
     if (!this._driverId)
       throw new BadRequestException(DriverErrMsg.notYetAssignedToAny);
   }
@@ -91,11 +91,11 @@ export class OrderEntity {
     this.ensureNotTakenByAnother(driver);
   }
 
-  private ensureDriverCanProceed(driver: DriverEntity) {
+  private ensureDriverCanPickUpOrDeliver(driver: DriverEntity) {
     // 오더가 해당 드라이버에 의해 이미 거절 되었있으면 안됨
     this.ensureNotRejectedBy(driver);
-    // 오더에 어떤 드라이버도 할당 되어있지 않으면 안됨
-    this.ensureNotTakenByAny();
+    // 오더에 어떤 드라이버가 할당 되어있어야 함
+    this.ensureTakenBySomeDriver();
     // 오더에 다른 드라이버가 할당 되어있으면 안됨
     this.ensureNotTakenByAnother(driver);
   }
@@ -123,6 +123,7 @@ export class OrderEntity {
       StatusErrMsg.notAcceptedNorReady,
     );
     this.ensureDriverCanAcceptOrReject(driver);
+    driver.markOrderAccepted();
     this._driverId = driver.id;
   }
 
@@ -137,13 +138,14 @@ export class OrderEntity {
 
   markPickedUp(driver: DriverEntity) {
     this.ensureStatus([OrderStatus.Ready], StatusErrMsg.notReady);
-    this.ensureDriverCanProceed(driver);
+    this.ensureDriverCanPickUpOrDeliver(driver);
     this._status = OrderStatus.PickedUp;
   }
 
   markDelivered(driver: DriverEntity) {
     this.ensureStatus([OrderStatus.PickedUp], StatusErrMsg.notPickedUp);
-    this.ensureDriverCanProceed(driver);
+    this.ensureDriverCanPickUpOrDeliver(driver);
+    driver.markOrderCompleted();
     this._status = OrderStatus.Delivered;
   }
 

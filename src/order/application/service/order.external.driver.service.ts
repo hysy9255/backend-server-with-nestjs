@@ -4,12 +4,13 @@ import { IOrderCommandRepository } from '../../infrastructure/repositories/comma
 import { IOrderQueryRepository } from '../../infrastructure/repositories/query/order-query.repository.interface';
 import { OrderDriverRejectionCommandRepository } from '../../infrastructure/repositories/command/order-driver-rejection-command.repository';
 import { UserAuthService } from 'src/user/application/service/user.auth.service';
-import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user/user-query.repository.interface';
 import { OrderEventPublisher } from '../order.event.publisher';
 import { OrderInternalService } from './order.internal.service';
 import { OrderForDriver } from 'src/order/infrastructure/repositories/query/projections/order.projection';
 import { OrderMapper } from '../order.mapper';
 import { UserInfoProjection } from 'src/user/infrastructure/repositories/query/user.info.projection';
+import { IDriverCommandRepository } from 'src/user/infrastructure/repositories/command/driver/driver-command.repository.interface';
+import { DriverMapper } from 'src/user/application/mapper/driver.mapper';
 
 @Injectable()
 export class DriverOrderService {
@@ -23,6 +24,8 @@ export class DriverOrderService {
     private readonly userAuthService: UserAuthService,
     private readonly orderEventPublisher: OrderEventPublisher,
     private readonly orderInternalService: OrderInternalService,
+    @Inject('IDriverCommandRepository')
+    private readonly driverCmdRepo: IDriverCommandRepository,
   ) {}
 
   async getOrders(userInfo: UserInfoProjection): Promise<OrderForDriver[]> {
@@ -46,8 +49,8 @@ export class DriverOrderService {
     const driver = await this.userAuthService._getDriver(userInfo.userId);
     const order = await this.orderInternalService._getOrder(orderId);
     order.assignDriver(driver);
-    const orderRecord = OrderMapper.toOrmEntity(order);
-    await this.orderCmdRepo.save(orderRecord);
+    await this.orderCmdRepo.save(OrderMapper.toOrmEntity(order));
+    await this.driverCmdRepo.save(DriverMapper.toOrmEntity(driver));
     await this.orderEventPublisher.broadcastOrderStatusUpdate(order.id);
   }
 
@@ -59,7 +62,6 @@ export class DriverOrderService {
     await this.orderDriverRejectCmdRepo.save(
       new OrderDriverRejectionOrmEntity(orderId, driver.id),
     );
-    await this.orderEventPublisher.broadcastOrderStatusUpdate(order.id);
   }
 
   async pickup(orderId: string, userInfo: UserInfoProjection): Promise<void> {
@@ -78,6 +80,7 @@ export class DriverOrderService {
     const order = await this.orderInternalService._getOrder(orderId);
     order.markDelivered(driver);
     await this.orderCmdRepo.save(OrderMapper.toOrmEntity(order));
+    await this.driverCmdRepo.save(DriverMapper.toOrmEntity(driver));
     await this.orderEventPublisher.broadcastOrderStatusUpdate(order.id);
   }
 }

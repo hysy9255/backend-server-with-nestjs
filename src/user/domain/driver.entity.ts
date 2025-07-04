@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { OrderForDriver } from 'src/order/infrastructure/repositories/query/projections/order.projection';
 
 export class DriverEntity {
@@ -9,17 +9,27 @@ export class DriverEntity {
   constructor(
     private readonly _id: string,
     private readonly _userId: string,
+    private _hasActiveOrder: boolean = false,
     // private _rejectedOrders: OrderEntity[] = [],
   ) {}
 
-  // used
+  markOrderAccepted() {
+    if (this._hasActiveOrder) {
+      throw new BadRequestException('Driver already has an active order');
+    }
+    this._hasActiveOrder = true;
+  }
+
+  markOrderCompleted() {
+    this._hasActiveOrder = false;
+  }
+
   static createNew(userId: string) {
     return new DriverEntity(uuidv4(), userId);
   }
 
-  // used
-  static fromPersistance(id: string, userId: string) {
-    return new DriverEntity(id, userId);
+  static fromPersistance(id: string, userId: string, hasActiveOrder: boolean) {
+    return new DriverEntity(id, userId, hasActiveOrder);
   }
 
   ensureCanAccessOrderOf(order: OrderForDriver) {
@@ -31,7 +41,6 @@ export class DriverEntity {
     }
   }
 
-  // used
   canAccessOrderOf(order: OrderForDriver) {
     const noDriverAssigned = !order.driverId;
     const isAssignedToThisDriver = order.driverId === this.id;
@@ -45,6 +54,10 @@ export class DriverEntity {
 
   get userId() {
     return this._userId;
+  }
+
+  get hasActiveOrder() {
+    return this._hasActiveOrder;
   }
 
   // get rejectedOrders() {
