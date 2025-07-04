@@ -138,6 +138,15 @@ export class DriverOrderResolver {
     return new GqlDriverOrderDTO(order);
   }
 
+  @Query(() => [GqlDriverOrderDTO])
+  @Role(['Driver'])
+  async getOrderHistoryForDriver(
+    @AuthUser() userInfo: UserInfoProjection,
+  ): Promise<GqlDriverOrderDTO[]> {
+    const orders = await this.driverOrderService.getOrderHistory(userInfo);
+    return orders.map((order) => new GqlDriverOrderDTO(order));
+  }
+
   // used
   @Mutation(() => Boolean)
   @Role(['Driver'])

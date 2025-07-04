@@ -68,6 +68,7 @@ type Query {
   getOrderForOwner(input: GetOrderInput!): GqlOwnerOrderDTO!
   getOrdersForDriver: [GqlDriverOrderDTO!]!
   getOrderForDriver(input: GetOrderInput!): GqlDriverOrderDTO!
+  getOrderHistoryForDriver: [GqlDriverOrderDTO!]!
 }
 
 input GetRestaurantInput {

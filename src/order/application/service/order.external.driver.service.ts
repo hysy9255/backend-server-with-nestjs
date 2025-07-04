@@ -33,8 +33,6 @@ export class DriverOrderService {
     return await this.orderQryRepo.findAvailableForDriver(driver.id);
   }
 
-  // async getCompletedOrdersForDriver() {}
-
   async getOrder(
     userInfo: UserInfoProjection,
     orderId: string,
@@ -43,6 +41,13 @@ export class DriverOrderService {
     const order = await this.orderQryRepo.findOneForDriver(orderId);
     driver.ensureCanAccessOrderOf(order);
     return order;
+  }
+
+  async getOrderHistory(
+    userInfo: UserInfoProjection,
+  ): Promise<OrderForDriver[]> {
+    const driver = await this.userAuthService._getDriver(userInfo.userId);
+    return await this.orderQryRepo.findDeliveredForDriver(driver.id);
   }
 
   async accept(orderId: string, userInfo: UserInfoProjection): Promise<void> {

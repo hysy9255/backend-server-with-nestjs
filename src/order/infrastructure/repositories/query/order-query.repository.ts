@@ -6,6 +6,7 @@ import {
   OrderForDriver,
   OrderForOwner,
 } from './projections/order.projection';
+import { OrderStatus } from 'src/constants/orderStatus';
 
 @Injectable()
 export class OrderQueryRepository implements IOrderQueryRepository {
@@ -77,6 +78,31 @@ export class OrderQueryRepository implements IOrderQueryRepository {
         statuses: ['Ready', 'Accepted'],
       })
       .andWhere('odr.id IS NULL')
+      .getRawMany();
+
+    return result;
+  }
+
+  async findDeliveredForDriver(driverId: string): Promise<OrderForDriver[]> {
+    const result = await this.em
+      .createQueryBuilder()
+      .select([
+        'order.id AS "id"',
+        'order.status AS status',
+        'client.deliveryAddress AS "deliveryAddress"',
+        'order.clientId AS "clientId"',
+        'order.restaurantId AS "restaurantId"',
+        'restaurant.name AS "restaurantName"',
+      ])
+      .from('order', 'order')
+      .leftJoin('client', 'client', 'client.id = order.clientId')
+      .leftJoin(
+        'restaurant',
+        'restaurant',
+        'restaurant.id = order.restaurantId',
+      )
+      .where('order.driverId = :driverId', { driverId })
+      .andWhere('order.status = :status', { status: OrderStatus.Delivered })
       .getRawMany();
 
     return result;

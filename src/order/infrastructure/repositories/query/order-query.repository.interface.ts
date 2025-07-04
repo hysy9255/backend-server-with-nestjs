@@ -14,4 +14,5 @@ export interface IOrderQueryRepository {
   findOneForOwner(orderId: string): Promise<OrderForOwner>;
   findAvailableForDriver(driverId: string): Promise<OrderForDriver[]>;
   findOneForDriver(orderId: string): Promise<OrderForDriver>;
+  findDeliveredForDriver(driverId: string): Promise<OrderForDriver[]>
 }

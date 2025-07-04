@@ -225,6 +225,21 @@ export class DriverOrderController {
     return new RestDriverOrderDTO(order);
   }
 
+  @ApiOperation({ summary: '[Driver] Get order history' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successful response',
+    type: [RestDriverOrderDTO],
+  })
+  @Get('order-history')
+  @Role(['Driver'])
+  async getOrderHistoryForDriver(
+    @AuthUser() userInfo: UserInfoProjection,
+  ): Promise<RestDriverOrderDTO[]> {
+    const orders = await this.driverOrderService.getOrderHistory(userInfo);
+    return orders.map((order) => new RestDriverOrderDTO(order));
+  }
+
   @ApiOperation({ summary: '[Driver] Accept order' })
   @ApiParam({ name: 'id', type: String, description: 'Order Id' })
   @ApiResponse({

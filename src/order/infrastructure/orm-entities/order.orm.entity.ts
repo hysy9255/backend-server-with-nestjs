@@ -2,9 +2,25 @@ import { OrderStatus } from 'src/constants/orderStatus';
 import { RestaurantOrmEntity } from 'src/restaurant/infrastructure/orm-entities/restaurant.orm.entity';
 import { ClientOrmEntity } from 'src/user/infrastructure/orm-entities/client.orm.entity';
 import { DriverOrmEntity } from 'src/user/infrastructure/orm-entities/driver.orm.entity';
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  Check,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
+
+const OrderDriverStatusConstraint = `
+  (
+    ("status" = 'Pending' AND "driverId" IS NULL) OR
+    ("status" IN ('PickedUp', 'Delivered') AND "driverId" IS NOT NULL) OR
+    ("status" NOT IN ('Pending', 'PickedUp', 'Delivered'))
+  )
+`;
 
 @Entity('order')
+@Check(OrderDriverStatusConstraint)
 export class OrderOrmEntity {
   @PrimaryColumn('uuid')
   id: string;
