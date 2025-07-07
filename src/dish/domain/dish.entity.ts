@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { RestaurantRecord } from 'src/restaurant/orm-records/restaurant.record';
+import { RestaurantOrmEntity } from 'src/restaurant/infrastructure/orm-entities/restaurant.orm.entity';
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -18,9 +18,9 @@ export class Dish {
   @Column()
   price: string;
 
-  @ManyToOne(() => RestaurantRecord)
+  @ManyToOne(() => RestaurantOrmEntity)
   @JoinColumn({ name: 'restaurantId' }) // creates `restaurantId` column in Dish
-  restaurant: RestaurantRecord;
+  restaurant: RestaurantOrmEntity;
 
   constructor(name: string, price: string) {
     this.id = uuidv4();

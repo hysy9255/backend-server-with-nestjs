@@ -1,29 +1,28 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import {
+  createParamDecorator,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { UserMapper } from 'src/user/mapper/user.mapper';
-import { UserEntity } from 'src/user/domain/user.entity';
-import { UserRecord } from 'src/user/orm-records/user.record';
-import { UserRole } from 'src/constants/userRole';
-import { CustomerMapper } from 'src/user/mapper/customer.mapper';
+import { ContextType } from '@nestjs/common';
+import { UserInfoProjection } from 'src/user/infrastructure/repositories/query/user.info.projection';
 
 export const AuthUser = createParamDecorator(
-  (_, context: ExecutionContext): UserEntity => {
-    let userRecord: UserRecord;
+  async (_, context: ExecutionContext): Promise<UserInfoProjection> => {
+    let userInfo: UserInfoProjection;
 
-    // GraphQL context
-    if (context.getType<'graphql'>() === 'graphql') {
-      const gqlCtx = GqlExecutionContext.create(context);
-      userRecord = gqlCtx.getContext().req.user;
+    if (context.getType() === ('graphql' as ContextType)) {
+      const gqlContext = GqlExecutionContext.create(context).getContext();
+      userInfo = gqlContext.req['userInfo'];
     } else {
-      // HTTP context
-      const request = context.switchToHttp().getRequest();
-      userRecord = request.user;
+      const req = context.switchToHttp().getRequest();
+      userInfo = req.userInfo;
     }
 
-    // if (userRecord.role === UserRole.Client) {
-    //   CustomerMapper.toDomain(userRecord)
-    // }
+    if (!userInfo) {
+      throw new ForbiddenException('User not authenticated');
+    }
 
-    return UserMapper.toDomain(userRecord);
+    return userInfo;
   },
 );

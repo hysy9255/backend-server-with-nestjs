@@ -1,40 +1,44 @@
-// import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-// import { GqlExecutionContext } from '@nestjs/graphql';
-
-// @Injectable()
-// export class AuthGuard implements CanActivate {
-//   canActivate(context: ExecutionContext) {
-//     const gqlContext = GqlExecutionContext.create(context).getContext();
-//     const user = gqlContext.req.user;
-//     if (!user) {
-//       return false;
-//     }
-//     return true;
-//   }
-// }
-
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
+import { AllowedRoles } from './role.decorator';
+import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user/user-query.repository.interface';
+import { UserInfoProjection } from 'src/user/infrastructure/repositories/query/user.info.projection';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
-    let req: any;
+  constructor(private readonly reflector: Reflector) {}
 
-    // GraphQL 요청인지 확인
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const roles = this.reflector.get<AllowedRoles>(
+      'roles',
+      context.getHandler(),
+    );
+
+    if (!roles) {
+      return true;
+    }
+
+    if (roles.includes('Any')) return true;
+
+    // let user: UserQueryProjection | undefined;
+    let userInfo: UserInfoProjection | undefined;
+
     if (context.getType<GqlContextType>() === 'graphql') {
       const gqlContext = GqlExecutionContext.create(context).getContext();
-      req = gqlContext.req;
+      // user = gqlContext.req?.user;
+      userInfo = gqlContext.req?.userInfo;
+      console.log('this is from auth guard:', userInfo);
     } else {
-      // HTTP 요청 (REST)
-      req = context.switchToHttp().getRequest();
+      const req = context.switchToHttp().getRequest();
+      // user = req.user;
+      userInfo = req.userInfo;
     }
 
-    const user = req.user;
+    // if (!user) return false;
+    if (!userInfo) return false;
 
-    if (!user) {
-      return false;
-    }
-    return true;
+    // return roles.includes(user.role);
+    return roles.includes(userInfo.role);
   }
 }

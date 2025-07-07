@@ -1,49 +1,70 @@
-import { OrderEntity } from 'src/order/domain/order.entity';
-import { OrderMapper } from 'src/order/mapper/order.mapper';
-import { OrderRecord } from 'src/order/orm-records/order.record';
 import { v4 as uuidv4 } from 'uuid';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { OrderForDriver } from 'src/order/infrastructure/repositories/query/projections/order.projection';
 
 export class DriverEntity {
-  private _rejectedOrders?: OrderEntity[];
-  private _assignedOrders?: OrderEntity[];
+  // private _rejectedOrders?: OrderEntity[];
+  // private _assignedOrders?: OrderEntity[];
 
-  constructor(private readonly _id: string) {}
+  constructor(
+    private readonly _id: string,
+    private readonly _userId: string,
+    private _hasActiveOrder: boolean = false,
+    // private _rejectedOrders: OrderEntity[] = [],
+  ) {}
 
-  static createNew() {
-    return new DriverEntity(uuidv4());
+  markOrderAccepted() {
+    if (this._hasActiveOrder) {
+      throw new BadRequestException('Driver already has an active order');
+    }
+    this._hasActiveOrder = true;
   }
 
-  static fromPersistance(
-    id: string,
-    rejectedOrders: OrderRecord[],
-    assignedOrders: OrderRecord[],
-  ) {
-    const driver = new DriverEntity(id);
+  markOrderCompleted() {
+    this._hasActiveOrder = false;
+  }
 
-    if (rejectedOrders) {
-      driver._rejectedOrders = rejectedOrders.map((rejectedOrder) =>
-        OrderMapper.toDomain(rejectedOrder),
-      );
+  static createNew(userId: string) {
+    return new DriverEntity(uuidv4(), userId);
+  }
+
+  static fromPersistance(id: string, userId: string, hasActiveOrder: boolean) {
+    return new DriverEntity(id, userId, hasActiveOrder);
+  }
+
+  ensureCanAccessOrderOf(order: OrderForDriver) {
+    const noDriverAssigned = !order.driverId;
+    const isAssignedToThisDriver = order.driverId === this.id;
+
+    if (!noDriverAssigned || !isAssignedToThisDriver) {
+      throw new ForbiddenException('You are not allowed to access this order.');
     }
+  }
 
-    if (assignedOrders) {
-      driver._assignedOrders = assignedOrders.map((assignedOrder) =>
-        OrderMapper.toDomain(assignedOrder),
-      );
-    }
+  canAccessOrderOf(order: OrderForDriver) {
+    const noDriverAssigned = !order.driverId;
+    const isAssignedToThisDriver = order.driverId === this.id;
 
-    return driver;
+    return noDriverAssigned || isAssignedToThisDriver;
   }
 
   get id() {
     return this._id;
   }
 
-  get rejectedOrders() {
-    return this._rejectedOrders;
+  get userId() {
+    return this._userId;
   }
 
-  get assignedOrders() {
-    return this._assignedOrders;
+  get hasActiveOrder() {
+    return this._hasActiveOrder;
   }
+
+  // get rejectedOrders() {
+  //   return this._rejectedOrders;
+  // }
+
+  // get assignedOrders() {
+  //   return this._assignedOrders;
+  // }
 }

@@ -6,17 +6,21 @@ type LoginOutput {
   token: String!
 }
 
-type RestaurantDTO {
+type RestaurantSummaryDTO {
   id: String!
   name: String!
   address: String!
   category: String!
 }
 
-type OrderDTO {
+type GqlClientOrderDTO {
   id: String!
   status: OrderStatus!
-  restaurant: RestaurantDTO!
+  deliveryAddress: String!
+  clientId: String!
+  driverId: String
+  restaurantId: String!
+  restaurantName: String!
 }
 
 enum OrderStatus {
@@ -28,19 +32,113 @@ enum OrderStatus {
   Delivered
 }
 
-type Query {
-  getOrder(input: ClientGetOrderInput!): OrderDTO!
+type GqlClientOrderPreviewDTO {
+  id: String!
+  status: OrderStatus!
+  restaurantId: String!
+  restaurantName: String!
 }
 
-input ClientGetOrderInput {
+type GqlOwnerOrderDTO {
+  id: String!
+  status: OrderStatus!
+  deliveryAddress: String!
+  clientId: String!
+  driverId: String
+  restaurantId: String!
+}
+
+type GqlDriverOrderDTO {
+  id: String!
+  status: OrderStatus!
+  deliveryAddress: String!
+  clientId: String!
+  driverId: String
+  restaurantId: String!
+  restaurantName: String!
+}
+
+type Query {
+  getRestaurant(input: GetRestaurantInput!): RestaurantSummaryDTO!
+  getRestaurants: [RestaurantSummaryDTO!]!
+  getOnGoingOrderForClient: GqlClientOrderDTO!
+  getOrderHistoryForClient: [GqlClientOrderPreviewDTO!]!
+  getOrderForClient(input: GetOrderInput!): GqlClientOrderDTO!
+  getOrdersForOwner: [GqlOwnerOrderDTO!]!
+  getOrderForOwner(input: GetOrderInput!): GqlOwnerOrderDTO!
+  getOrdersForDriver: [GqlDriverOrderDTO!]!
+  getOrderForDriver(input: GetOrderInput!): GqlDriverOrderDTO!
+  getOrderHistoryForDriver: [GqlDriverOrderDTO!]!
+}
+
+input GetRestaurantInput {
+  id: String!
+}
+
+input GetOrderInput {
   orderId: String!
 }
 
 type Mutation {
+  createOwner(input: CreateOwnerInput!): Boolean!
+  createClient(input: CreateClientInput!): Boolean!
+  createDriver(input: CreateDriverInput!): Boolean!
+  changePassword(input: ChangePasswordInput!): Boolean!
   login(input: LoginInput!): LoginOutput!
+  createRestaurant(input: CreateRestaurantInput!): Boolean!
+  createOrder(input: CreateOrderInput!): Boolean!
+  acceptOrderByOwner(input: OrderActionInput!): Boolean!
+  rejectOrderByOwner(input: OrderActionInput!): Boolean!
+  markOrderAsReadyByOwner(input: OrderActionInput!): Boolean!
+  acceptOrderByDriver(input: OrderActionInput!): Boolean!
+  rejectOrderByDriver(input: OrderActionInput!): Boolean!
+  pickUpOrderByDriver(input: OrderActionInput!): Boolean!
+  completeDelivery(input: OrderActionInput!): Boolean!
+}
+
+input CreateOwnerInput {
+  email: String!
+  password: String!
+}
+
+input CreateClientInput {
+  email: String!
+  password: String!
+  deliveryAddress: String!
+}
+
+input CreateDriverInput {
+  email: String!
+  password: String!
+}
+
+input ChangePasswordInput {
+  password: String!
+  newPassword: String!
 }
 
 input LoginInput {
   email: String!
   password: String!
+}
+
+input CreateRestaurantInput {
+  name: String!
+  address: String!
+  category: String!
+}
+
+input CreateOrderInput {
+  restaurantId: String!
+}
+
+input OrderActionInput {
+  id: String!
+}
+
+type Subscription {
+  newOrder: GqlOwnerOrderDTO!
+  orderUpdateForOwner: GqlOwnerOrderDTO!
+  orderUpdateForClient: GqlOwnerOrderDTO!
+  orderUpdateForDriver: GqlDriverOrderDTO!
 }

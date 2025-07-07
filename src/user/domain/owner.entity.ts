@@ -1,52 +1,69 @@
+import { ForbiddenException } from '@nestjs/common';
 import { OrderEntity } from 'src/order/domain/order.entity';
-import { RestaurantEntity } from 'src/restaurant/domain/restaurant.entity';
-import { RestaurantMapper } from 'src/restaurant/mapper/restaurant.mapper';
-import { RestaurantRecord } from 'src/restaurant/orm-records/restaurant.record';
 import { v4 as uuidv4 } from 'uuid';
 
 export class OwnerEntity {
-  private _restaurant?: RestaurantEntity;
+  constructor(
+    private readonly _id: string,
+    private readonly _userId: string,
+    private _restaurantId?: string,
+  ) {}
 
-  constructor(private readonly _id: string) {}
-
-  static createNew() {
-    return new OwnerEntity(uuidv4());
+  // used
+  static createNew(userId: string) {
+    return new OwnerEntity(uuidv4(), userId);
   }
 
+  // used
   static fromPersistance(
     id: string,
-    restaurant?: RestaurantEntity,
+    userId: string,
+    restaurantId?: string,
   ): OwnerEntity {
-    const owner = new OwnerEntity(id);
+    return new OwnerEntity(id, userId, restaurantId);
+  }
 
-    if (restaurant) {
-      owner._restaurant = restaurant;
+  ensureHasRestaurant() {
+    if (!this._restaurantId) throw new Error('Does Not Own Restaurant Yet!');
+  }
+
+  ensureCanAccessOrderOf(order: OrderEntity) {
+    if (!this.canAccessOrderOf(order)) {
+      throw new ForbiddenException(
+        'This order does not belong to your restaurant',
+      );
     }
-
-    return owner;
   }
 
+  // used
   ownsRestaurantOf(restaurantId: string) {
-    return restaurantId === this._restaurant?.id;
+    return restaurantId === this._restaurantId;
   }
 
+  // used
   canAccessOrderOf(order: OrderEntity) {
-    return order.restaurant.id === this._restaurant?.id;
+    return order.restaurantId === this._restaurantId;
   }
 
+  // used
   hasRestaurant() {
-    return !!this._restaurant;
+    return !!this._restaurantId;
   }
 
-  assignRestaurant(restaurant: RestaurantEntity) {
-    this._restaurant = restaurant;
+  // used
+  assignRestaurant(restaurantId: string) {
+    this._restaurantId = restaurantId;
   }
 
   get id() {
     return this._id;
   }
 
-  get restaurant() {
-    return this._restaurant;
+  get userId() {
+    return this._userId;
+  }
+
+  get restaurantId() {
+    return this._restaurantId;
   }
 }

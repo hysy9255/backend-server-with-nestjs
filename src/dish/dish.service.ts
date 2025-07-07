@@ -12,15 +12,15 @@ import { DISH_ERROR_MESSAGES } from 'src/constants/errorMessages';
 import { DishRepository } from './repositories/dish-repository.interface';
 import { Dish } from './domain/dish.entity';
 // import { User } from 'src/user/orm-records/user.record';
-import { RestaurantRepository } from 'src/restaurant/repositories/restaurant-repository.interface';
+// import { RestaurantRepository } from 'src/restaurant/repositories/restaurant-repository.interface';
 import { UserRole } from 'src/constants/userRole';
 
 @Injectable()
 export class DishService {
   @Inject('DishRepository')
   private readonly dishRepository: DishRepository;
-  @Inject('RestaurantRepository')
-  private readonly restaurantRepository: RestaurantRepository;
+  // @Inject('RestaurantRepository')
+  // private readonly restaurantRepository: RestaurantRepository;
 
   // async createDish(
   //   user: User,

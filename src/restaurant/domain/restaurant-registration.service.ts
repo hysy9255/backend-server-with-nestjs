@@ -1,12 +1,11 @@
 import { OwnerEntity } from 'src/user/domain/owner.entity';
 import { RestaurantEntity } from './restaurant.entity';
+import { CreateRestaurantInput } from '../interface/dtos/restaurant-inputs.dto';
 
 export class RestaurantRegistrationService {
   static register(
     owner: OwnerEntity,
-    name: string,
-    address: string,
-    category: string,
+    { name, address, category }: CreateRestaurantInput,
   ): RestaurantEntity {
     if (owner.hasRestaurant()) {
       throw new Error(
@@ -17,9 +16,9 @@ export class RestaurantRegistrationService {
       name,
       address,
       category,
-      owner,
+      owner.id,
     );
-    owner.assignRestaurant(restaurant);
+    owner.assignRestaurant(restaurant.id);
     return restaurant;
   }
 }

@@ -16,6 +16,7 @@ export class UserEntity {
     private readonly _role: UserRole,
   ) {}
 
+  // used
   static createNew(
     email: string,
     password: string,
@@ -24,6 +25,7 @@ export class UserEntity {
     return new UserEntity(uuidv4(), email, password, role);
   }
 
+  // used
   static fromPersistance(
     id: string,
     email: string,
@@ -49,13 +51,22 @@ export class UserEntity {
     return this._role;
   }
 
-  checkUserRole(role: UserRole): void {
-    const matches = this._role === role;
-    if (!matches) {
-      throw new BadRequestException(ERROR_MESSAGES.USER_ROLE_MISMATCH);
-    }
+  // used
+  isOwner(): boolean {
+    return this._role === UserRole.Owner;
   }
 
+  // used
+  isClient(): boolean {
+    return this._role === UserRole.Client;
+  }
+
+  // used
+  isDriver(): boolean {
+    return this._role === UserRole.Driver;
+  }
+
+  // used
   async hashPassword(): Promise<void> {
     if (this._password) {
       try {
@@ -67,6 +78,7 @@ export class UserEntity {
     }
   }
 
+  // 이것을 change password 메서드 안에다 넣기
   async checkPassword(aPassword: string): Promise<void> {
     try {
       const ok = await bcrypt.compare(aPassword, this._password);
@@ -84,5 +96,12 @@ export class UserEntity {
 
   changePassword(newPassword: string) {
     this._password = newPassword;
+  }
+
+  checkUserRole(role: UserRole): void {
+    const matches = this._role === role;
+    if (!matches) {
+      throw new BadRequestException(ERROR_MESSAGES.USER_ROLE_MISMATCH);
+    }
   }
 }

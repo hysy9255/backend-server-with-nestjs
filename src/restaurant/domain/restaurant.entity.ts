@@ -7,16 +7,16 @@ export class RestaurantEntity {
     private readonly _name: string,
     private readonly _address: string,
     private readonly _category: string,
-    private readonly _owner: OwnerEntity,
+    private readonly _ownerId: string,
   ) {}
 
   static createNew(
     name: string,
     address: string,
     category: string,
-    owner: OwnerEntity,
+    ownerId: string,
   ): RestaurantEntity {
-    return new RestaurantEntity(uuidv4(), name, address, category, owner);
+    return new RestaurantEntity(uuidv4(), name, address, category, ownerId);
   }
 
   static fromPersistance(
@@ -24,9 +24,10 @@ export class RestaurantEntity {
     name: string,
     address: string,
     category: string,
-    owner: OwnerEntity,
+    ownerId: string,
+    // owner: OwnerEntity,
   ): RestaurantEntity {
-    return new RestaurantEntity(id, name, address, category, owner);
+    return new RestaurantEntity(id, name, address, category, ownerId);
   }
 
   get id() {
@@ -45,7 +46,7 @@ export class RestaurantEntity {
     return this._category;
   }
 
-  get owner() {
-    return this._owner;
+  get ownerId() {
+    return this._ownerId;
   }
 }

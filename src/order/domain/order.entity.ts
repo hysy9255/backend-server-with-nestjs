@@ -1,49 +1,152 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 import { OrderStatus } from 'src/constants/orderStatus';
-import { RestaurantEntity } from 'src/restaurant/domain/restaurant.entity';
-import { CustomerEntity } from 'src/user/domain/customer.entity';
+import { ClientEntity } from 'src/user/domain/client.entity';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { v4 as uuidv4 } from 'uuid';
 
-export class OrderEntity {
-  private _driver: DriverEntity;
-  private _rejectedDrivers: DriverEntity[];
+export const StatusErrMsg = {
+  notPending: 'Order must be pending',
+  notAccepted: 'Order must be accepted',
+  notReady: 'Order must be ready',
+  notAcceptedNorReady: 'Order must be accepted or ready',
+  notPickedUp: 'Order must be picked up',
+};
 
+export const DriverErrMsg = {
+  alreadyRejected: 'This driver already rejected the order',
+  alreadyAssigned: 'This driver is already assigned to the order',
+  alreadyAssignedToAnother: 'Another driver is already assigned to this order',
+  notYetAssignedToAny: 'No driver is assigned to this order yet',
+};
+
+export class OrderEntity {
   constructor(
     private readonly _id: string,
+    private readonly _restaurantId: string,
+    private readonly _clientId: string,
     private _status: OrderStatus,
-    private readonly _restaurant: RestaurantEntity,
-    private readonly _customer: CustomerEntity,
-  ) {
-    this._rejectedDrivers = [];
-  }
+    private _driverId: string | null = null,
+    private _rejectedDriverIds: string[] = [],
+  ) {}
 
-  static createNew(
-    restaurant: RestaurantEntity,
-    customer: CustomerEntity,
-  ): OrderEntity {
-    return new OrderEntity(uuidv4(), OrderStatus.Pending, restaurant, customer);
+  static createNew(restaurantId: string, clientId: string): OrderEntity {
+    return new OrderEntity(
+      uuidv4(),
+      restaurantId,
+      clientId,
+      OrderStatus.Pending,
+    );
   }
 
   static fromPersistance(
     id: string,
     status: OrderStatus,
-    restaurant: RestaurantEntity,
-    customer: CustomerEntity,
-    driver?: DriverEntity,
-    rejectedDrivers?: DriverEntity[],
+    restaurantId: string,
+    clientId: string,
+    driverId: string | null,
+    rejectedDriverIds: string[],
   ): OrderEntity {
-    const orderEntity = new OrderEntity(id, status, restaurant, customer);
+    return new OrderEntity(
+      id,
+      restaurantId,
+      clientId,
+      status,
+      driverId,
+      rejectedDriverIds,
+    );
+  }
 
-    if (driver) {
-      orderEntity._driver = driver;
+  isOwnedBy(client: ClientEntity): boolean {
+    return this._clientId === client.id;
+  }
+
+  private ensureStatus(expected: OrderStatus[], errorMessage: string) {
+    if (!expected.includes(this._status)) {
+      throw new BadRequestException(errorMessage);
     }
+  }
+  private ensureNotRejectedBy(driver: DriverEntity) {
+    if (this._rejectedDriverIds.includes(driver.id))
+      throw new ConflictException(DriverErrMsg.alreadyRejected);
+  }
+  private ensureNotTakenBy(driver: DriverEntity) {
+    if (this._driverId === driver.id)
+      throw new ConflictException(DriverErrMsg.alreadyAssigned);
+  }
+  private ensureNotTakenByAnother(driver: DriverEntity) {
+    if (this._driverId && this._driverId !== driver.id)
+      throw new ConflictException(DriverErrMsg.alreadyAssignedToAnother);
+  }
+  private ensureTakenBySomeDriver() {
+    if (!this._driverId)
+      throw new BadRequestException(DriverErrMsg.notYetAssignedToAny);
+  }
 
-    if (rejectedDrivers) {
-      orderEntity._rejectedDrivers = rejectedDrivers;
-    }
+  private ensureDriverCanAcceptOrReject(driver: DriverEntity) {
+    // 오더가 해당 드라이버에 의해 이미 거절 되었으면 안됨
+    this.ensureNotRejectedBy(driver);
+    // 오더에 해당 드라이버가 이미 할당 되어있으면 안됨
+    this.ensureNotTakenBy(driver);
+    // 오더에 다른 드라이버가 이미 할당 되어있으면 안됨
+    this.ensureNotTakenByAnother(driver);
+  }
 
-    return orderEntity;
+  private ensureDriverCanPickUpOrDeliver(driver: DriverEntity) {
+    // 오더가 해당 드라이버에 의해 이미 거절 되었있으면 안됨
+    this.ensureNotRejectedBy(driver);
+    // 오더에 어떤 드라이버가 할당 되어있어야 함
+    this.ensureTakenBySomeDriver();
+    // 오더에 다른 드라이버가 할당 되어있으면 안됨
+    this.ensureNotTakenByAnother(driver);
+  }
+
+  // ==== OWNER ACTIONS ====
+  markAccepted() {
+    this.ensureStatus([OrderStatus.Pending], StatusErrMsg.notPending);
+    this._status = OrderStatus.Accepted;
+  }
+
+  markRejected() {
+    this.ensureStatus([OrderStatus.Pending], StatusErrMsg.notPending);
+    this._status = OrderStatus.Rejected;
+  }
+
+  markReady() {
+    this.ensureStatus([OrderStatus.Accepted], StatusErrMsg.notAccepted);
+    this._status = OrderStatus.Ready;
+  }
+
+  // ==== DRIVER ACTIONS ====
+  assignDriver(driver: DriverEntity) {
+    this.ensureStatus(
+      [OrderStatus.Accepted, OrderStatus.Ready],
+      StatusErrMsg.notAcceptedNorReady,
+    );
+    this.ensureDriverCanAcceptOrReject(driver);
+    driver.markOrderAccepted();
+    this._driverId = driver.id;
+  }
+
+  markRejectedByDriver(driver: DriverEntity) {
+    this.ensureStatus(
+      [OrderStatus.Accepted, OrderStatus.Ready],
+      StatusErrMsg.notAcceptedNorReady,
+    );
+    this.ensureDriverCanAcceptOrReject(driver);
+    this._rejectedDriverIds.push(driver.id);
+  }
+
+  markPickedUp(driver: DriverEntity) {
+    this.ensureStatus([OrderStatus.Ready], StatusErrMsg.notReady);
+    this.ensureDriverCanPickUpOrDeliver(driver);
+    this._status = OrderStatus.PickedUp;
+  }
+
+  markDelivered(driver: DriverEntity) {
+    this.ensureStatus([OrderStatus.PickedUp], StatusErrMsg.notPickedUp);
+    this.ensureDriverCanPickUpOrDeliver(driver);
+    driver.markOrderCompleted();
+    this._status = OrderStatus.Delivered;
   }
 
   get id(): string {
@@ -54,96 +157,19 @@ export class OrderEntity {
     return this._status;
   }
 
-  get restaurant(): RestaurantEntity {
-    return this._restaurant;
+  get restaurantId(): string {
+    return this._restaurantId;
   }
 
-  get customer(): CustomerEntity {
-    return this._customer;
+  get clientId(): string {
+    return this._clientId;
   }
 
-  get driver(): DriverEntity {
-    return this._driver;
+  get driverId(): string | null {
+    return this._driverId;
   }
 
-  get rejectedDrivers(): DriverEntity[] {
-    return this._rejectedDrivers;
-  }
-
-  isOwnedBy(customer: CustomerEntity): boolean {
-    return this._customer.id === customer.id;
-  }
-
-  ensureOwnedBy(customer: CustomerEntity) {
-    if (!this.isOwnedBy(customer)) {
-      throw new UnauthorizedException('You do not own this order');
-    }
-  }
-
-  markAccepted() {
-    if (this._status !== OrderStatus.Pending) {
-      throw new Error('Order is not in a state to be accepted');
-    }
-    this._status = OrderStatus.Accepted;
-  }
-
-  markRejected() {
-    if (this._status !== OrderStatus.Pending) {
-      throw new Error('Order is not in a state to be rejected');
-    }
-    this._status = OrderStatus.Rejected;
-  }
-
-  markReady() {
-    if (this._status !== OrderStatus.Accepted) {
-      throw new Error('Order is not in a state to be marked as ready');
-    }
-    this._status = OrderStatus.Ready;
-  }
-
-  assignDriver(driver: DriverEntity) {
-    if (
-      this._status !== OrderStatus.Accepted &&
-      this._status !== OrderStatus.Ready
-    ) {
-      throw new Error(
-        'Driver can only be assigned to an accepted or ready order',
-      );
-    }
-    if (this._driver) {
-      throw new Error('Driver is already assigned to this order');
-    }
-    this._driver = driver;
-  }
-
-  markRejectedByDriver(driver: DriverEntity) {
-    if (
-      this._status !== OrderStatus.Accepted &&
-      this._status !== OrderStatus.Ready
-    ) {
-      throw new Error('Order is not in a state to be rejected by driver');
-    }
-
-    this._rejectedDrivers.push(driver);
-  }
-
-  markPickedUp(driver: DriverEntity) {
-    if (!this._driver || this._driver.id !== driver.id) {
-      throw new Error('Only the assigned driver can pick up this order');
-    }
-    if (this._status !== OrderStatus.Ready) {
-      throw new Error('Order is not in a state to be picked up');
-    }
-    this._status = OrderStatus.PickedUp;
-  }
-
-  markDelivered(driver: DriverEntity) {
-    if (!this._driver || this._driver.id !== driver.id) {
-      throw new Error('Only the assigned driver can deliver this order');
-    }
-    if (this._status !== OrderStatus.PickedUp) {
-      throw new Error('Order is not in a state to be delivered');
-    }
-    this._status = OrderStatus.Delivered;
+  get rejectedDriverIds(): string[] {
+    return this._rejectedDriverIds;
   }
 }
