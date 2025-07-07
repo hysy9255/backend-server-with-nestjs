@@ -1,16 +1,7 @@
-import { OrderStatus } from 'src/constants/orderStatus';
 import { OrderOrmEntity } from 'src/order/infrastructure/orm-entities/order.orm.entity';
-
-export class OrderProjection {
-  id: string;
-  status: OrderStatus;
-  clientId: string;
-  driverId?: string | null;
-  restaurantId: string;
-  rejectedDriverIds: string[];
-}
+import { OrderRecord } from './order-command.repository';
 
 export interface IOrderCommandRepository {
   save(order: OrderOrmEntity): Promise<void>;
-  findOneById(id: string): Promise<OrderProjection>;
+  findOneById(id: string): Promise<OrderRecord>;
 }

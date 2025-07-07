@@ -7,10 +7,10 @@ import { OrderStatus } from 'src/constants/orderStatus';
 export class OrderRecord {
   id: string;
   status: OrderStatus;
+  restaurantId: string;
   clientId: string;
   driverId?: string | null;
-  restaurantId: string;
-  rejectedDriverIds: string[];
+  rejectedDriverIds?: string[];
 }
 
 @Injectable()
@@ -22,7 +22,7 @@ export class OrderCommandRepository implements IOrderCommandRepository {
   }
 
   async findOneById(orderId: string): Promise<OrderRecord> {
-    const result = this.em
+    const result = await this.em
       .createQueryBuilder()
       .select([
         'order.id AS id',
@@ -41,6 +41,7 @@ export class OrderCommandRepository implements IOrderCommandRepository {
     if (!result) {
       throw new NotFoundException('Order Not Found');
     }
+    console.log('from repository', result);
     return result;
   }
 }

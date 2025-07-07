@@ -88,7 +88,7 @@ export class OwnerOrderResolver {
   @Role(['Owner'])
   async acceptOrderByOwner(
     @AuthUser() userInfo: UserInfoProjection,
-    @Args('input') { orderId }: OrderActionInput,
+    @Args('input') { id: orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.ownerOrderService.accept(orderId, userInfo);
     return true;
@@ -98,7 +98,7 @@ export class OwnerOrderResolver {
   @Role(['Owner'])
   async rejectOrderByOwner(
     @AuthUser() userInfo: UserInfoProjection,
-    @Args('input') { orderId }: OrderActionInput,
+    @Args('input') { id: orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.ownerOrderService.reject(orderId, userInfo);
     return true;
@@ -108,7 +108,7 @@ export class OwnerOrderResolver {
   @Role(['Owner'])
   async markOrderAsReadyByOwner(
     @AuthUser() userInfo: UserInfoProjection,
-    @Args('input') { orderId }: OrderActionInput,
+    @Args('input') { id: orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.ownerOrderService.markReady(orderId, userInfo);
     return true;
@@ -152,7 +152,7 @@ export class DriverOrderResolver {
   @Role(['Driver'])
   async acceptOrderByDriver(
     @AuthUser() userInfo: UserInfoProjection,
-    @Args('input') { orderId }: OrderActionInput,
+    @Args('input') { id: orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.accept(orderId, userInfo);
     return true;
@@ -163,7 +163,7 @@ export class DriverOrderResolver {
   @Role(['Driver'])
   async rejectOrderByDriver(
     @AuthUser() userInfo: UserInfoProjection,
-    @Args('input') { orderId }: OrderActionInput,
+    @Args('input') { id: orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.reject(orderId, userInfo);
     return true;
@@ -174,7 +174,7 @@ export class DriverOrderResolver {
   @Role(['Driver'])
   async pickUpOrderByDriver(
     @AuthUser() userInfo: UserInfoProjection,
-    @Args('input') { orderId }: OrderActionInput,
+    @Args('input') { id: orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.pickup(orderId, userInfo);
     return true;
@@ -185,7 +185,7 @@ export class DriverOrderResolver {
   @Role(['Driver'])
   async completeDelivery(
     @AuthUser() userInfo: UserInfoProjection,
-    @Args('input') { orderId }: OrderActionInput,
+    @Args('input') { id: orderId }: OrderActionInput,
   ): Promise<boolean> {
     await this.driverOrderService.completeDelivery(orderId, userInfo);
     return true;

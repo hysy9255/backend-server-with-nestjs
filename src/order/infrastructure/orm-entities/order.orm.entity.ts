@@ -32,7 +32,7 @@ export class OrderOrmEntity {
   clientId: string;
 
   @Column({ nullable: true })
-  driverId?: string;
+  driverId: string | null;
 
   @Column()
   restaurantId: string;

@@ -20,8 +20,8 @@ export class OrderMapper {
       record.status,
       record.restaurantId,
       record.clientId,
-      record.driverId ? record.driverId : undefined,
-      record.rejectedDriverIds,
+      record.driverId ? record.driverId : null,
+      record.rejectedDriverIds ? record.rejectedDriverIds : [],
     );
   }
 }

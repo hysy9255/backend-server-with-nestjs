@@ -3,7 +3,6 @@ import { IOrderCommandRepository } from '../../infrastructure/repositories/comma
 import { IOrderQueryRepository } from '../../infrastructure/repositories/query/order-query.repository.interface';
 import { OrderAccessPolicy } from './order.access.policy';
 import { UserAuthService } from 'src/user/application/service/user.auth.service';
-import { UserQueryProjection } from 'src/user/infrastructure/repositories/query/user/user-query.repository.interface';
 import { OrderEventPublisher } from '../order.event.publisher';
 import { OrderInternalService } from './order.internal.service';
 import { OrderForOwner } from 'src/order/infrastructure/repositories/query/projections/order.projection';

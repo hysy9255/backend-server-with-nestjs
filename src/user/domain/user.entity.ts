@@ -78,7 +78,7 @@ export class UserEntity {
     }
   }
 
-  // used
+  // 이것을 change password 메서드 안에다 넣기
   async checkPassword(aPassword: string): Promise<void> {
     try {
       const ok = await bcrypt.compare(aPassword, this._password);
@@ -94,7 +94,6 @@ export class UserEntity {
     }
   }
 
-  // used
   changePassword(newPassword: string) {
     this._password = newPassword;
   }

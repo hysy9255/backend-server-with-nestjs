@@ -87,7 +87,6 @@ export class UserAuthService {
   }
 
   async _getClient(userId: string): Promise<ClientEntity> {
-    console.log('userId', userId);
     const client = await this.clientCmdRepo.findByUserId(userId);
     if (!client) throw new NotFoundException('Client Not Found');
 

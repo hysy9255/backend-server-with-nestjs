@@ -7,7 +7,7 @@ export class OrderActionInput {
   @Field(() => String)
   @IsNotEmpty()
   @IsString()
-  orderId: string;
+  id: string;
 }
 
 @InputType()

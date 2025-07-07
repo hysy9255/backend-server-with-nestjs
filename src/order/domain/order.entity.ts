@@ -4,7 +4,7 @@ import { ClientEntity } from 'src/user/domain/client.entity';
 import { DriverEntity } from 'src/user/domain/driver.entity';
 import { v4 as uuidv4 } from 'uuid';
 
-const StatusErrMsg = {
+export const StatusErrMsg = {
   notPending: 'Order must be pending',
   notAccepted: 'Order must be accepted',
   notReady: 'Order must be ready',
@@ -12,7 +12,7 @@ const StatusErrMsg = {
   notPickedUp: 'Order must be picked up',
 };
 
-const DriverErrMsg = {
+export const DriverErrMsg = {
   alreadyRejected: 'This driver already rejected the order',
   alreadyAssigned: 'This driver is already assigned to the order',
   alreadyAssignedToAnother: 'Another driver is already assigned to this order',
@@ -22,19 +22,19 @@ const DriverErrMsg = {
 export class OrderEntity {
   constructor(
     private readonly _id: string,
-    private _status: OrderStatus,
     private readonly _restaurantId: string,
     private readonly _clientId: string,
-    private _driverId?: string,
+    private _status: OrderStatus,
+    private _driverId: string | null = null,
     private _rejectedDriverIds: string[] = [],
   ) {}
 
   static createNew(restaurantId: string, clientId: string): OrderEntity {
     return new OrderEntity(
       uuidv4(),
-      OrderStatus.Pending,
       restaurantId,
       clientId,
+      OrderStatus.Pending,
     );
   }
 
@@ -43,17 +43,17 @@ export class OrderEntity {
     status: OrderStatus,
     restaurantId: string,
     clientId: string,
-    driverId?: string,
-    rejectedDriverIds?: string[],
+    driverId: string | null,
+    rejectedDriverIds: string[],
   ): OrderEntity {
-    const orderEntity = new OrderEntity(id, status, restaurantId, clientId);
-    if (driverId) {
-      orderEntity._driverId = driverId;
-    }
-    if (rejectedDriverIds) {
-      orderEntity._rejectedDriverIds = rejectedDriverIds;
-    }
-    return orderEntity;
+    return new OrderEntity(
+      id,
+      restaurantId,
+      clientId,
+      status,
+      driverId,
+      rejectedDriverIds,
+    );
   }
 
   isOwnedBy(client: ClientEntity): boolean {
@@ -165,7 +165,7 @@ export class OrderEntity {
     return this._clientId;
   }
 
-  get driverId(): string | undefined {
+  get driverId(): string | null {
     return this._driverId;
   }
 

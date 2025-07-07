@@ -133,7 +133,7 @@ input CreateOrderInput {
 }
 
 input OrderActionInput {
-  orderId: String!
+  id: String!
 }
 
 type Subscription {
