@@ -1,99 +1,23 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+**NestJS 기반 GraphQL API 서버** 설계 및 개발
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+> 음식 주문, 배달, 가게 등록 기능을 구현한 **풀스택 웹 애플리케이션** 개발 프로젝트로, 프론트엔드 및 백엔드 전반을 직접 설계하고 구현함.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **DDD 기반 설계** - 비지니스 로직을 도메인 계층으로 분리하여 명확한 책임 분산
+- **유닛 테스트 및 통합 테스트 구현** - 서비스 및 도메인 메서드 단위 테스트 진행, 테스트 전용 DB를 통한 integration 테스트 수행
+- **GraphQL & REST API 대응 설계** - API 계층과 분리된 비지니스 로직 기반 서비스 구조로, 어떤 API 방식에도 유연하게 대응
+- **Swagger 기반 REST API 문서화** – REST API에 대해 Swagger를 도입하여 자동화된 API 문서 제공 및 테스트 환경 구축
+- **REST API 와 GraphQL API에 Validation Pipeline 적용** – `class-validator`와 `ValidationPipe`를 활용하여 요청 데이터에 대한 유효성 검사 수행 및 예외 처리 일관성 확보
+- **Raw SQL Query 적용** - 필요한 데이터만 선별적으로 가져오기 위해, TypeORM의 find 계열 함수 대신 Raw SQL을 적용
+- **Repository 인터페이스 기반 아키텍쳐** - 특정 DBMS와의 의존성을 분리하여 확장성과 테스트 용의성 확보
+- **Role-Based Authentication** - AuthGuard 및 커스텀 Role 데코레이터를 통해 사용자 권한 분리
+- **Git 기반 형상 관리** - 기능 단위 브랜칭 및 커밋 기록 관리
+- **TypeORM 기반 DB 설계** - TypeORM을 활용하여 테이블 및 일대일/일대다 관계 정의, 마이그레이션 관리 (*다대다 관계는 안해보셨나요? - TypeORM이 지원하는 다대다 기능을 사용해 보았는데요, 이럴경우 Raw SQL을 사용할때 필요한 테이블들을 조인하여 데이터를 가져오는데 제한이 있기때문에 다대다 관계에 있는 테이블들은 다대일로 관계되는 중간테이블을 직접 만들어서 사용하였습니다.*)
+- **커스텀 예외 설계** - 비즈니스 상황별로 의미 있는 예외를 정의하고 던짐으로써, 예외 흐름을 명확하게 표현
+- **바운디드 컨텍스트 기반 모듈화** - 기능별 명확한 경계로 코드 유지 보수성 강화
+- **NestJS DI 컨테이너 활용** - 모듈 내 의존성 주입 및 유연한 테스트 환경 구성
+- **DTO 기반 입출력 명세 관리** - 명확한 타입 정의와 역할 분리로 코드 가독성과 유지보수성 향상
+- **GraphQL Subscription**을 활용한 **실시간 배달 상태 동기화** 구현
+- **Jest 기반 단위 테스트, 통합 테스트 작성** 및 커버리지 확인. Supertest 기반 E2E 테스트로 어플리케이션을 인터페이스부터 데이터 베이스까지 통합적으로 테스트
+- **TypeORM**을 활용한 주문, 배달, 드라이버, 가게 엔티티 설계 및 다대다/일대다 관계 설정
+- 로그인/회원가입, JWT 기반 인증 및 **역할(Role) 기반 권한 분리** 구현 (Client, Owner, Driver)
